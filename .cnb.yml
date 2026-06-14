@@ -24,6 +24,6 @@ cli:
             pip install --break-system-packages build twine
             export TWINE_USERNAME="cnb"
             export TWINE_PASSWORD=$CNB_TOKEN
-            export TWINE_REPOSITORY_URL="https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings/-/packages/simple"
+            export TWINE_REPOSITORY_URL="https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings-cli/-/packages/simple"
             python3 -m build
             twine upload dist/*
