@@ -13,4 +13,4 @@
  * 验证: stdout 精确匹配 "hello, world.\n"
  */
 
-#error TODO: 写完整程序 — #include <stdio.h>，main 函数，printf("hello, world.\n")，return 0
+#error TODO: Fix this exercise. Run "clings hint" for help.

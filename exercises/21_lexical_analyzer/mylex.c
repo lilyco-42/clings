@@ -32,7 +32,7 @@ int main(void)
 	char buf[64];
 	int i = 0;
 
-#error TODO: while(1) { getchar, buf累积, yy_nxt查表, state<0时处理token(yy_accept+打印+ungetc) }
+#error TODO: Implement DFA loop: accumulate chars, lookup yy_nxt, emit tokens. Run "clings hint" for help.
 
 	return 0;
 }

@@ -22,7 +22,7 @@ int main(void)
 
 	for (i = 0; i <= 100; i++)
 	{
-#error TODO: 如果 i 是奇数就 continue，否则 sum += i
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 	}
 

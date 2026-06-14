@@ -66,11 +66,11 @@ int math_main(int argc, char *argv[])
 	return 0;
 }
 
-#error TODO: 定义 struct operation { name, pf, opchar } 和 op[] 数组 (add/sub/mul/div/power)
+#error TODO: Define struct operation and op[] array with 5 operations. Run "clings hint" for help.
 
 int command_do(int argc, char *argv[])
 {
-#error TODO: 遍历 op[], strcmp 匹配 argv[0] 后设置全局 pf/opchar, 调用 math_main
+#error TODO: Loop through op[] table, match command, call function. Run "clings hint" for help.
 	return 0;
 }
 

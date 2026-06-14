@@ -24,7 +24,7 @@ int main(void)
 
 	fgets(buf, sizeof(buf), stdin);
 
-#error TODO: 状态机切分 buf: 空格时截断，非空格时记录 argv[argc++]
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 	/* 用 | 连接打印 */
 	for (i = 0; i < argc; i++)

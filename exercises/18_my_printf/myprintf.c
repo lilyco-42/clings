@@ -20,7 +20,7 @@ void itoa(int num, char *buf, int base)
 {
 	char *hex = "0123456789ABCDEF";
 
-#error TODO: do-while 取余入 buf，buf[i]='\0'，然后 for 循环逆序 (参考 18a)
+#error TODO: Implement itoa (same as 18a). Run "clings hint" for help.
 }
 
 void myputs(char *buf)
@@ -31,7 +31,7 @@ void myputs(char *buf)
 
 int myprintf(const char *format, ...)
 {
-#error TODO: va_list ap; 遍历 format, %d/%x 用 itoa+myputs, %s 用 myputs, %c 用 putchar (参考 18b)
+#error TODO: Implement myprintf with va_list (same as 18b). Run "clings hint" for help.
 	return 0;
 }
 

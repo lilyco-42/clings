@@ -65,11 +65,11 @@ int is_restricted(int tail_num, enum day today)
 
 enum day get_week_day(int year, int month, int day)
 {
-#error TODO: 用 m[12] 累加天数, switch((alldays+origin_day)%7) 返回 enum day
+#error TODO: Compute weekday from date using cumulative days + modulo. Run "clings hint" for help.
 }
 
 int main(void)
 {
-#error TODO: scanf 读车牌号和年月日, 调用 get_last_char + get_week_day + is_restricted, 输出结果
+#error TODO: Read input, call get_last_char + get_week_day + is_restricted. Run "clings hint" for help.
 	return 0;
 }

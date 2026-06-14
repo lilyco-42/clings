@@ -16,7 +16,7 @@
 
 void check(const int secret[4], const int guess[4], int *a, int *b)
 {
-#error TODO: 双重循环比较: 位置相同计 A，数字相同但位置不同计 B
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 int main(void)

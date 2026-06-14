@@ -14,9 +14,9 @@
  * 验证: clings 检查程序退出码为 3
  */
 
-#error TODO: 定义全局变量 global = 2
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 int main(void)
 {
-#error TODO: 定义局部变量 local = 1，然后 return global + local
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }

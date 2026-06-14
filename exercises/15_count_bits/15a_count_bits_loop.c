@@ -18,7 +18,7 @@ int count_bits(int num)
 	int sum = 0;
 	int i;
 
-#error TODO: for 循环 i=0..31, 用 num & (1<<i) 检测每一位是否为 1
+#error TODO: Fix this exercise. Run "clings hint" for help.
 	return sum;
 }
 

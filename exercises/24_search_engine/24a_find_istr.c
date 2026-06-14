@@ -20,7 +20,7 @@
 
 const char *find_istr(const char *text, const char *pattern)
 {
-#error TODO: while(*text) 逐位置用 tolower 比较，匹配则 return text，否则 text++
+#error TODO: Case-insensitive string search using tolower comparison. Run "clings hint" for help.
 }
 
 int main(void)

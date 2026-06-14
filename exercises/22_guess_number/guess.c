@@ -52,12 +52,12 @@ static void check(const int secret[4], const int guess[4], int *a, int *b)
 
 static int parse_guess(const char *s, int guess[4])
 {
-#error TODO: 检查 strlen(s)>=4, 循环 s[i]-'0' 转为 guess[i], 检查 0-9 范围, 失败返回 -1
+#error TODO: Parse guess string: check length, convert chars to digits. Run "clings hint" for help.
 }
 
 int main(void)
 {
-#error TODO: generate_secret → while(1) { fgets → parse_guess → check → printf %dA%dB → if(a==4) Congratulations+break } → 打印 secret
+#error TODO: Implement game loop: generate, read guesses, check, print results. Run "clings hint" for help.
 
 	return 0;
 }

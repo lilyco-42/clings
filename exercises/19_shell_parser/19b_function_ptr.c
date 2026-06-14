@@ -52,7 +52,7 @@ int math_main(int argc, char *argv[])
 	return 0;
 }
 
-#error TODO: 实现 int add(int a, int b) 返回 a+b, int sub(int a, int b) 返回 a-b
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 int main(void)
 {
@@ -63,7 +63,7 @@ int main(void)
 	fgets(buf, sizeof(buf), stdin);
 	argc = shell_parse(buf, argv);
 
-#error TODO: strcmp(argv[0], "add") 则 pf=add, opchar='+'; "sub" 则 pf=sub, opchar='-'; 然后 math_main(argc, argv)
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 	return 0;
 }

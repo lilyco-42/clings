@@ -63,7 +63,7 @@ int main(void)
 {
 	init_board();
 
-#error TODO: while(1) 游戏循环: turn%2 选玩家, scanf 落子, 验证合法性, check_win 判赢, board_full 判平, turn++
+#error TODO: Implement game loop: alternate players, place, check win/draw. Run "clings hint" for help.
 
 	return 0;
 }

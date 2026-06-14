@@ -18,7 +18,7 @@
 
 int main(void)
 {
-#error TODO: 定义 sum=0，用 for 循环累加 0..100，打印 "sum = %d\n"
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 	return 0;
 }

@@ -16,7 +16,7 @@
 
 char get_last_char(char str[])
 {
-#error TODO: while (str[i]) 遍历，记录 c = str[i]，i++，最后 return c
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 int main(void)

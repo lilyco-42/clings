@@ -66,13 +66,13 @@ struct operation
 
 int shell_parse(char *buf, char *argv[])
 {
-#error TODO: 状态机切分 buf 为 argv[], 返回 argc (参考 19a)
+#error TODO: Fix this exercise. Run "clings hint" for help.
 	return 0;
 }
 
 int command_do(int argc, char *argv[])
 {
-#error TODO: 遍历 op[], strcmp 匹配 argv[0] 设置 pf/opchar, 调用 math_main (参考 19c)
+#error TODO: Fix this exercise. Run "clings hint" for help.
 	return 0;
 }
 

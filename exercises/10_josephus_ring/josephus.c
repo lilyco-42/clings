@@ -39,7 +39,7 @@ int main(void)
 
 	init_ring();
 
-#error TODO: 初始化 left=ALL, counter=0, i=0, prev=ALL-1; 然后 while(left>0) 循环实现出队逻辑
+#error TODO: Implement Josephus ring elimination loop. Run "clings hint" for help.
 	/* 提示:
 	 *   counter++;
 	 *   if (counter == OUT) {

@@ -24,12 +24,12 @@ char board[SIZE][SIZE + 1];
 
 int check_dir(int r, int c, int dr, int dc, char player)
 {
-#error TODO: for k=0..4 检查 (r+k*dr, c+k*dc) 是否越界且等于 player，count>=5 返回 1
+#error TODO: Check 5 consecutive cells in direction (dr,dc) for same player. Run "clings hint" for help.
 }
 
 int check_win(char player)
 {
-#error TODO: 二重循环遍历棋盘，4 个方向调用 check_dir，有一个返回 1 则整体返回 1
+#error TODO: Scan board, check 4 directions at each position for a win. Run "clings hint" for help.
 }
 
 int main(void)

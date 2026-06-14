@@ -26,7 +26,7 @@ int main(void)
 
 	scanf("%d", &num);
 
-#error TODO: do-while { buf[i]=num%10+'0'; i++; num/=10; } while(num!=0); buf[i]='\0'; 然后 for 逆序
+#error TODO: Implement itoa: extract digits with do-while, then reverse. Run "clings hint" for help.
 
 	printf("buf = %s\n", buf);
 

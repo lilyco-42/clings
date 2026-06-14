@@ -27,7 +27,7 @@ int count_bits(int num)
 {
 	int sum = num;
 
-#error TODO: 5 层分治 — sum = (sum & M1) + ((sum >> 1) & M1); 依次 M2>>2, M3>>4, M4>>8, M5>>16
+#error TODO: Implement 5-layer divide-and-conquer popcount with masks M1-M5. Run "clings hint" for help.
 
 	return sum;
 }
