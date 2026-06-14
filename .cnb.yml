@@ -34,6 +34,7 @@ cli:
             twine upload dist/*
 
         - name: Publish to CNB
+          allowFailure: true
           script: |
             export TWINE_USERNAME="cnb"
             export TWINE_PASSWORD=$CNB_TOKEN
