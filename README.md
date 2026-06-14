@@ -13,16 +13,19 @@
 ## 快速开始
 
 ```sh
-# 1. 安装
-pip install clings --index-url https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings-cli/-/packages/simple
+# 1. 安装 (推荐 uvx，不污染系统环境)
+uvx clings init unit1              # 一行搞定: 安装+初始化 (需要 uv)
 
-# 2. 初始化练习 (在任意空目录)
-mkdir my-c-exercises && cd my-c-exercises
-clings init unit1          # 释放 Unit 1 (24课49题)
+# 或传统方式:
+pip install clings                 # 安装到系统/虚拟环境
+clings init unit1                  # 初始化 Unit 1 (24课49题)
 
-# 3. 开始做题!
-clings                     # 进入交互式 watch 模式
+# 2. 开始做题!
+clings                             # 进入交互式 watch 模式 (uvx clings 亦可)
 ```
+
+> **推荐使用 [uv](https://docs.astral.sh/uv/)**：`uvx clings` 会自动下载 clings 到隔离环境运行，
+> 不影响系统 Python。安装 uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 
 ## 命令参考
 
