@@ -1,0 +1,13 @@
+[[exercises]]
+name = "32_mybash_project"
+title = "Bash Clone (Bash项目)"
+unit = "unit2"
+lesson = 32
+order = 57
+mode = "stdout"
+sources = ["main.c", "shell.c", "mycp.c", "readelf.c", "sed.c", "cmd_math.c", "cmd_more.c", "cmd_sort.c", "cmd_ll.c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/32_mybash_project"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

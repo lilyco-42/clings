@@ -1,0 +1,13 @@
+[[exercises]]
+name = "36_queue_bfs_maze"
+title = "广度优先解决迷宫问题"
+unit = "unit2"
+lesson = 36
+order = 61
+mode = "stdout"
+source = "queue.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/36_queue_bfs_maze"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

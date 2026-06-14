@@ -1,0 +1,13 @@
+[[exercises]]
+name = "37_binary_tree_wordfreq"
+title = "词频统计器"
+unit = "unit2"
+lesson = 37
+order = 62
+mode = "stdout"
+source = "sum_word.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/37_binary_tree_wordfreq"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

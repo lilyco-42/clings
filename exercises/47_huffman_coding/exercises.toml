@@ -1,0 +1,13 @@
+[[exercises]]
+name = "47_huffman_coding"
+title = "Huffman Coding 算法"
+unit = "unit2"
+lesson = 47
+order = 72
+mode = "stdout"
+source = "huffman.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/47_huffman_coding"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

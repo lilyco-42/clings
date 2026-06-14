@@ -1,0 +1,13 @@
+[[exercises]]
+name = "68_expression_parser"
+title = "Expression Parser 表达式解析器"
+unit = "unit3"
+lesson = 68
+order = 93
+mode = "stdout"
+source = "expr_parser.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/68_expression_parser"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

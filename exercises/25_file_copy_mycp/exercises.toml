@@ -1,0 +1,13 @@
+[[exercises]]
+name = "25_file_copy_mycp"
+title = "mycp (cp命令实现)"
+unit = "unit2"
+lesson = 25
+order = 50
+mode = "stdout"
+sources = ["main.c", "mycp.c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/25_file_copy_mycp"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

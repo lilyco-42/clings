@@ -1,0 +1,28 @@
+[[exercises]]
+name = "07a_max_prime"
+title = "函数+循环: 100以内最大素数"
+unit = "unit1"
+lesson = 7
+order = 11
+mode = "stdout"
+source = "07a_prime.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/07_prime_number"
+hint = '''
+如何判断一个数是不是素数 (质数)？
+
+素数是只能被 1 和自身整除的正整数。
+判断 n 是否为素数: 从 2 开始试除，如果能整除就不是素数。
+优化: 你只需要试除到 sqrt(n) 就够了——想想为什么？
+
+你需要 math.h 中的 sqrt 函数，注意类型转换。
+
+从 100 往回找，找到的第一个素数就是答案。
+
+参考: 本课 README 中的 sqrt 和三层逻辑嵌套。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+max prime is 97
+"""

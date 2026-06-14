@@ -1,0 +1,8 @@
+__pycache__/
+dist/
+*.egg-info/
+.clings/
+.clings-state.txt
+*.exe
+*.o
+*.out

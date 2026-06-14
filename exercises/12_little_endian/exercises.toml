@@ -1,0 +1,25 @@
+[[exercises]]
+name = "12_little_endian"
+title = "union: 判断大小端"
+unit = "unit1"
+lesson = 12
+order = 18
+mode = "return"
+expected_return = 1
+source = "12_endian.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/12_little_endian"
+hint = '''
+判断你的机器是大端还是小端字节序。
+
+什么是字节序？一个多字节的整数 (如 int) 在内存中，
+低位字节在前 (小端) 还是高位字节在前 (大端)？
+
+怎么检测？把一个已知值存入 int，然后看它的第一个字节。
+
+方法一: 用 union 让 int 和 char 共享同一块内存。
+方法二: 用指针将 int* 转成 char*，读取第一个字节。
+
+return 1 表示小端 (Little Endian)，return 0 表示大端。
+
+参考: 本课 README 中的 union 和字节序说明。
+'''

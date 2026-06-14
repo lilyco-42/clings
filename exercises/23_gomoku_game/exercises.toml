@@ -1,0 +1,106 @@
+[[exercises]]
+name = "23a_print_board"
+title = "二维数组: 画棋盘"
+unit = "unit1"
+lesson = 23
+order = 44
+mode = "compile"
+source = "23a_print_board.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
+hint = '''
+初始化并打印五子棋棋盘。
+
+棋盘是一个二维数组。
+- init_board(): 用 memset 把所有格子设为 0 (空)
+- print_board(): 二重 for 循环打印
+
+这是 compile 模式——编译通过即可，不检查输出。
+
+参考: 同目录下的原课 gomoku.c。
+'''
+
+[[exercises]]
+name = "23b_check_win"
+title = "方向扫描: 判断胜负"
+unit = "unit1"
+lesson = 23
+order = 45
+mode = "stdout"
+source = "23c_check_win.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
+hint = '''
+判断五子棋是否有人获胜——需要检查四个方向的五连。
+
+核心函数 check_dir(board, r, c, dr, dc, player):
+从 (r,c) 沿 (dr,dc) 方向检查是否有连续 5 个同色棋子。
+
+四个方向: 水平(0,1), 垂直(1,0), 右下对角(1,1), 左下对角(1,-1)。
+
+check_win: 遍历棋盘每个位置，对每个方向调用 check_dir。
+
+参考: 同目录下的原课 gomoku.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+BBBBB..........
+...............
+...............
+...............
+...............
+...............
+...............
+...............
+...............
+...............
+...............
+...............
+...............
+...............
+...............
+"""
+stdout = """
+black
+"""
+
+[[exercises]]
+name = "23c_gomoku"
+title = "游戏循环: 完整对弈"
+unit = "unit1"
+lesson = 23
+order = 46
+mode = "stdout"
+source = "gomoku.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
+hint = '''
+实现五子棋完整游戏循环。
+
+主循环结构:
+1. turn 变量记录轮到谁 (turn % 2 区分黑白)
+2. scanf 读取落子位置
+3. 检查位置是否合法 (在棋盘内且为空)
+4. 放置棋子
+5. check_win 判断是否获胜
+6. 如果棋盘满了也结束
+
+别忘了处理棋盘满但无人获胜的平局情况。
+
+参考: 同目录下的原课 gomoku.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+0 0
+0 5
+0 1
+1 5
+0 2
+2 5
+0 3
+3 5
+0 4
+"""
+stdout = """
+
+Player X wins!
+"""

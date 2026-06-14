@@ -1,0 +1,13 @@
+[[exercises]]
+name = "35_stack_expression_eval"
+title = "表达式求值问题"
+unit = "unit2"
+lesson = 35
+order = 60
+mode = "stdout"
+source = "stack.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/35_stack_expression_eval"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

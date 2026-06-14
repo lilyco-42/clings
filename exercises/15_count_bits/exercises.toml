@@ -1,0 +1,120 @@
+[[exercises]]
+name = "15a_count_bits_loop"
+title = "位运算: 逐位检测统计 bit 1"
+unit = "unit1"
+lesson = 15
+order = 24
+mode = "stdout"
+source = "15a_count_bits_loop.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
+hint = '''
+统计一个整数的二进制表示中有多少个 1。
+
+方法一: 逐位检测。
+
+整数有 32 位。逐个检查每一位:
+- 用 1 左移 i 位得到一个只有第 i 位为 1 的掩码
+- 用 & 运算检查原数的第 i 位是否为 1
+
+循环 32 次，统计有多少位是 1。
+
+参考: 本课 README 中的位运算方法一。
+'''
+
+[[exercises.cases]]
+stdin = """
+15
+"""
+stdout = """
+4
+"""
+
+[[exercises.cases]]
+stdin = """
+1024
+"""
+stdout = """
+1
+"""
+
+[[exercises]]
+name = "15b_count_bits_clear"
+title = "位运算: n&(n-1) 清最低位"
+unit = "unit1"
+lesson = 15
+order = 25
+mode = "stdout"
+source = "15b_count_bits_clear.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
+hint = '''
+统计二进制中 1 的个数——更聪明的方法。
+
+方法二: n & (n-1) 的魔法。
+
+这个操作能做什么？它会清除 n 的最右边的那个 1！
+例如: 1100 & 1011 = 1000 (最右边的 1 被清掉了)
+
+所以: 不断执行 n &= (n-1)，每次消除一个 1，
+直到 n 变成 0。执行了多少次就有多少个 1。
+
+参考: 本课 README 中的位运算方法二。
+'''
+
+[[exercises.cases]]
+stdin = """
+15
+"""
+stdout = """
+4
+"""
+
+[[exercises.cases]]
+stdin = """
+1024
+"""
+stdout = """
+1
+"""
+
+[[exercises]]
+name = "15_count_bits"
+title = "位运算: popcount 分治法"
+unit = "unit1"
+lesson = 15
+order = 26
+mode = "stdout"
+source = "bits.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
+hint = '''
+统计二进制中 1 的个数——分治法 (popcount)。
+
+方法三: 用 5 层掩码把每一"段"的 1 加起来。
+
+这是 gcc __builtin_popcount 的底层原理:
+- 第 1 层: 每 2 位一组，相邻位相加
+- 第 2 层: 每 4 位一组
+- 第 3 层: 每 8 位一组
+- 第 4 层: 每 16 位一组
+- 第 5 层: 整个 32 位
+
+关键是定义好 5 个掩码 M1-M5。
+这道题有挑战性——如果想不出来，先看看 README 的图解。
+
+参考: 本课 README 中的分治法详解。
+'''
+
+[[exercises.cases]]
+stdin = """
+15
+"""
+stdout = """
+4
+"""
+
+[[exercises.cases]]
+stdin = """
+1024
+"""
+stdout = """
+1
+"""

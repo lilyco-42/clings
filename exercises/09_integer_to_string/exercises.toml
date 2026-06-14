@@ -1,0 +1,89 @@
+[[exercises]]
+name = "09a_itoa_hex"
+title = "十六进制: itoa_hex 实现"
+unit = "unit1"
+lesson = 9
+order = 13
+mode = "stdout"
+source = "09a_itoa_hex.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/09_integer_to_string"
+hint = '''
+整数转十六进制字符串——和十进制的 itoa 思路一样，
+只是基数从 10 变成了 16。
+
+关键思路:
+1. 每次取 num % 16 得到一位 (0-15)
+2. 用一个映射表 "0123456789ABCDEF" 把数字转成字符
+3. num /= 16 继续处理下一位
+4. 注意: 这样得到的是逆序的！最后需要反转
+
+为什么用 do-while 而不是 while？
+因为当 num=0 时我们也需要输出 "0"。
+
+参考: 本课 README。
+'''
+
+[[exercises.cases]]
+stdin = """
+255
+"""
+stdout = """
+FF
+"""
+
+[[exercises.cases]]
+stdin = """
+16
+"""
+stdout = """
+10
+"""
+
+[[exercises.cases]]
+stdin = """
+0
+"""
+stdout = """
+0
+"""
+
+[[exercises]]
+name = "09_integer_to_string"
+title = "数组+逆序: itoa 实现"
+unit = "unit1"
+lesson = 9
+order = 14
+mode = "stdout"
+source = "itoa.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/09_integer_to_string"
+hint = '''
+把一个整数转换成字符串——这就是 itoa 函数的工作。
+
+算法:
+1. 反复取余 (num % 10) 得到最低位数字
+2. 加上 '0' 变成字符 (ASCII: '0'=48, '1'=49...)
+3. 除以 10 去掉最低位
+4. 重复直到 num 为 0
+
+但这样存入数组的是逆序的! 你需要一个 reverse 函数。
+
+别忘了字符串末尾要加 '\0' 终止符。
+
+参考: 本课 README 中的数组和字符串逆序。
+'''
+
+[[exercises.cases]]
+stdin = """
+123
+"""
+stdout = """
+buf = 123
+"""
+
+[[exercises.cases]]
+stdin = """
+9876
+"""
+stdout = """
+buf = 9876
+"""

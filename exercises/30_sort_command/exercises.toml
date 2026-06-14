@@ -1,0 +1,13 @@
+[[exercises]]
+name = "30_sort_command"
+title = "sort (sort命令实现)"
+unit = "unit2"
+lesson = 30
+order = 55
+mode = "stdout"
+sources = ["main.c", "cmd_sort.c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/30_sort_command"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

@@ -1,0 +1,13 @@
+[[exercises]]
+name = "55_memory_allocator"
+title = "Memory Allocator 内存分配器"
+unit = "unit3"
+lesson = 55
+order = 80
+mode = "stdout"
+source = "mymalloc.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/55_memory_allocator"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

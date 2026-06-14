@@ -1,0 +1,52 @@
+[[exercises]]
+name = "05a_sum_1_to_100"
+title = "循环累加: 1到100求和"
+unit = "unit1"
+lesson = 5
+order = 8
+mode = "stdout"
+source = "05a_sum.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/05_sum_1_to_100"
+hint = '''
+这道题要你计算 1+2+3+...+100 的和。
+
+想想: 你需要什么变量来"累积"结果？
+循环从哪里开始到哪里结束？每次循环做什么操作？
+
+提示: 高斯小时候用 n*(n+1)/2 算出了答案，
+但这里我们要用循环来逐个累加。最终结果是 5050。
+
+参考: 本课 README。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+sum = 5050
+"""
+
+[[exercises]]
+name = "05b_sum_even"
+title = "continue: 只加偶数"
+unit = "unit1"
+lesson = 5
+order = 9
+mode = "stdout"
+source = "05b_sum_even.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/05_sum_1_to_100"
+hint = '''
+这道题在求和的基础上加了一个条件: 只加偶数。
+
+C 语言有一个关键字可以"跳过"循环的当前迭代。
+当遇到不想处理的数时，用它直接进入下一轮循环。
+
+怎么判断一个数不是偶数？回忆一下 % 运算符。
+
+参考: 本课 README 中 continue 的用法。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+sum = 2550
+"""

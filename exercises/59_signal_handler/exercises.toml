@@ -1,0 +1,14 @@
+[[exercises]]
+name = "59_signal_handler"
+title = "Signal Handler 信号处理与进程控制"
+unit = "unit3"
+lesson = 59
+order = 84
+mode = "stdout"
+source = "watchdog.c"
+cflags = ["-D_GNU_SOURCE", "-std=c11", "-Wall", "-Wextra", "-pedantic", "-O2"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/59_signal_handler"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

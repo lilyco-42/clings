@@ -1,0 +1,38 @@
+[[exercises]]
+name = "21_lexical_analyzer"
+title = "DFA: 词法分析器"
+unit = "unit1"
+lesson = 21
+order = 40
+mode = "stdout"
+source = "mylex.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/21_lexical_analyzer"
+hint = '''
+实现一个 DFA 驱动的词法分析器。
+
+DFA (确定有限自动机) 的美妙之处:
+代码逻辑不变，只需改变转移表就能识别不同的语言!
+
+算法:
+1. 逐字符读入，存入 buf
+2. 查表 yy_nxt[当前状态][字符] 得到下一个状态
+3. 如果状态变为负数——说明识别到了一个 token
+4. 用 yy_accept 查出 token 类型并打印
+
+这就是"机制与策略分离"的思想——
+DFA 引擎是机制，转移表是策略。
+
+参考: 本课 README 中的 DFA 详解。
+'''
+
+[[exercises.cases]]
+stdin = """
+int x=42;
+"""
+stdout = """
+	Pattern  3 found: int
+	Pattern 27 found: x
+	Pattern 49 found: =
+	Pattern 24 found: 42
+	Pattern 60 found: ;
+"""

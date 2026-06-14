@@ -1,0 +1,13 @@
+[[exercises]]
+name = "63_disassembler"
+title = "Simple Disassembler 简易反汇编器"
+unit = "unit3"
+lesson = 63
+order = 88
+mode = "stdout"
+source = "rv_disasm.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/63_disassembler"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

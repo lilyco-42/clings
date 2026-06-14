@@ -1,0 +1,13 @@
+[[exercises]]
+name = "39_hash_table_symbol"
+title = "构造符号表"
+unit = "unit2"
+lesson = 39
+order = 64
+mode = "stdout"
+source = "hash.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/39_hash_table_symbol"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

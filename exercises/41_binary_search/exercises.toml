@@ -1,0 +1,13 @@
+[[exercises]]
+name = "41_binary_search"
+title = "BSearch 实现 (二分查找法)"
+unit = "unit2"
+lesson = 41
+order = 66
+mode = "stdout"
+source = "bsearch.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/41_binary_search"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

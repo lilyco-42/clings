@@ -1,0 +1,54 @@
+[[exercises]]
+name = "17_word_count"
+title = "状态机: 统计单词个数"
+unit = "unit1"
+lesson = 17
+order = 29
+mode = "stdout"
+source = "wordsum.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/17_word_count"
+hint = '''
+统计文本中有多少个单词。
+
+关键问题: 怎么知道一个"单词"开始了？
+
+状态机思想: 用一个变量记录当前状态——
+你是在单词"里面"还是"外面"？
+
+- 看到字母且当前在"外面" → 一个新单词开始了!
+- 看到空白且当前在"里面" → 单词结束
+- 其他情况 → 状态不变
+
+每次发现新单词的"起点"时，计数器加一。
+同时需要打印每个单词的字符。
+
+参考: 本课 README 中的"状态机编程思想"。
+'''
+
+[[exercises.cases]]
+stdin = """
+This is a book.
+"""
+stdout = """
+word 1 found!
+This
+word 2 found!
+is
+word 3 found!
+a
+word 4 found!
+book
+there is 4 words found!
+"""
+
+[[exercises.cases]]
+stdin = """
+  one   two  
+"""
+stdout = """
+word 1 found!
+one
+word 2 found!
+two
+there is 2 words found!
+"""

@@ -1,0 +1,114 @@
+[[exercises]]
+name = "13a_get_last_char"
+title = "函数: 字符串取末字符"
+unit = "unit1"
+lesson = 13
+order = 19
+mode = "stdout"
+source = "13a_get_last_char.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
+hint = '''
+如何获取一个字符串的最后一个字符？
+
+C 字符串以 '\0' 结尾。你需要遍历到末尾。
+
+思路: 一个简单的 while 循环，记录每个字符，
+直到遇到 '\0'。循环结束时，你记录的就是最后一个字符。
+
+参考: 同目录下的原课 restrict.c 中的 get_last_char()。
+'''
+
+[[exercises.cases]]
+stdin = """
+A23456
+"""
+stdout = """
+6
+"""
+
+[[exercises.cases]]
+stdin = """
+hello
+"""
+stdout = """
+o
+"""
+
+[[exercises]]
+name = "13b_is_restricted"
+title = "switch + 三元: 限行判断"
+unit = "unit1"
+lesson = 13
+order = 20
+mode = "stdout"
+source = "13b_is_restricted.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
+hint = '''
+车辆限行规则: 根据车牌尾号和今天的星期，判断是否限行。
+
+这是 switch-case 的经典应用:
+- 尾号 0/5 → 周一限行
+- 尾号 1/6 → 周二限行
+- ...
+
+函数返回值用三元表达式可以很简洁:
+(条件) ? 1 : 0
+
+参考: 同目录下的原课 restrict.c 中的 is_restricted()。
+'''
+
+[[exercises.cases]]
+stdin = """
+2 6
+"""
+stdout = """
+restricted
+"""
+
+[[exercises.cases]]
+stdin = """
+3 9
+"""
+stdout = """
+free
+"""
+
+[[exercises]]
+name = "13c_restrict"
+title = "综合: 车辆限行完整程序"
+unit = "unit1"
+lesson = 13
+order = 21
+mode = "stdout"
+source = "restrict.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
+hint = '''
+这道综合题要你把三个函数组装起来:
+1. get_last_char(): 取车牌最后一位 (已在 13a 实现)
+2. is_restricted(): 判断是否限行 (已在 13b 实现)
+3. get_week_day(): 根据日期计算星期几
+
+get_week_day 的难点: 如何从年月日算出星期？
+关键是算出这一天距离某个参考日 (已知星期) 的总天数，
+然后对 7 取余。
+
+参考: 同目录下的原课 restrict.c 中的完整实现。
+'''
+
+[[exercises.cases]]
+stdin = """
+A23456
+2013 1 1
+"""
+stdout = """
+restricted!
+"""
+
+[[exercises.cases]]
+stdin = """
+A23457
+2013 1 1
+"""
+stdout = """
+NOT restricted!
+"""

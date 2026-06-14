@@ -1,0 +1,47 @@
+[[exercises]]
+name = "01a_return_zero"
+title = "最简单的C程序: 返回0"
+unit = "unit1"
+lesson = 1
+order = 1
+mode = "return"
+expected_return = 0
+source = "01a_return_zero.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/01_simplest_c_program"
+hint = '''
+最简单的 C 程序只需要一个 main 函数。
+编译器报错了吗？读读错误信息——它告诉你缺少什么。
+
+一个完整的函数定义需要:
+- 返回类型 (整数类型)
+- 函数名 (C 程序的入口点叫什么？)
+- 参数列表 (无参数用 void 表示)
+- 函数体 { ... }
+
+返回 0 表示程序正常退出。
+
+参考: 本课 README 中的 BNF 范式分析。
+'''
+
+[[exercises]]
+name = "01b_return_expression"
+title = "变量与表达式: global + local"
+unit = "unit1"
+lesson = 1
+order = 2
+mode = "return"
+expected_return = 3
+source = "01b_return_expression.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/01_simplest_c_program"
+hint = '''
+这道题要求你定义变量并计算表达式。
+
+思考:
+- 全局变量定义在 main 函数外面
+- 局部变量定义在 main 函数里面
+- return 后可以跟一个表达式，不一定只是数字
+
+期望返回值是 3。想想什么简单的加法能得到 3？
+
+参考: 同目录下的 variable.c 示例。
+'''

@@ -1,0 +1,38 @@
+[[exercises]]
+name = "11_point_distance"
+title = "结构体: 求两点距离"
+unit = "unit1"
+lesson = 11
+order = 17
+mode = "stdout"
+source = "point.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/11_point_distance"
+hint = '''
+求两个点之间的距离。
+
+你需要:
+1. 定义一个结构体来表示"点" (有 x 和 y 两个坐标)
+2. 用勾股定理计算距离: sqrt(dx*dx + dy*dy)
+3. 需要 math.h 中的 sqrt 函数
+
+C 语言中，结构体可以直接作为函数参数传递。
+输出用 %.2f 保留两位小数。
+
+参考: 本课 README 中的 struct 和 typedef。
+'''
+
+[[exercises.cases]]
+stdin = """
+0 0 3 4
+"""
+stdout = """
+5.00
+"""
+
+[[exercises.cases]]
+stdin = """
+1 1 4 5
+"""
+stdout = """
+5.00
+"""

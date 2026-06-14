@@ -1,0 +1,100 @@
+[[exercises]]
+name = "18a_itoa"
+title = "进制转换: itoa 函数"
+unit = "unit1"
+lesson = 18
+order = 30
+mode = "stdout"
+source = "18a_itoa.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
+hint = '''
+实现 itoa: 把整数按指定进制转换为字符串。
+
+和第 9 课类似，但这次是通用版——支持任意进制 (2-16)。
+
+步骤:
+1. 取 num % base 得到一位
+2. 查表 "0123456789ABCDEF" 得到对应字符
+3. num /= base 继续下一位
+4. 存入数组后逆序
+
+用 do-while 确保 num=0 时也输出 "0"。
+
+参考: 同目录下的原课 myprintf.c 中的 itoa。
+'''
+
+[[exercises.cases]]
+stdin = """
+100 10
+"""
+stdout = """
+100
+"""
+
+[[exercises.cases]]
+stdin = """
+255 16
+"""
+stdout = """
+FF
+"""
+
+[[exercises]]
+name = "18b_myprintf"
+title = "可变参数: myprintf"
+unit = "unit1"
+lesson = 18
+order = 31
+mode = "stdout"
+source = "18b_myprintf.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
+hint = '''
+实现你自己的 printf! 这是一个精简版。
+
+核心: 遍历格式字符串中的每个字符。
+- 普通字符 → 直接输出
+- 遇到 % → 看下一个字符决定怎么处理:
+  - d → 用 itoa 把整数转成字符串打印
+  - x → 用 itoa 以 16 进制打印
+  - s → 直接打印字符串
+  - c → 打印单个字符
+
+需要用到 <stdarg.h> 中的 va_start, va_arg, va_end
+来处理可变数量的参数。
+
+参考: 同目录下的原课 myprintf.c。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+a = 100, b = 0xC8
+c = A, s = helloworld
+"""
+
+[[exercises]]
+name = "18c_myprintf"
+title = "综合: itoa + myprintf"
+unit = "unit1"
+lesson = 18
+order = 32
+mode = "stdout"
+source = "myprintf.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
+hint = '''
+综合题: 同时实现 itoa 和 myprintf。
+
+这是把 18a 和 18b 组合在一起的完整实现。
+如果你已经完成了前两题，这里只需要把代码合并。
+
+需要支持的格式符: %d, %x, %s, %c。
+
+参考: 同目录下的原课 myprintf.c。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+a = 100, b = 0xC8
+c = A, s = helloworld
+"""

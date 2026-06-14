@@ -1,0 +1,13 @@
+[[exercises]]
+name = "40_my_dictionary"
+title = "MyDictionary 项目 (查字典程序)"
+unit = "unit2"
+lesson = 40
+order = 65
+mode = "stdout"
+source = "dict.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/40_my_dictionary"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

@@ -1,0 +1,13 @@
+[[exercises]]
+name = "56_coroutine"
+title = "Coroutine 协程实现"
+unit = "unit3"
+lesson = 56
+order = 81
+mode = "stdout"
+source = "coroutine.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/56_coroutine"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

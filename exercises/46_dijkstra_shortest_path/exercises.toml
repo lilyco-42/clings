@@ -1,0 +1,13 @@
+[[exercises]]
+name = "46_dijkstra_shortest_path"
+title = "Dijkstra 算法"
+unit = "unit2"
+lesson = 46
+order = 71
+mode = "stdout"
+source = "dijkstra.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/46_dijkstra_shortest_path"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

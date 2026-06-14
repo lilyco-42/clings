@@ -1,0 +1,13 @@
+[[exercises]]
+name = "52_lz77_compression"
+title = "LZ77 Sliding Window Compression 滑动窗口压缩"
+unit = "unit3"
+lesson = 52
+order = 77
+mode = "stdout"
+source = "lz77.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/52_lz77_compression"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

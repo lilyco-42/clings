@@ -1,0 +1,38 @@
+[[exercises]]
+name = "04_odd_or_even"
+title = "if-else: 判断奇偶"
+unit = "unit1"
+lesson = 4
+order = 7
+mode = "stdout"
+source = "judge.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/04_odd_or_even"
+hint = '''
+如何判断一个数是奇数还是偶数？
+
+取余运算符 % 可以告诉你除法的余数。
+一个数除以 2，余数是 0 还是 1？这就区分了奇偶。
+
+用 if-else 根据判断结果打印不同的信息。
+看看期望输出的格式: "num 7 is odd" 和 "num 12 is even"。
+
+别忘了先用 scanf 读取输入的整数。
+
+参考: 本课 README。
+'''
+
+[[exercises.cases]]
+stdin = """
+7
+"""
+stdout = """
+num 7 is odd
+"""
+
+[[exercises.cases]]
+stdin = """
+12
+"""
+stdout = """
+num 12 is even
+"""
