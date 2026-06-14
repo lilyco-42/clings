@@ -25,6 +25,7 @@ cli:
             python3 -m build
 
         - name: Publish to PyPI
+          allowFailure: true
           imports:
             - https://cnb.cool/q.qq/opencamp-c-2026-summer/secrets/-/blob/main/values.yml
           script: |
