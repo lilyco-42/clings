@@ -32,7 +32,7 @@ cli:
             # PyPI API Token (project-scoped, minimum privilege)
             export TWINE_USERNAME="__token__"
             export TWINE_PASSWORD=${PYPI_TOKEN}
-            twine upload dist/*
+            twine upload --verbose dist/*
 
         - name: Publish to CNB
           allowFailure: true
@@ -40,4 +40,4 @@ cli:
             export TWINE_USERNAME="cnb"
             export TWINE_PASSWORD=$CNB_TOKEN
             export TWINE_REPOSITORY_URL="https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings-cli/-/packages/simple"
-            twine upload dist/*
+            twine upload --verbose dist/*
