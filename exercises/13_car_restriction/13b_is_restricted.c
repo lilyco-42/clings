@@ -30,7 +30,7 @@ enum day
 
 int is_restricted(int tail_num, enum day today)
 {
-#error TODO: switch(tail_num) + 三元表达式判断是否限行，返回 1 或 0
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 int main(void)

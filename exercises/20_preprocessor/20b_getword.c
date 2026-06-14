@@ -120,7 +120,7 @@ PF act_table[8][5] =
 
 void getword(char *word)
 {
-#error TODO: getchar 读一个字符, 非字母返回单字符, 字母则 do-while 读完整单词再 ungetc
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 int main(void)

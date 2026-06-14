@@ -20,7 +20,7 @@ int my_rand(void) { _seed = _seed * 1103515245 + 12345; return (_seed >> 16) & 0
 
 void generate_secret(int secret[4])
 {
-#error TODO: 用 used[10] + do { d = my_rand() % 10; } while(used[d]) 生成 4 个不重复的 0-9 随机数
+#error TODO: Generate 4 unique digits using used[] + do-while + my_rand(). Run "clings hint" for help.
 }
 
 int main(void)

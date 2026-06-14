@@ -20,9 +20,9 @@ int main(void)
 	int i;
 	int sum = 0;
 
-#error TODO: 用 for (i = 10; i >= 1; i--) 打印 counter = i
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
-#error TODO: 用 do-while 计算 sum = 1+2+...+10，然后打印 sum = 55
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 	return 0;
 }

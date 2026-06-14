@@ -20,12 +20,12 @@ int n;
 
 void init_ring(void)
 {
-#error TODO: for 循环初始化 next[i] = (i + 1) % n
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 void print_ring(void)
 {
-#error TODO: for 循环打印 next[0..n-1]，格式 "%d " 每个元素后空格，末尾换行
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 int main(void)

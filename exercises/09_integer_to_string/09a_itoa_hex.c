@@ -19,7 +19,7 @@ char *itoa_hex(int num, char *buf)
 {
 	char *hex = "0123456789ABCDEF";
 
-#error TODO: do-while 取 num%16 映射到 hex 表，然后逆序
+#error TODO: Fix this exercise. Run "clings hint" for help.
 	return buf;
 }
 

@@ -45,7 +45,7 @@ int main(void)
 
 	i = 0;
 
-#error TODO: while(1) 状态机循环 — 4 分支 (参考上方任务说明), '\0' 时 break
+#error TODO: Implement state machine loop with 4 branches for word counting. Run "clings hint" for help.
 
 	printf("there is %d words found!\n", words);
 	return 0;

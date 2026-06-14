@@ -56,7 +56,7 @@ int main(void)
 
 		input = get_input_type(c);
 
-#error TODO: 根据 state 和 input 的组合用 if-else 做状态转换 (参考上方状态说明)
+#error TODO: Fix this exercise. Run "clings hint" for help.
 	}
 
 	return 0;

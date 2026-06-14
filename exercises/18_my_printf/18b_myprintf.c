@@ -51,7 +51,7 @@ void myputs(char *buf)
 
 int myprintf(const char *format, ...)
 {
-#error TODO: va_list ap; 遍历 format, 非% putchar, %d/%x 用 itoa+myputs, %s 用 myputs, %c 用 putchar
+#error TODO: Fix this exercise. Run "clings hint" for help.
 	return 0;
 }
 

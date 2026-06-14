@@ -21,12 +21,12 @@
 
 static const char *find_istr(const char *text, const char *pattern)
 {
-#error TODO: while(*text) { 内层 for tolower 比较 → match 则 return text; 否则 text++; } return NULL;
+#error TODO: Case-insensitive string search using tolower comparison. Run "clings hint" for help.
 }
 
 static int extract_links(const char *html)
 {
-#error TODO: while find_istr(p,"href=") → p+=5 → 跳空格 → 检测引号 → 提取URL → printf("[%d] %s\n")
+#error TODO: Extract URLs from href= attributes in HTML. Run "clings hint" for help.
 }
 
 /* 读取全部 stdin 到动态 buffer (给出，不需要实现) */
@@ -51,6 +51,6 @@ static char *read_all(FILE *fp)
 
 int main(void)
 {
-#error TODO: read_all(stdin) → extract_links → printf Total → free
+#error TODO: Read all input, extract links, print total, free memory. Run "clings hint" for help.
 	return 0;
 }

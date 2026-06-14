@@ -24,7 +24,7 @@ int macro_count = 0;
 
 void replace_and_print(char *line)
 {
-#error TODO: 遍历 line，把匹配 macros[i].name 的单词替换为 macros[i].value，然后输出
+#error TODO: Replace macro names with values in the input line. Run "clings hint" for help.
 }
 
 int main(void)

@@ -24,7 +24,7 @@ int main(void)
 {
 	union endian_test u;
 
-#error TODO: u.i = 1，然后判断 u.c[0] == 1 则 return 1 (小端)，否则 return 0
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 	return 0;
 }

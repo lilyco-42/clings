@@ -24,7 +24,7 @@ int main(void)
 
 	scanf("%d", &num);
 
-#error TODO: 用 if/else 判断 num % 2 == 0，打印 "num %d is even\n" 或 "num %d is odd\n"
+#error TODO: Use if/else to check num%2==0, print "num %d is even/odd\n". Run "clings hint" for help.
 
 	return 0;
 }

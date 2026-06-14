@@ -10,4 +10,4 @@
  * 验证: clings 检查程序退出码为 0
  */
 
-#error TODO: 写一个完整的 main 函数，返回 0。需要: 返回类型 int, 函数名 main, 参数 void, 函数体 { return 0; }
+#error TODO: Write a complete main function that returns 0. Run "clings hint" for help.

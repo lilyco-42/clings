@@ -40,7 +40,7 @@ static const char *find_istr(const char *text, const char *pattern)
 
 static int extract_links(const char *html)
 {
-#error TODO: while find_istr(p,"href=") → 跳过href= → 检测引号 → 提取URL → printf("[%d] %s\n")
+#error TODO: Extract URLs from href= attributes in HTML. Run "clings hint" for help.
 }
 
 int main(void)

@@ -27,12 +27,12 @@ int my_rand(void) { _seed = _seed * 1103515245 + 12345; return (_seed >> 16) & 0
 
 void init_chessboard(void)
 {
-#error TODO: 二重 for 循环, chessboard[i][j] = my_rand() % 2
+#error TODO: Fill chessboard[i][j] = my_rand() % 2 with nested loops. Run "clings hint" for help.
 }
 
 void print_chessboard(void)
 {
-#error TODO: 二重 for 循环打印, 元素间空格 (if j>0 printf(" ")), printf("%d"), 每行末 "\n"
+#error TODO: Print board with nested loops, spaces between elements. Run "clings hint" for help.
 }
 
 int main(void)

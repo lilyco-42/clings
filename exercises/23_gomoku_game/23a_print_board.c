@@ -21,12 +21,12 @@ static char board[SIZE][SIZE];
 
 void init_board(void)
 {
-#error TODO: memset(board, '.', sizeof(board));
+#error TODO: Initialize board with memset. Run "clings hint" for help.
 }
 
 void print_board(void)
 {
-#error TODO: 打印列号行 + 15 行棋盘内容 (参考原课 gomoku.c 的 print_board)
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 int main(void)

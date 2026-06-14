@@ -17,7 +17,7 @@
 
 int main(void)
 {
-#error TODO: 定义 counter=0，写 while 循环: counter < 10 时，先 counter++ 再 printf
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 	return 0;
 }

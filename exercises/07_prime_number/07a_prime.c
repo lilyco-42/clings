@@ -25,7 +25,7 @@ int main(void)
 	int i;
 	int max = 0;
 
-#error TODO: for num=1..100, tmp=sqrt(num), for i=2..tmp 判断 num%i==0 break, i==tmp+1 则 max=num
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 	printf("max prime is %d\n", max);
 

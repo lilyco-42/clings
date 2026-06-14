@@ -18,7 +18,7 @@ void itoa(int num, char *buf, int base)
 {
 	char *hex = "0123456789ABCDEF";
 
-#error TODO: do-while 取余映射到 hex 表，buf[i]='\0'，然后 for 循环逆序
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 int main(void)

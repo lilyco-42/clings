@@ -18,10 +18,10 @@
 
 #include <stdio.h>
 
-#error TODO: 定义全局变量 int global = 200
+#error TODO: Fix this exercise. Run "clings hint" for help.
 
 int main(void)
 {
-#error TODO: 定义 int local = 100，用 printf 打印 "local = %d\n" 和 "global = 0x%x\n"
+#error TODO: Fix this exercise. Run "clings hint" for help.
 	return 0;
 }

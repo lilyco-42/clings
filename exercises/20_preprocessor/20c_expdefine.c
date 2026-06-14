@@ -47,7 +47,7 @@ int macro_counter = 0;
 
 void act_print_word(void)
 {
-#error TODO: 遍历 macros[0..macro_counter-1], 若 word 匹配则 printf value, 否则 printf word
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 void act_save_to_buf(void)
@@ -57,7 +57,7 @@ void act_save_to_buf(void)
 
 void act_print_buf_and_word(void)
 {
-#error TODO: printf buf 和 word, 然后 strcpy(buf, "")
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 void act_save_word(void)
@@ -67,12 +67,12 @@ void act_save_word(void)
 
 void act_get_macro_name(void)
 {
-#error TODO: strcpy(macros[macro_counter].name, word_buf); 清空 word_buf
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 void act_get_macro_value(void)
 {
-#error TODO: strcpy(macros[macro_counter].value, word_buf); 清空 word_buf/buf/word; macro_counter++
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 void act_null(void) {}

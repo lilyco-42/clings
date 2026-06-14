@@ -21,7 +21,7 @@ int main(void)
 	int i = 0;
 	int j = 0;
 
-#error TODO: 写 for-for 嵌套循环，格式 printf("%d*%d=%d\t", j, i, i*j)，每行末尾换行
+#error TODO: Nested for loops for multiplication table. Run "clings hint" for help.
 
 	return 0;
 }

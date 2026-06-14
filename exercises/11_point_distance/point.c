@@ -16,9 +16,9 @@
 #include <stdio.h>
 #include <math.h>
 
-#error TODO: 定义 struct point { float x; float y; }，typedef 为 point_t
+#error TODO: Define struct point {float x; float y;} with typedef. Run "clings hint" for help.
 
-#error TODO: 实现 float calculate(point_t p1, point_t p2)
+#error TODO: Implement float calculate(point_t p1, point_t p2) for distance. Run "clings hint" for help.
 
 int main(void)
 {

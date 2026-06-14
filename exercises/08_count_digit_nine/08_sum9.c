@@ -26,7 +26,7 @@
  */
 int find(int num, int digit)
 {
-#error TODO: 用 do-while 循环: num%10==digit 则 counter++, 然后 num/=10, 直到 num==0
+#error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
 int main(void)
