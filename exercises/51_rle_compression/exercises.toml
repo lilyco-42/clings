@@ -1,0 +1,13 @@
+[[exercises]]
+name = "51_rle_compression"
+title = "Run-Length Encoding 游程编码压缩"
+unit = "unit3"
+lesson = 51
+order = 76
+mode = "stdout"
+source = "rle.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/51_rle_compression"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

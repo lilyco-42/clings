@@ -1,0 +1,13 @@
+[[exercises]]
+name = "71_tree_interpreter"
+title = "Tree-Walk Interpreter 树遍历解释器"
+unit = "unit3"
+lesson = 71
+order = 96
+mode = "stdout"
+source = "interpreter.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/71_tree_interpreter"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

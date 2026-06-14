@@ -1,0 +1,29 @@
+# =============================================================================
+# CNB CI: clings CLI — test + build + publish to PyPI
+# 仓库: q.qq/opencamp-c-2026-summer/clings (cli 分支)
+# 制品库: q.qq/opencamp-c-2026-summer/clings-cli
+# =============================================================================
+
+cli:
+  push:
+    - docker:
+        build:
+          dockerfile: Dockerfile.ci
+      stages:
+        - name: Install & Test
+          script: |
+            pip install --break-system-packages -e .
+            clings doctor
+            cd /tmp && mkdir -p clings-ci-test && cd clings-ci-test
+            clings init all
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings check unit1 --solutions
+
+        - name: Build & Publish
+          script: |
+            pip install --break-system-packages build twine
+            export TWINE_USERNAME=$CNB_BUILD_USER
+            export TWINE_PASSWORD=${CNB_TOKEN}
+            export TWINE_REPOSITORY_URL="https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings-cli/-/packages/simple"
+            python3 -m build
+            twine upload dist/*

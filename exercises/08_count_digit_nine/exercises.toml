@@ -1,0 +1,29 @@
+[[exercises]]
+name = "08_count_digit_nine"
+title = "函数: 统计1到100中9的个数"
+unit = "unit1"
+lesson = 8
+order = 12
+mode = "stdout"
+source = "08_sum9.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/08_count_digit_nine"
+hint = '''
+统计 1 到 100 中数字 9 出现了多少次。
+
+关键: 把问题分解成两个子问题:
+1. 怎么从一个数中提取每一位数字？(除以 10 取余)
+2. 怎么遍历 1 到 100？
+
+试试设计一个函数 find(num, digit) 来检查某个数字中
+包含多少个指定的 digit。用 do-while 循环逐位提取。
+
+注意: 99 中包含两个 9！
+
+参考: 本课 README 中关于函数设计和 do-while 的说明。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+sum = 20
+"""

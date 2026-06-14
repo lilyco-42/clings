@@ -1,0 +1,79 @@
+[[exercises]]
+name = "10a_init_ring"
+title = "数组初始化: 约瑟夫环 next[]"
+unit = "unit1"
+lesson = 10
+order = 15
+mode = "stdout"
+source = "10a_init_ring.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/10_josephus_ring"
+hint = '''
+约瑟夫环的第一步: 用数组模拟循环链表。
+
+next[i] 表示第 i 个人的下一个人是谁。
+如果有 n 个人围成一圈:
+- 第 0 个人的下一个是第 1 个
+- 第 1 个的下一个是第 2 个
+- ...
+- 第 n-1 个的下一个是第 0 个 (形成环!)
+
+有什么运算能让 n-1 的下一个变成 0？想想取模运算。
+
+参考: 同目录下的原课 josephus.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+5
+"""
+stdout = """
+1 2 3 4 0 
+"""
+
+[[exercises.cases]]
+stdin = """
+3
+"""
+stdout = """
+1 2 0 
+"""
+
+[[exercises]]
+name = "10_josephus_ring"
+title = "链表模拟: 约瑟夫环"
+unit = "unit1"
+lesson = 10
+order = 16
+mode = "stdout"
+source = "josephus.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/10_josephus_ring"
+hint = '''
+约瑟夫环: n 个人围成圈，每数到第 m 个人出局。
+
+核心循环:
+1. 用一个计数器记录当前数到第几个
+2. 沿着 next[] 链表前进
+3. 当计数器达到出局数时——这个人出局!
+4. "出局"在链表中怎么实现？让前一个人直接跳过他
+5. 重复直到所有人都出局
+
+想想: 你需要记录"前一个人"是谁 (prev)，
+这样才能在出局时修改链表: next[prev] = next[i]。
+
+参考: 同目录下的原课 josephus.c。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+3 is out
+6 is out
+9 is out
+2 is out
+7 is out
+1 is out
+8 is out
+5 is out
+10 is out
+4 is out
+"""

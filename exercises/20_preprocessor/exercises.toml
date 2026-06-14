@@ -1,0 +1,125 @@
+[[exercises]]
+name = "20a_delcomment"
+title = "状态机: 去注释"
+unit = "unit1"
+lesson = 20
+order = 37
+mode = "stdout"
+source = "20a_delcomment.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
+hint = '''
+用状态机去除 C 代码中的注释。
+
+C 有两种注释:
+- /* ... */ 块注释 (可跨行)
+- // ... 行注释 (到行尾)
+
+状态机的关键状态:
+- 正常: 输出字符
+- 遇到 /: 下一个字符决定是否进入注释
+- 在块注释中: 等待 */
+- 在行注释中: 等待换行
+
+逐字符读入，根据当前状态决定是输出还是跳过。
+
+参考: 同目录下的原课 delcomment.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+int x; /* comment */
+int y;
+"""
+stdout = """
+int x; 
+int y;
+"""
+
+[[exercises.cases]]
+stdin = """
+a = 1; // line comment
+b = 2;
+"""
+stdout = """
+a = 1; 
+b = 2;
+"""
+
+[[exercises]]
+name = "20b_getword"
+title = "词法切分: getword 函数"
+unit = "unit1"
+lesson = 20
+order = 38
+mode = "stdout"
+source = "20b_getword.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
+hint = '''
+实现一个词法切分函数 getword()。
+
+getword 每次调用返回一个"词":
+- 遇到 EOF → 返回空串
+- 遇到非字母字符 → 返回该单字符
+- 遇到字母 → 读取整个单词返回
+
+关键: 当你发现一个字母时，要继续读直到遇到非字母，
+但最后那个非字母字符不能丢! 用 ungetc 把它"退回去"。
+
+参考: 同目录下的原课 expdefine.c 中的 getword。
+'''
+
+[[exercises.cases]]
+stdin = """
+#define N 10
+int x = N;
+"""
+stdout = """
+int x = 10;
+"""
+
+[[exercises]]
+name = "20c_expdefine"
+title = "表驱动状态机: 宏展开"
+unit = "unit1"
+lesson = 20
+order = 39
+mode = "stdout"
+source = "20c_expdefine.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
+hint = '''
+用表驱动状态机实现宏展开。
+
+这道题要实现 7 个动作函数 (act_*)。
+核心思路: 根据当前状态和输入类型查表，
+得到要执行的动作和下一个状态。
+
+关键动作:
+- print_word: 如果词在宏表中则替换输出，否则原样输出
+- save_to_buf/save_word: 暂存宏定义的内容
+- get_macro_name/value: 记录 #define 的名称和值
+
+这道题较难——建议先阅读原课代码理解整体框架。
+
+参考: 同目录下的原课 expdefine.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+#define N 10
+int x = N;
+"""
+stdout = """
+int x = 10;
+"""
+
+[[exercises.cases]]
+stdin = """
+#define MAX 100
+#define MIN 1
+int a = MAX;
+int b = MIN;
+"""
+stdout = """
+int a = 100;
+int b = 1;
+"""

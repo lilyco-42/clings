@@ -1,0 +1,13 @@
+[[exercises]]
+name = "28_math_calculator"
+title = "math calculator (数学计算器实现)"
+unit = "unit2"
+lesson = 28
+order = 53
+mode = "stdout"
+sources = ["main.c", "cmd_math.c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/28_math_calculator"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

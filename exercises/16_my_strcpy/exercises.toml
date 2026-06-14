@@ -1,0 +1,70 @@
+[[exercises]]
+name = "16a_strcpy_delta"
+title = "指针优化: delta 版 strcpy"
+unit = "unit1"
+lesson = 16
+order = 27
+mode = "stdout"
+source = "16a_strcpy_delta.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/16_my_strcpy"
+hint = '''
+这是 strcpy 的一个优化版本——delta 技巧。
+
+核心思想: 计算 dst 和 src 之间的偏移量 delta，
+然后只用一个指针就能同时访问源和目标。
+
+这是一个来自《高质量程序设计指南》的经典优化。
+想想: 如果你知道 dst 在 src 后面 delta 个字节，
+那 src[delta] 就是 dst 对应位置。
+
+注意: 这道题的 src 和 dst 在同一个缓冲区内。
+
+参考: 本课 README。
+'''
+
+[[exercises.cases]]
+stdin = """
+delta copy
+"""
+stdout = """
+delta copy
+"""
+
+[[exercises.cases]]
+stdin = """
+Hello World
+"""
+stdout = """
+Hello World
+"""
+
+[[exercises]]
+name = "16_my_strcpy"
+title = "指针: mystrcpy 实现"
+unit = "unit1"
+lesson = 16
+order = 28
+mode = "stdout"
+source = "mystrcpy.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/16_my_strcpy"
+hint = '''
+实现自己的字符串复制函数 mystrcpy。
+
+C 程序员的经典写法:
+  while (条件) { 复制一个字符; 移动指针; }
+
+更简洁的 C 惯用法是把复制和条件判断合并在一起。
+想想: 赋值表达式本身也有返回值!
+
+什么时候停止复制？当遇到字符串的终止符 '\0' 时。
+
+参考: 本课 README 中关于指针和 const 的说明。
+'''
+
+[[exercises.cases]]
+stdin = """
+copy me
+"""
+stdout = """
+copy me
+"""

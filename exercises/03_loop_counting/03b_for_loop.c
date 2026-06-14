@@ -1,0 +1,28 @@
+/*
+ * Lesson 03b: for 循环 + do-while
+ *
+ * 知识点: for 循环, 自减运算符 --, do-while 循环
+ *         课后练习: "将这个程序改为倒着从10数到1"
+ *                  "新增一个变量 sum，对从1加到10进行求和"
+ *
+ * 任务: 完成以下程序:
+ *       1. 用 for 循环从 10 倒数到 1，打印 "counter = %d\n"
+ *       2. 用 do-while 循环计算 sum = 1+2+...+10
+ *       3. 打印 "sum = %d\n" (结果应为 55)
+ *
+ * 验证: stdout 匹配 10 行 counter + 1 行 sum = 55
+ */
+
+#include <stdio.h>
+
+int main(void)
+{
+	int i;
+	int sum = 0;
+
+#error TODO: 用 for (i = 10; i >= 1; i--) 打印 counter = i
+
+#error TODO: 用 do-while 计算 sum = 1+2+...+10，然后打印 sum = 55
+
+	return 0;
+}

@@ -1,0 +1,13 @@
+[[exercises]]
+name = "33_singly_linked_list"
+title = "动态数组实现"
+unit = "unit2"
+lesson = 33
+order = 58
+mode = "stdout"
+sources = ["main.c", "array.c", "list.c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_singly_linked_list"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

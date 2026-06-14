@@ -1,0 +1,13 @@
+[[exercises]]
+name = "69_ast_builder"
+title = "AST Builder 抽象语法树构建"
+unit = "unit3"
+lesson = 69
+order = 94
+mode = "stdout"
+source = "ast_builder.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/69_ast_builder"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

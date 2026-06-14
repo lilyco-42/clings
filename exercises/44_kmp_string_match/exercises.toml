@@ -1,0 +1,13 @@
+[[exercises]]
+name = "44_kmp_string_match"
+title = "KMP 算法实现"
+unit = "unit2"
+lesson = 44
+order = 69
+mode = "stdout"
+source = "kmp.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/44_kmp_string_match"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

@@ -1,0 +1,152 @@
+[[exercises]]
+name = "19a_shell_parse"
+title = "状态机: 命令行切分"
+unit = "unit1"
+lesson = 19
+order = 33
+mode = "stdout"
+source = "19a_shell_parse.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/19_shell_parser"
+hint = '''
+实现命令行解析器——把一行命令拆成 argc/argv。
+
+例如: "gcc -Wall main.c" → argv[0]="gcc", argv[1]="-Wall", argv[2]="main.c"
+
+状态机思路:
+- 状态 0 (在空格中): 跳过空格
+- 状态 1 (在单词中): 记录字符
+
+当从状态 0 进入状态 1 时——找到了一个新参数的起点!
+在空格处放上 '\0' 截断字符串。
+
+参考: 同目录下的原课 shell.c 中的 shell_parse()。
+'''
+
+[[exercises.cases]]
+stdin = """
+gcc -Wall main.c
+"""
+stdout = """
+gcc|-Wall|main.c
+"""
+
+[[exercises]]
+name = "19b_function_ptr"
+title = "函数指针: 命令分发"
+unit = "unit1"
+lesson = 19
+order = 34
+mode = "stdout"
+source = "19b_function_ptr.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/19_shell_parser"
+hint = '''
+用函数指针实现命令分发。
+
+函数指针: 一个变量，指向一个函数而不是数据。
+
+思路:
+1. 定义函数指针 int (*pf)(int, char**)
+2. 根据 argv[0] (命令名) 决定 pf 指向哪个函数
+3. 用 strcmp 比较字符串
+4. 通过 pf(argc, argv) 调用
+
+参考: 同目录下的原课 shell.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+add 10 3
+"""
+stdout = """
+result: 10 + 3 = 13
+"""
+
+[[exercises.cases]]
+stdin = """
+sub 10 3
+"""
+stdout = """
+result: 10 - 3 = 7
+"""
+
+[[exercises]]
+name = "19c_cmd_table"
+title = "结构体数组: 命令表"
+unit = "unit1"
+lesson = 19
+order = 35
+mode = "stdout"
+source = "shell.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/19_shell_parser"
+hint = '''
+用结构体数组实现命令表——更优雅的命令分发。
+
+定义一个 struct command { 名称, 函数指针 } 的数组，
+然后循环遍历这个表，用 strcmp 匹配命令名。
+
+这比一长串 if-else 更易于扩展——
+添加新命令只需在数组中加一行。
+
+参考: 同目录下的原课 shell.c 课后练习。
+'''
+
+[[exercises.cases]]
+stdin = """
+mul 4 5
+"""
+stdout = """
+result: 4 x 5 = 20
+"""
+
+[[exercises.cases]]
+stdin = """
+add 1 2
+"""
+stdout = """
+result: 1 + 2 = 3
+"""
+
+[[exercises]]
+name = "19d_shell"
+title = "综合: 解析+分发"
+unit = "unit1"
+lesson = 19
+order = 36
+mode = "stdout"
+source = "19d_shell.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/19_shell_parser"
+hint = '''
+综合题: 解析命令行 + 查表分发。
+
+把前面学的组合起来:
+1. shell_parse(): 把输入拆成 argc/argv (来自 19a)
+2. command_do(): 遍历命令表匹配并调用 (来自 19c)
+
+如果你已经完成了前面的子题，这里就是把它们连接起来。
+
+参考: 同目录下的原课 shell.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+add 100 200
+"""
+stdout = """
+result: 100 + 200 = 300
+"""
+
+[[exercises.cases]]
+stdin = """
+mul 3 7
+"""
+stdout = """
+result: 3 x 7 = 21
+"""
+
+[[exercises.cases]]
+stdin = """
+p 2 10
+"""
+stdout = """
+result: 2 ^ 10 = 1024
+"""

@@ -1,0 +1,123 @@
+[[exercises]]
+name = "22a_generate"
+title = "随机数: 生成不重复4位数"
+unit = "unit1"
+lesson = 22
+order = 41
+mode = "stdout"
+source = "22a_generate.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
+hint = '''
+生成 4 个不重复的随机数字 (0-9)。
+
+关键: 怎么保证不重复？用一个 used[10] 数组标记!
+
+步骤:
+1. 生成一个随机数 d = my_rand() % 10
+2. 检查 used[d] 是否已被使用
+3. 如果已使用 → 重新生成 (do-while 很适合!)
+4. 如果未使用 → 记录 secret[i] = d, 标记 used[d] = 1
+
+do-while 的好处: 先执行后判断，确保至少生成一次。
+
+参考: 同目录下的原课 guess.c 中的 generate_secret()。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+1396
+"""
+
+[[exercises]]
+name = "22b_check"
+title = "双重循环: 计算 ?A?B"
+unit = "unit1"
+lesson = 22
+order = 42
+mode = "stdout"
+source = "22b_check.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
+hint = '''
+计算猜测结果: ?A?B。
+
+A = 数字和位置都对的个数
+B = 数字对但位置不对的个数
+
+算法:
+- 外层循环 i (0-3): 比较每一位
+  - guess[i] == secret[i] → A++
+  - 否则用内层循环 j 在 secret 中找相同数字 → B++
+
+注意: 只有位置不同时才算 B，位置相同的已经算 A 了。
+
+参考: 同目录下的原课 guess.c 中的 check()。
+'''
+
+[[exercises.cases]]
+stdin = """
+1325
+"""
+stdout = """
+1A2B
+"""
+
+[[exercises.cases]]
+stdin = """
+1234
+"""
+stdout = """
+4A0B
+"""
+
+[[exercises]]
+name = "22c_game_loop"
+title = "游戏循环: 猜数字"
+unit = "unit1"
+lesson = 22
+order = 43
+mode = "stdout"
+source = "guess.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
+hint = '''
+综合题: 实现完整的猜数游戏循环。
+
+你需要实现:
+1. parse_guess(): 把输入字符串转为数字数组
+   - 检查长度 >= 4
+   - 每个字符减 '0' 转为数字
+2. main 中的游戏循环:
+   - fgets 读取猜测
+   - parse_guess 解析
+   - check 比较
+   - 打印 ?A?B
+   - 如果 4A0B → 恭喜猜对!
+
+注意最后要打印 "The secret was: ..." (无论是否猜对)。
+
+参考: 同目录下的原课 guess.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+1234
+5678
+1396
+"""
+stdout = """
+1A1B
+0A1B
+4A0B
+Congratulations! You got it in 3 attempts!
+The secret was: 1396
+"""
+
+[[exercises.cases]]
+stdin = """
+1396
+"""
+stdout = """
+4A0B
+Congratulations! You got it in 1 attempts!
+The secret was: 1396
+"""

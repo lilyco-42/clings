@@ -1,0 +1,15 @@
+[[exercises]]
+name = "48_gps_navigation"
+title = "地图导航项目"
+unit = "unit2"
+lesson = 48
+order = 73
+mode = "stdout"
+source = "gps.c"
+compiler = "g++"
+cflags = ["-std=c++11", "-Wall", "-Wextra", "-O2"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/48_gps_navigation"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

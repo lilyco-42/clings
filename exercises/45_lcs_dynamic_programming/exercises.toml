@@ -1,0 +1,13 @@
+[[exercises]]
+name = "45_lcs_dynamic_programming"
+title = "最长公共子序列(LCS)问题"
+unit = "unit2"
+lesson = 45
+order = 70
+mode = "stdout"
+source = "dp.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/45_lcs_dynamic_programming"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

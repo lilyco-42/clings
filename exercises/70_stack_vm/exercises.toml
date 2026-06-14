@@ -1,0 +1,13 @@
+[[exercises]]
+name = "70_stack_vm"
+title = "Stack Virtual Machine 栈虚拟机"
+unit = "unit3"
+lesson = 70
+order = 95
+mode = "stdout"
+source = "stack_vm.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/70_stack_vm"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

@@ -1,0 +1,13 @@
+[[exercises]]
+name = "43_backtrack_dfs_maze"
+title = "深度优先解决迷宫问题"
+unit = "unit2"
+lesson = 43
+order = 68
+mode = "stdout"
+source = "maze.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/43_backtrack_dfs_maze"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

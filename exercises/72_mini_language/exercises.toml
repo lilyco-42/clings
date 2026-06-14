@@ -1,0 +1,13 @@
+[[exercises]]
+name = "72_mini_language"
+title = "Project: Mini Language 迷你语言"
+unit = "unit3"
+lesson = 72
+order = 97
+mode = "stdout"
+source = "minilang.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals/-/tree/main/lessons/72_mini_language"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

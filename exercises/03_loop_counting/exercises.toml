@@ -1,0 +1,76 @@
+[[exercises]]
+name = "03a_while_loop"
+title = "while 循环: 数到10"
+unit = "unit1"
+lesson = 3
+order = 5
+mode = "stdout"
+source = "03a_while_loop.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/03_loop_counting"
+hint = '''
+while 循环的基本结构: while (条件) { 循环体 }
+
+你需要:
+1. 一个计数变量，从 1 开始
+2. 循环条件: 什么时候停下来？(到 10 为止)
+3. 每次循环: 打印当前值，然后让计数器增加
+
+思考 counter++ 应该在打印之前还是之后？
+看看期望输出的第一行是 "counter = 1" 还是 "counter = 0"。
+
+参考: 本课 README 中的 while 循环示例。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+counter = 1
+counter = 2
+counter = 3
+counter = 4
+counter = 5
+counter = 6
+counter = 7
+counter = 8
+counter = 9
+counter = 10
+"""
+
+[[exercises]]
+name = "03b_for_loop"
+title = "for 循环: 从10倒数到1"
+unit = "unit1"
+lesson = 3
+order = 6
+mode = "stdout"
+source = "03b_for_loop.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/03_loop_counting"
+hint = '''
+for 循环的三个部分: for (初始化; 条件; 更新) { ... }
+
+这次要倒着数! 从 10 数到 1。思考:
+- 初始化: counter 从哪个数开始？
+- 条件: 什么时候停止？
+- 更新: 每次减少多少？(counter--)
+
+注意期望输出的最后一行是 "sum = 55"——
+你还需要在循环中累加每个 counter 的值。
+
+参考: 本课 README 课后练习部分。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+counter = 10
+counter = 9
+counter = 8
+counter = 7
+counter = 6
+counter = 5
+counter = 4
+counter = 3
+counter = 2
+counter = 1
+sum = 55
+"""

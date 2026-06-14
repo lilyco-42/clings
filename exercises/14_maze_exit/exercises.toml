@@ -1,0 +1,77 @@
+[[exercises]]
+name = "14a_print_board"
+title = "二维数组: 棋盘初始化与打印"
+unit = "unit1"
+lesson = 14
+order = 22
+mode = "stdout"
+source = "14a_print_board.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/14_maze_exit"
+hint = '''
+用二维数组表示一个 5x5 的棋盘，并打印它。
+
+两个任务:
+1. init_chessboard(): 用 my_rand() % 2 随机填充
+   双重 for 循环遍历每个位置
+
+2. print_chessboard(): 打印棋盘
+   外层循环遍历行，内层遍历列
+   元素之间用空格隔开，每行末尾换行
+
+参考: 同目录下的原课 solution.c。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+1 1 1 1 0
+1 1 0 1 1
+0 0 0 0 1
+0 1 1 1 1
+1 0 0 0 0
+"""
+
+[[exercises]]
+name = "14b_dfs"
+title = "struct + 方向检查: 判断出路"
+unit = "unit1"
+lesson = 14
+order = 23
+mode = "stdout"
+source = "solution.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/14_maze_exit"
+hint = '''
+判断棋盘上某个位置有几个方向可以走。
+
+check 函数接收当前位置和一个方向:
+1. 计算新位置: nr = row + 方向.dr, nc = col + 方向.dc
+2. 检查新位置是否在棋盘内 (用 is_valid)
+3. 检查新位置的值是否为 0 (可通行)
+
+两个条件都满足才返回 1 (可以走)。
+
+struct direction 已经定义好了四个方向 (上下左右)，
+每个方向有 dr 和 dc 两个偏移量。
+
+参考: 同目录下的原课 solution.c 中的 struct direction。
+'''
+
+[[exercises.cases]]
+stdin = """
+1 1
+"""
+stdout = """
+direction down is ok!
+direction right is ok!
+value = 1
+ways = 2
+"""
+
+[[exercises.cases]]
+stdin = """
+0 0
+"""
+stdout = """
+value = 1
+ways = 0
+"""

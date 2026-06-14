@@ -1,0 +1,13 @@
+[[exercises]]
+name = "38_heap_sort"
+title = "堆排序问题"
+unit = "unit2"
+lesson = 38
+order = 63
+mode = "stdout"
+source = "heap.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/38_heap_sort"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

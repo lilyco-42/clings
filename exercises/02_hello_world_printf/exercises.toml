@@ -1,0 +1,58 @@
+[[exercises]]
+name = "02a_hello_printf"
+title = "printf: hello, world"
+unit = "unit1"
+lesson = 2
+order = 3
+mode = "stdout"
+source = "02a_hello_printf.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/02_hello_world_printf"
+hint = '''
+要在屏幕上打印东西，你需要用到 printf 函数。
+
+但 printf 不是 C 语言内置的——你需要先"导入"它。
+怎么导入？用 #include 和一个头文件。printf 住在哪个头文件里？
+
+注意输出的确切内容:
+- 全部小写
+- 句末有句号
+- 末尾需要换行 (\n 表示换行符)
+
+参考: 本课 README 中关于预处理符和头文件的说明。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+hello, world.
+"""
+
+[[exercises]]
+name = "02b_format_print"
+title = "格式化输出: %d 和 %x"
+unit = "unit1"
+lesson = 2
+order = 4
+mode = "stdout"
+source = "02b_format_print.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/02_hello_world_printf"
+hint = '''
+printf 可以用"格式说明符"把变量的值嵌入字符串中打印。
+
+常用格式符:
+- %d → 十进制整数
+- %x → 十六进制 (小写 a-f)
+- 0x%x → 带 0x 前缀的十六进制
+
+看看期望输出的格式: "local = 100" 和 "global = 0xc8"。
+100 的十六进制是什么？想想 16*12+8。
+
+参考: 本课 README 中的格式化输出说明。
+'''
+
+[[exercises.cases]]
+stdin = ""
+stdout = """
+local = 100
+global = 0xc8
+"""

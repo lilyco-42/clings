@@ -1,0 +1,131 @@
+[[exercises]]
+name = "24a_find_istr"
+title = "指针: 大小写不敏感匹配"
+unit = "unit1"
+lesson = 24
+order = 47
+mode = "stdout"
+source = "24a_find_istr.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
+hint = '''
+实现大小写不敏感的字符串查找。
+
+在 text 中查找 pattern，忽略大小写。
+
+思路: 逐个位置尝试匹配。在每个位置:
+- 用 tolower() 把两边的字符都转成小写再比较
+- 如果所有字符都匹配 → 找到了，返回该位置
+- 如果有一个不匹配 → 继续下一个位置
+
+需要 <ctype.h> 中的 tolower 函数。
+
+参考: 同目录下的原课 search.c 中的 find_istr()。
+'''
+
+[[exercises.cases]]
+stdin = """
+Hello World
+world
+"""
+stdout = """
+found
+"""
+
+[[exercises.cases]]
+stdin = """
+abc def
+xyz
+"""
+stdout = """
+not found
+"""
+
+[[exercises]]
+name = "24b_extract_links"
+title = "字符串解析: HTML 链接提取"
+unit = "unit1"
+lesson = 24
+order = 48
+mode = "stdout"
+source = "24b_extract_links.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
+hint = '''
+从 HTML 中提取链接——解析 href="..." 属性。
+
+算法:
+1. 用 find_istr 在文本中查找 "href="
+2. 找到后跳过 "href=" 这 5 个字符
+3. 检查是否有引号 (单引号或双引号)
+4. 读取直到找到闭合引号
+5. 打印提取到的 URL
+6. 继续查找下一个
+
+这是字符串解析的经典模式: 查找标记 → 提取内容 → 继续。
+
+参考: 同目录下的原课 search.c 中的 extract_links。
+'''
+
+[[exercises.cases]]
+stdin = """
+<a href="http://a.com"> <a href='http://b.com'>
+"""
+stdout = """
+[1] http://a.com
+[2] http://b.com
+
+Total: 2 links found.
+"""
+
+[[exercises.cases]]
+stdin = """
+no links here
+"""
+stdout = """
+
+Total: 0 links found.
+"""
+
+[[exercises]]
+name = "24c_search"
+title = "综合: HTML 链接提取器"
+unit = "unit1"
+lesson = 24
+order = 49
+mode = "stdout"
+source = "search.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
+hint = '''
+综合题: 完整的 HTML 链接提取器。
+
+把前面的函数组合起来:
+1. find_istr(): 大小写不敏感查找 (来自 24a)
+2. extract_links(): 提取所有链接 (来自 24b)
+3. main(): 读取全部输入 → 调用 extract_links → 打印统计
+
+需要用 malloc 动态分配内存来存储输入文本，
+读完后记得 free 释放。
+
+参考: 同目录下的原课 search.c。
+'''
+
+[[exercises.cases]]
+stdin = """
+<a href="http://x.com"><a HREF="http://y.org">
+"""
+stdout = """
+[1] http://x.com
+[2] http://y.org
+
+Total: 2 links found.
+"""
+
+[[exercises.cases]]
+stdin = """
+<a href='https://cnb.cool'>CNB</a> text <a href="https://github.com">
+"""
+stdout = """
+[1] https://cnb.cool
+[2] https://github.com
+
+Total: 2 links found.
+"""

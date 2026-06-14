@@ -1,0 +1,13 @@
+[[exercises]]
+name = "31_ls_command"
+title = "ll 和 date (ls -l命令实现)"
+unit = "unit2"
+lesson = 31
+order = 56
+mode = "stdout"
+sources = ["main.c", "cmd_ll.c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/31_ls_command"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true

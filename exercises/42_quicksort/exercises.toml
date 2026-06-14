@@ -1,0 +1,13 @@
+[[exercises]]
+name = "42_quicksort"
+title = "QSort 实现 (分治法)"
+unit = "unit2"
+lesson = 42
+order = 67
+mode = "stdout"
+source = "qsort.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/42_quicksort"
+hint = '''?????? README ? TODO ?????????????????????'''
+
+[[exercises.cases]]
+compile_only = true
