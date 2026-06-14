@@ -19,14 +19,23 @@ cli:
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
             clings check unit1 --solutions
 
-        - name: Build & Publish to PyPI
+        - name: Build
+          script: |
+            pip install --break-system-packages build twine
+            python3 -m build
+
+        - name: Publish to PyPI
           imports:
             - https://cnb.cool/q.qq/opencamp-c-2026-summer/secrets/-/blob/main/values.yml
           script: |
-            pip install --break-system-packages build twine
             # PyPI API Token (project-scoped, minimum privilege)
-            # Token scope: project "clings" only, not account-wide
             export TWINE_USERNAME="__token__"
             export TWINE_PASSWORD=${PYPI_TOKEN}
-            python3 -m build
+            twine upload dist/*
+
+        - name: Publish to CNB
+          script: |
+            export TWINE_USERNAME="cnb"
+            export TWINE_PASSWORD=$CNB_TOKEN
+            export TWINE_REPOSITORY_URL="https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings-cli/-/packages/simple"
             twine upload dist/*
