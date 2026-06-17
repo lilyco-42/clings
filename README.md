@@ -1,7 +1,12 @@
 # Clings — C 语言练习系统 CLI
 
+[![PyPI][badge-pypi]][pypi]
+[![Python][badge-python]][pypi]
+[![Downloads][badge-downloads]][pypi]
+[![License][badge-license]][pypi]
+
 > **C 语言版 [Rustlings](https://github.com/rust-lang/rustlings)**：通过修复编译错误、补全代码来学习 C 语言。
-> 配套 [OpenCamp C 2026 Summer](https://cnb.cool/q.qq/opencamp-c-2026-summer) 课程 Unit 1–4，共 **121 道练习**。
+> 配套 [OpenCamp C 2026 Summer](https://cnb.cool/q.qq/opencamp-c-2026-summer) 课程 Unit 0–4，共 **121 道练习**。
 
 ## 分支说明
 
@@ -31,7 +36,7 @@ clings                             # 进入交互式 watch 模式 (uvx clings �
 
 ```sh
 clings                        # 直接进入 watch 模式 (默认)
-clings init [unit1|...|all]   # 初始化练习 (从包内释放到当前目录)
+clings init [unit0|...|all]   # 初始化练习 (从包内释放到当前目录)
 clings watch [selector]       # 交互式 watch (保存即验证)
 clings run [exercise]         # 运行练习 (省略=下一道, 'random'=随机)
 clings hint [exercise]        # 查看提示 (省略=下一道)
@@ -40,6 +45,7 @@ clings check [selector]       # 批量验证
 clings reset <exercise>       # 重置练习文件
 clings reset progress         # 清除全部进度
 clings doctor                 # 检查环境
+clings -v                     # 显示版本号
 ```
 
 ## 开发
@@ -56,7 +62,7 @@ clings check unit1 --solutions # 验证 49/49
 push 到 `cli` 分支自动触发:
 
 1. **Install & Test**: pip install → clings init all → check unit1 --solutions
-2. **Build & Publish**: python -m build → twine upload 到 CNB PyPI 制品库
+2. **Build & Publish**: python -m build → twine upload 到 PyPI
 
 ## 架构
 
@@ -76,3 +82,14 @@ clings/ (cli 分支)
 ├── solutions/             # Unit 1 参考答案 (CI 测试用, 不打包)
 └── tools/                 # 维护脚本
 ```
+
+<!-- badges -->
+
+[badge-pypi]: https://img.shields.io/pypi/v/clings?style=flat-square
+[badge-python]: https://img.shields.io/pypi/pyversions/clings?style=flat-square
+[badge-downloads]: https://img.shields.io/pypi/dm/clings?style=flat-square
+[badge-license]: https://img.shields.io/pypi/l/clings?style=flat-square
+
+<!-- links -->
+
+[pypi]: https://pypi.org/project/clings/
