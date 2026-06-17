@@ -1,16 +1,16 @@
 /*
  * Lesson 14b: 方向检查 — struct direction + check()
  *
- * 知识点: struct, typedef, 函数参数传结构体, 方向数组
+ * 知识点：struct, typedef, 函数参数传结构体，方向数组
  * 参考原课 solution.c 的 struct direction 和 check() 函数
  *
- * 任务: 实现 check(row, col, dir) 函数:
+ * 任务：实现 check(row, col, dir) 函数:
  *       1. 计算 nr = row + dir.dr, nc = col + dir.dc
  *       2. 用 is_valid 检查 (nr, nc) 是否在棋盘内
  *       3. 检查 chessboard[nr][nc] == 0 (可通行)
  *       4. 两个条件都满足返回 1，否则返回 0
  *
- * 验证: 位置 (1,1) → "direction up is ok!\n..."
+ * 验证：位置 (1,1) → "direction up is ok!\n..."
  */
 
 #include <stdio.h>

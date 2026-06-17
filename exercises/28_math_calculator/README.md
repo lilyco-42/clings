@@ -36,15 +36,15 @@
 ### 重要知识点
 
 - 递归下降解析 (Recursive Descent Parsing)
-  - 每个语法规则对应一个函数: `parse_expr` → `parse_term` → `parse_factor`
-  - 运算符优先级通过调用层次自然体现: `*`/`/` 在 `term` 层，`+`/`-` 在 `expr` 层
+  - 每个语法规则对应一个函数：`parse_expr` → `parse_term` → `parse_factor`
+  - 运算符优先级通过调用层次自然体现：`*`/`/` 在 `term` 层，`+`/`-` 在 `expr` 层
   - 这个方法将直接在 Unit 4 编译器中复用
 - 数学函数调用
   - `parse_factor` 中识别函数名 (sin/cos/sqrt/log/exp)
   - 用 `strcmp` 分派到对应的 `<math.h>` 函数
 - 错误处理
-  - 除零检测: `if (right == 0) error("division by zero")`
-  - 未知函数: 报错并返回 0
+  - 除零检测：`if (right == 0) error("division by zero")`
+  - 未知函数：报错并返回 0
 
 ### 课堂讨论
 
@@ -54,12 +54,12 @@
 
 ### 课后练习
 
-- 测试: `math "-(-5)"` 应返回 5
+- 测试：`math "-(-5)"` 应返回 5
 - 添加 `%` (取余) 运算符支持
-- 挑战: 添加变量赋值 `x=3; x*x+1`
+- 挑战：添加变量赋值 `x=3; x*x+1`
 
 ### 参考资料
 
-- K&R《C程序设计语言》第4章 递归
+- K&R《C 程序设计语言》第 4 章 递归
 - Standard C Math Library https://ganquan.info/standard-c/
 - 运算符优先级表 https://en.cppreference.com/w/c/language/operator_precedence

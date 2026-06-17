@@ -36,13 +36,13 @@
 - 分区 (Partition) — 快排的核心
   - **Lomuto**: pivot 取末尾，i 指针扫描，交换次数较多但逻辑简单
   - **Hoare**: pivot 取首部，双指针相向扫描，平均交换次数少 ~3x
-  - 分区结束后: pivot 左边全 ≤ pivot，右边全 ≥ pivot
+  - 分区结束后：pivot 左边全 ≤ pivot，右边全 ≥ pivot
 - 最坏情况与随机化
   - 已排序数组 + 首/尾 pivot = O(n²) 退化
   - 随机选 pivot: 期望 O(n log n)，避免恶意输入
 - 分治法思想
 
-在 [《C程序设计语言》](https://www.dropbox.com/s/qer3va6rtq8o1dj/C%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E8%AF%AD%E8%A8%80%EF%BC%88%E7%AC%AC2%E7%89%88%C2%B7%E6%96%B0%E7%89%88%EF%BC%89.pdf)书中，介绍了一个快速排序函数 qsort()，如下所示：
+在 [《C 程序设计语言》](https://www.dropbox.com/s/qer3va6rtq8o1dj/C%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E8%AF%AD%E8%A8%80%EF%BC%88%E7%AC%AC2%E7%89%88%C2%B7%E6%96%B0%E7%89%88%EF%BC%89.pdf)书中，介绍了一个快速排序函数 qsort()，如下所示：
 
     /* swap: interchange v[i] and v[j] */
     void swap(int v[], int i, int j)
@@ -88,12 +88,12 @@
 
 ### 课后练习
 
-- 测试: 对 `{5,3,9,1,7,2,8,4,6}` 排序
-- 对比: 随机化 vs 非随机化在已排序输入上的递归深度
-- 挑战: 实现泛型 `qsort(void *base, ...)` 与标准库接口一致
+- 测试：对 `{5,3,9,1,7,2,8,4,6}` 排序
+- 对比：随机化 vs 非随机化在已排序输入上的递归深度
+- 挑战：实现泛型 `qsort(void *base, ...)` 与标准库接口一致
 
 ### 参考资料
 
-- K&R《C程序设计语言》第4.10节 递归
+- K&R《C 程序设计语言》第 4.10 节 递归
 - 快速排序详解 http://blog.csdn.net/wzy_1988/article/details/8043168
 - Sedgewick "Quicksort is Optimal" https://www.cs.princeton.edu/~rs/talks/QuicksortIsOptimal.pdf

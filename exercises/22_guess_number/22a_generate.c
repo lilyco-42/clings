@@ -1,15 +1,15 @@
 /*
- * Lesson 22a: 生成不重复的4位随机数
+ * Lesson 22a: 生成不重复的 4 位随机数
  *
- * 知识点: 伪随机数, do-while, used[] 数组标记
+ * 知识点：伪随机数，do-while, used[] 数组标记
  * 参考原课 guess.c 中的 generate_secret() 函数
  *
- * 任务: 实现 generate_secret(secret[4]):
+ * 任务：实现 generate_secret(secret[4]):
  *       1. 用 used[10] = {0} 标记已使用的数字
  *       2. do { d = my_rand() % 10; } while (used[d]) 生成不重复数字
  *       3. secret[i] = d; used[d] = 1;
  *
- * 验证: my_rand() 固定种子 (LCG)，输出 4 个不重复数字
+ * 验证：my_rand() 固定种子 (LCG)，输出 4 个不重复数字
  */
 
 #include <stdio.h>

@@ -1,16 +1,16 @@
 /*
  * Lesson 20b: getword — 字符→单词切分
  *
- * 知识点: 字符分类 isalpha/isalnum, ungetc 回退, 字符串指针
+ * 知识点：字符分类 isalpha/isalnum, ungetc 回退，字符串指针
  * 参考原课 expdefine.c 中的 getword 函数
  *
- * 任务: 实现 getword(word) 从 stdin 读取一个"单词":
+ * 任务：实现 getword(word) 从 stdin 读取一个"单词":
  *       1. c = getchar(); 若 EOF → word[0]='\0' 返回
- *       2. 若 c 不是字母 → word 只存这一个字符: *word++ = c; *word = '\0'
+ *       2. 若 c 不是字母 → word 只存这一个字符：*word++ = c; *word = '\0'
  *       3. 若 c 是字母 → do { *word++ = c; c = getchar(); } while (isalnum(c) || c == '_')
- *          循环结束后 ungetc(c, stdin) 回退非单词字符, *word = '\0'
+ *          循环结束后 ungetc(c, stdin) 回退非单词字符，*word = '\0'
  *
- * 验证: "#define N 10\nint x = N;\n" → "int x = 10;\n"
+ * 验证："#define N 10\nint x = N;\n" → "int x = 10;\n"
  */
 
 #include <stdio.h>

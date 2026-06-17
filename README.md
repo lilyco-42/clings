@@ -12,20 +12,20 @@
 
 | 分支                   | 用途                                                 |
 | ---------------------- | ---------------------------------------------------- |
-| **cli** (本分支, 默认) | CLI 工具源码 + 练习数据，CI 自动发布 pip 包          |
+| **cli** (本分支，默认) | CLI 工具源码 + 练习数据，CI 自动发布 pip 包          |
 | main                   | 练习仓库 (学生 clone 用，已废弃，改用 `clings init`) |
 
 ## 快速开始
 
 ```sh
 # 1. 安装 (推荐 uvx，不污染系统环境)
-uvx clings init unit1              # 一行搞定: 安装+初始化 (需要 uv)
+uvx clings init unit1              # 一行搞定：安装 + 初始化 (需要 uv)
 
-# 或传统方式:
+# 或传统方式：
 pip install clings                 # 安装到系统/虚拟环境
-clings init unit1                  # 初始化 Unit 1 (24课49题)
+clings init unit1                  # 初始化 Unit 1 (24 课 49 题)
 
-# 2. 开始做题!
+# 2. 开始做题！
 clings                             # 进入交互式 watch 模式 (uvx clings 亦可)
 ```
 
@@ -38,7 +38,7 @@ clings                             # 进入交互式 watch 模式 (uvx clings �
 clings                        # 直接进入 watch 模式 (默认)
 clings init [unit0|...|all]   # 初始化练习 (从包内释放到当前目录)
 clings watch [selector]       # 交互式 watch (保存即验证)
-clings run [exercise]         # 运行练习 (省略=下一道, 'random'=随机)
+clings run [exercise]         # 运行练习 (省略=下一道，'random'=随机)
 clings hint [exercise]        # 查看提示 (省略=下一道)
 clings list [selector]        # 列出练习 + ✔/• 进度状态
 clings check [selector]       # 批量验证
@@ -59,7 +59,7 @@ clings check unit1 --solutions # 验证 49/49
 
 ## CI/CD
 
-push 到 `cli` 分支自动触发:
+push 到 `cli` 分支自动触发：
 
 1. **Install & Test**: pip install → clings init all → check unit1 --solutions
 2. **Build & Publish**: python -m build → twine upload 到 PyPI

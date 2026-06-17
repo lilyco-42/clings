@@ -1,7 +1,7 @@
 /*
  * Lesson 23b: 五子棋判定 — check_dir + check_win
  *
- * 知识点: 二维数组, 方向扫描 (dr,dc), 函数封装
+ * 知识点：二维数组，方向扫描 (dr,dc), 函数封装
  * 参考原课 gomoku.c 的判赢逻辑
  *
  * 任务:
@@ -12,7 +12,7 @@
  *       2. check_win(player):
  *          遍历棋盘每个位置，4 方向 (0,1)(1,0)(1,1)(1,-1) 调用 check_dir
  *
- * 验证: 第一行 BBBBB... → "black\n"
+ * 验证：第一行 BBBBB... → "black\n"
  */
 
 #include <stdio.h>

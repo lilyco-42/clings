@@ -1,15 +1,15 @@
 /*
  * Lesson 19d: 命令解释器综合
  *
- * 知识点: 状态机解析, 函数指针, 结构体命令表, 综合运用
+ * 知识点：状态机解析，函数指针，结构体命令表，综合运用
  * 参考原课 shell.c — 从字符串解析到命令执行的完整流程
  *
- * 任务: 同时实现 shell_parse() 和 command_do():
+ * 任务：同时实现 shell_parse() 和 command_do():
  *       1. shell_parse(buf, argv): 状态机切分命令行 (参考 19a)
  *       2. command_do(argc, argv): 遍历 op[] 匹配 argv[0],
  *          设置全局 pf/opchar, 调用 math_main (参考 19c)
  *
- * 验证: "add 100 200\n" → "result: 100 + 200 = 300\n"
+ * 验证："add 100 200\n" → "result: 100 + 200 = 300\n"
  */
 
 #include <stdio.h>

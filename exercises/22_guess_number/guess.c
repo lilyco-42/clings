@@ -1,17 +1,17 @@
 /*
  * Lesson 22c: 猜数游戏 — 完整 ?A?B
  *
- * 知识点: 随机数, 数组, 函数调用, 字符串解析, 游戏循环
- * 参考原课 guess.c — 4位不重复数字猜测游戏
+ * 知识点：随机数，数组，函数调用，字符串解析，游戏循环
+ * 参考原课 guess.c — 4 位不重复数字猜测游戏
  *
- * 任务: generate_secret 和 check 已实现，学生实现:
- *       1. parse_guess(s, guess): strlen>=4 检查, s[i]-'0' 转换, 0-9 范围检查
+ * 任务：generate_secret 和 check 已实现，学生实现:
+ *       1. parse_guess(s, guess): strlen>=4 检查，s[i]-'0' 转换，0-9 范围检查
  *       2. main(): generate_secret, while(1) 循环:
  *          fgets → parse_guess → check → printf("%dA%dB\n")
  *          → 若 a==4 则打印 Congratulations 并 break
  *       3. 最后打印 "The secret was: %d%d%d%d\n"
  *
- * 验证: my_rand() LCG 固定种子, 输入 猾测序列
+ * 验证：my_rand() LCG 固定种子，输入 猾测序列
  *       → "0A0B\n1A1B\n4A0B\nCongratulations!...\nThe secret was: 5096\n"
  */
 

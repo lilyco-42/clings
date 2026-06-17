@@ -1,10 +1,10 @@
 /*
  * Lesson 20c: 表驱动状态机 — 宏展开
  *
- * 知识点: 二维数组, 函数指针, 表驱动状态机设计
+ * 知识点：二维数组，函数指针，表驱动状态机设计
  * 参考原课 expdefine.c — 用 state_transition[][] 和 act_table[][] 驱动
  *
- * 任务: 实现 7 个 action 函数:
+ * 任务：实现 7 个 action 函数:
  *       1. act_print_word(): 检查是否是宏名，是则输出宏值，否则原样输出
  *       2. act_save_to_buf(): 将当前 word 追加到 buf
  *       3. act_print_buf_and_word(): 输出 buf 和 word，清空 buf
@@ -13,7 +13,7 @@
  *       6. act_get_macro_value(): 保存 word_buf 为宏值，macro_counter++
  *       7. act_null(): 空操作
  *
- * 验证: "#define N 10\nint x = N;\n" → "int x = 10;\n"
+ * 验证："#define N 10\nint x = N;\n" → "int x = 10;\n"
  */
 
 #include <stdio.h>

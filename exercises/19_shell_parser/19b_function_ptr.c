@@ -1,7 +1,7 @@
 /*
  * Lesson 19b: 函数指针
  *
- * 知识点: 函数指针 int (*pf)(int, int), 全局函数指针, strcmp 命令分发
+ * 知识点：函数指针 int (*pf)(int, int), 全局函数指针，strcmp 命令分发
  * 参考原课 shell.c 中的全局 pf + math_main 设计
  *
  * 任务:
@@ -9,7 +9,7 @@
  *       2. main 中用 strcmp 匹配 argv[0]，设置全局 pf 和 opchar
  *       3. 调用 math_main(argc, argv) 完成计算和输出
  *
- * 验证: "add 10 3" → "result: 10 + 3 = 13\n"; "sub 10 3" → "result: 10 - 3 = 7\n"
+ * 验证："add 10 3" → "result: 10 + 3 = 13\n"; "sub 10 3" → "result: 10 - 3 = 7\n"
  */
 
 #include <stdio.h>

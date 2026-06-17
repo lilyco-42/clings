@@ -1,10 +1,10 @@
 #include <stdio.h>
 
 /*
- * delta 优化版: 只维护一个指针 s，通过偏移 delt 写入 dst
- * 出处: 林锐《高质量程序设计指南》
+ * delta 优化版：只维护一个指针 s，通过偏移 delt 写入 dst
+ * 出处：林锐《高质量程序设计指南》
  *
- * 注意: 为保证 delt = dst - src 合法 (指向同一数组内)，
+ * 注意：为保证 delt = dst - src 合法 (指向同一数组内)，
  * main 中将 src 和 dst 放在同一个 buf 中的不同偏移
  */
 char *mystrcpy_delt(char *dst, const char *src)
