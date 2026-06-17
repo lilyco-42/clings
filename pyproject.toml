@@ -1,6 +1,6 @@
 [project]
 name = "clings"
-version = "3.3.0"
+version = "3.3.1"
 description = "Rustlings-style C exercises CLI for OpenCamp C 2026 Summer"
 readme = "README.md"
 license = "MIT"

@@ -5,28 +5,23 @@
 id = "unit0"
 title = "C Primer"
 lessons = "01-05"
-url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-0-C-Primer"
 
 [[units]]
 id = "unit1"
 title = "C Fundamentals"
 lessons = "06-24"
-url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals"
 
 [[units]]
 id = "unit2"
 title = "C Essentials"
 lessons = "25-48"
-url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials"
 
 [[units]]
 id = "unit3"
 title = "C Classicals"
 lessons = "49-72"
-url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Classicals"
 
 [[units]]
 id = "unit4"
 title = "C Compiler"
 lessons = "73-96"
-url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler"
