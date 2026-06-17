@@ -1054,9 +1054,31 @@ def cmd_init(args: argparse.Namespace) -> int:
     target_exercises = ROOT / "exercises"
     target_config = ROOT / "clings.toml"
 
-    if not target_config.exists() and pkg_config.exists():
-        shutil.copy2(pkg_config, target_config)
-        print(f"  created clings.toml")
+    # Generate clings.toml with only the requested units (merge if exists)
+    if pkg_config.exists():
+        with open(pkg_config, "rb") as cf:
+            pkg_data = tomllib.load(cf)
+        # Load existing target config or start fresh
+        if target_config.exists():
+            with open(target_config, "rb") as cf:
+                existing = tomllib.load(cf)
+            existing_ids = {u["id"] for u in existing.get("units", [])}
+        else:
+            existing = {"units": []}
+            existing_ids = set()
+        # Add new units from package config
+        new_units = [u for u in pkg_data.get("units", [])
+                     if u.get("id") in units_to_init and u.get("id") not in existing_ids]
+        if new_units or not target_config.exists():
+            all_units = existing.get("units", []) + new_units
+            lines = ["# Exercise metadata in exercises/*/exercises.toml (auto-discovered)\n"]
+            for u in all_units:
+                lines.append(f'\n[[units]]\nid = "{u["id"]}"\ntitle = "{u["title"]}"\nlessons = "{u["lessons"]}"\n')
+            target_config.write_text("".join(lines))
+            if not existing_ids:
+                print(f"  created clings.toml")
+            elif new_units:
+                print(f"  updated clings.toml (+{len(new_units)} unit)")
 
     target_exercises.mkdir(parents=True, exist_ok=True)
 
