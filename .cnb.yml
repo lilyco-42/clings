@@ -34,10 +34,10 @@ cli:
             export TWINE_PASSWORD=${PYPI_TOKEN}
             twine upload --verbose dist/*
 
-        - name: Publish to CNB
-          allowFailure: true
-          script: |
-            export TWINE_USERNAME="cnb"
-            export TWINE_PASSWORD=$CNB_TOKEN
-            export TWINE_REPOSITORY_URL="https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings-cli/-/packages/simple"
-            twine upload --verbose dist/*
+        # - name: Publish to CNB
+        #   allowFailure: true
+        #   script: |
+        #     export TWINE_USERNAME="cnb"
+        #     export TWINE_PASSWORD=$CNB_TOKEN
+        #     export TWINE_REPOSITORY_URL="https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings-cli/-/packages/simple"
+        #     twine upload --verbose dist/*
