@@ -12,7 +12,7 @@ from ..compiler import (
     run_cases,
 )
 from ..config import exercises, find_exercise, load_config
-from .watch import WatchState, _next_pending_exercise
+from ..state import WatchState, next_pending_exercise
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -20,7 +20,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     config = load_config()
     if not args.exercise or args.exercise == "next":
-        ex = _next_pending_exercise(config)
+        ex = next_pending_exercise(config)
         if ex is None:
             print("all exercises completed!")
             return 0

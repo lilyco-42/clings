@@ -3,7 +3,7 @@
 import argparse
 
 from ..config import find_exercise, load_config
-from .watch import _next_pending_exercise
+from ..state import next_pending_exercise
 
 
 def cmd_hint(args: argparse.Namespace) -> int:
@@ -11,7 +11,7 @@ def cmd_hint(args: argparse.Namespace) -> int:
     if args.exercise:
         ex = find_exercise(config, args.exercise)
     else:
-        ex = _next_pending_exercise(config)
+        ex = next_pending_exercise(config)
         if ex is None:
             print("all exercises completed!")
             return 0
