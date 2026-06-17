@@ -1,10 +1,10 @@
 /*
  * Lesson 20a: 去注释状态机
  *
- * 知识点: 状态机, 字符分类函数, if-else 状态转换
+ * 知识点：状态机，字符分类函数，if-else 状态转换
  * 参考原课 delcomment.c — 用 get_input_type() 分类字符
  *
- * 任务: 实现 7 状态的去注释状态机:
+ * 任务：实现 7 状态的去注释状态机:
  *       state 0: 正常代码
  *       state 1: 遇到 '/'，待定 → /* 或 // 或普通 /
  *       state 2: 进入块注释 /* ...
@@ -18,10 +18,10 @@
  *       - state 1: 遇 input==2(*) → state 2, 遇 input==1(/) → state 4, 否则输出 / 和 c
  *       - state 2: 遇 input==2(*) → state 3, 其余留在 state 2
  *       - state 3: 遇 input==1(/) → state 0 (注释结束), 遇 input==2(*) 留 3, 其余回 2
- *       - state 4: 遇 input==3(\n) → state 0 (行注释结束, 输出\n)
+ *       - state 4: 遇 input==3(\n) → state 0 (行注释结束，输出\n)
  *       - state 0/5: putchar(c)
  *
- * 验证: "int x; / * comment * /\nint y;\n" → "int x; \nint y;\n"
+ * 验证："int x; / * comment * /\nint y;\n" → "int x; \nint y;\n"
  */
 
 #include <stdio.h>

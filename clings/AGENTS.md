@@ -22,17 +22,17 @@ cli.py                 # 入口：argparse 定义 + 命令分发
 
 ## 模块职责 (一句话)
 
-| 模块 | 职责 |
-|------|------|
-| `__init__.py` | 包入口，导出 `main` |
-| `__main__.py` | 支持 `python -m clings` |
-| `cli.py` | argparse 参数定义 + 命令分发 |
-| `config.py` | 路径常量、TOML 加载、练习发现、编译器检测、Unit 范围解析 |
-| `compiler.py` | 编译 C 源码、运行测试用例、验证返回值 |
-| `state.py` | `WatchState` 类：进度持久化（读写 `.clings-state.txt`） |
-| `renderer.py` | `WatchRenderer` 类：Watch 模式的终端 UI |
-| `utils.py` | ANSI 颜色常量、terminal 工具函数、`reset_exercise` |
-| `commands/` | 8 个子命令各自独立文件（详见 `commands/AGENTS.md`） |
+| 模块          | 职责                                                     |
+| ------------- | -------------------------------------------------------- |
+| `__init__.py` | 包入口，导出 `main`                                      |
+| `__main__.py` | 支持 `python -m clings`                                  |
+| `cli.py`      | argparse 参数定义 + 命令分发                             |
+| `config.py`   | 路径常量、TOML 加载、练习发现、编译器检测、Unit 范围解析 |
+| `compiler.py` | 编译 C 源码、运行测试用例、验证返回值                    |
+| `state.py`    | `WatchState` 类：进度持久化（读写 `.clings-state.txt`）  |
+| `renderer.py` | `WatchRenderer` 类：Watch 模式的终端 UI                  |
+| `utils.py`    | ANSI 颜色常量、terminal 工具函数、`reset_exercise`       |
+| `commands/`   | 8 个子命令各自独立文件（详见 `commands/AGENTS.md`）      |
 
 ## 核心规则
 
@@ -51,6 +51,7 @@ commands/* → compiler / state / renderer / utils → config
 ### editable 路径 fallback
 
 `config.py` 中的 `EXERCISES_DIR` 和 `PKG_CONFIG` 使用双路径检测：
+
 - 优先检测包内路径（`pip install` 正式安装）
 - 若不存在则 fallback 到仓库顶层（`pip install -e .` 开发模式）
 

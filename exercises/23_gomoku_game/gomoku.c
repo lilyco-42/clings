@@ -1,10 +1,10 @@
 /*
  * Lesson 23c: 完整游戏循环
  *
- * 知识点: while(1) 游戏循环, turn % 2 判断选手, break
+ * 知识点：while(1) 游戏循环，turn % 2 判断选手，break
  * 参考原课 gomoku.c 的 main 函数
  *
- * 任务: 所有函数已实现，学生写 main 游戏循环:
+ * 任务：所有函数已实现，学生写 main 游戏循环:
  *       1. while (1) 循环
  *       2. 用 turn % 2 决定当前玩家 (X 或 O)
  *       3. scanf 读入 r c，验证合法性
@@ -13,7 +13,7 @@
  *       6. 调用 board_full()，满了打印 "Draw!\n" 并 return
  *       7. turn++
  *
- * 验证: 输入 5 步连续 X 落子 → "X wins!\n"
+ * 验证：输入 5 步连续 X 落子 → "X wins!\n"
  */
 
 #include <stdio.h>

@@ -1,15 +1,15 @@
 /*
  * Lesson 24c: 简单搜索引擎 — HTML 链接提取器
  *
- * 知识点: 字符串匹配, 指针操作, 引号解析, 动态内存
+ * 知识点：字符串匹配，指针操作，引号解析，动态内存
  * 参考原课 search.c — 从 HTML 中提取所有 <a href="..."> 链接
  *
- * 任务: read_all 已实现 (读取全部 stdin)，学生实现:
+ * 任务：read_all 已实现 (读取全部 stdin)，学生实现:
  *       1. find_istr(text, pattern): tolower 大小写不敏感匹配
  *       2. extract_links(html): 循环 find_istr("href=") → 解析引号 → 提取 URL
  *       3. main(): 调用 read_all + extract_links + 打印总计
  *
- * 验证: HTML 含 2 个 href → "[1] url1\n[2] url2\n\nTotal: 2 links found.\n"
+ * 验证：HTML 含 2 个 href → "[1] url1\n[2] url2\n\nTotal: 2 links found.\n"
  */
 
 #include <stdio.h>

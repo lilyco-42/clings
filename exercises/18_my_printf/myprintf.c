@@ -1,16 +1,16 @@
 /*
  * Lesson 18: 实现 printf — itoa + myprintf 综合
  *
- * 知识点: do-while, 字符映射, 字符串逆序, stdarg.h, va_list 可变参数
+ * 知识点：do-while, 字符映射，字符串逆序，stdarg.h, va_list 可变参数
  * 参考原课 myprintf.c
  *
  * 任务:
  *       1. 实现 itoa(num, buf, base): do-while 取余 + 逆序 (参考 18a)
  *       2. 实现 myprintf(format, ...): va_list 遍历 + %d/%x/%s/%c (参考 18b)
  *
- * 课堂讨论: va_arg 是如何知道下一个参数的地址的？
+ * 课堂讨论：va_arg 是如何知道下一个参数的地址的？
  *
- * 验证: "a = 100, b = 0xC8\nc = A, s = helloworld\n"
+ * 验证："a = 100, b = 0xC8\nc = A, s = helloworld\n"
  */
 
 #include <stdio.h>

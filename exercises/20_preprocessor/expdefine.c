@@ -1,13 +1,13 @@
 /*
  * Lesson 20: 预处理器实现
  *
- * 知识点: 状态机, 宏替换, 字符串处理, debug 调试宏
+ * 知识点：状态机，宏替换，字符串处理，debug 调试宏
  *
- * 任务: 参考原课 expdefine.c，实现 #define 宏替换:
+ * 任务：参考原课 expdefine.c，实现 #define 宏替换:
  *       1. 读入一行，如果是 #define NAME VALUE，存储宏
  *       2. 否则将行中的 NAME 替换为 VALUE 后输出
  *
- * 验证: 输入 "#define N 10\nint x = N;\n" → "int x = 10;\n"
+ * 验证：输入 "#define N 10\nint x = N;\n" → "int x = 10;\n"
  */
 
 #include <stdio.h>

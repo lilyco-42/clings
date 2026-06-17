@@ -52,8 +52,8 @@ void set_no_enter(void)
 
 	tcgetattr(STDIN_FILENO,&ts);	//获取终端属性 
 	ts.c_lflag &= (~ICANON);	//设置终端为非标准模式，在非标准模式下终端驱动程序没有缓冲区，输入立即交换程序处理
-	ts.c_cc[VMIN]=1;	//VMIN的值告诉驱动程序一次可以读取多少个字符。如果想一次读取3个字符就设为3
-	ts.c_cc[VTIME]=0;	//VTIME设置超时
+	ts.c_cc[VMIN]=1;	//VMIN 的值告诉驱动程序一次可以读取多少个字符。如果想一次读取 3 个字符就设为 3
+	ts.c_cc[VTIME]=0;	//VTIME 设置超时
 	tcsetattr(STDIN_FILENO,TCSAFLUSH,&ts);	//设置终端的新属性 
 }
 

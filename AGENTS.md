@@ -61,9 +61,9 @@ clings/                    # 仓库根目录 (cli 分支)
 每次修改包代码（`clings/` 目录或 `pyproject.toml`）时：
 
 1. **bump 版本号**（`pyproject.toml` 中的 `version`）
-   - 新功能: minor bump（如 4.0 → 4.1）
-   - bug 修复 / 重构: patch bump（如 4.0.1 → 4.0.2）
-   - 破坏性变更: major bump（如 4.x → 5.0）
+   - 新功能：minor bump（如 4.0 → 4.1）
+   - bug 修复 / 重构：patch bump（如 4.0.1 → 4.0.2）
+   - 破坏性变更：major bump（如 4.x → 5.0）
 2. **运行测试**: `python -m clings check unit0 --solutions && python -m clings check unit1 --solutions`
 3. **验证版本**: `python -m clings -v`
 4. PyPI 不允许覆盖已发布的同版本文件
@@ -80,18 +80,18 @@ clings/                    # 仓库根目录 (cli 分支)
 
 ### Commit 规范
 
-格式: `<emoji> <type>(<scope>): <中文主题>`
+格式：`<emoji> <type>(<scope>): <中文主题>`
 
-| 类型 | Emoji | 适用场景 |
-|------|-------|---------|
-| feat | ✨ | 新功能 |
-| fix | 🐛 | 缺陷修复 |
-| refactor | ♻️ | 结构调整 |
-| docs | 📝 | 文档改动 |
-| build | 📦 | 构建/打包改动 |
-| chore | 🔧 | 工具链/日常维护 |
-| ci | 👷 | CI/CD 配置 |
-| test | ✅ | 测试 |
+| 类型     | Emoji | 适用场景        |
+| -------- | ----- | --------------- |
+| feat     | ✨    | 新功能          |
+| fix      | 🐛    | 缺陷修复        |
+| refactor | ♻️    | 结构调整        |
+| docs     | 📝    | 文档改动        |
+| build    | 📦    | 构建/打包改动   |
+| chore    | 🔧    | 工具链/日常维护 |
+| ci       | 👷    | CI/CD 配置      |
+| test     | ✅    | 测试            |
 
 scope 必填（如 cli, init, watch, config, ci, pypi 等）。
 

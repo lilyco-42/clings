@@ -1,16 +1,16 @@
 /*
  * Lesson 19c: 结构体命令表 — struct operation
  *
- * 知识点: 结构体数组, 函数指针, 循环匹配, 表驱动
+ * 知识点：结构体数组，函数指针，循环匹配，表驱动
  * 参考原课 shell.c 的 struct operation + command_do 设计
  *
  * 任务:
  *       1. 定义 struct operation { char name[8]; int (*pf)(int, int); char opchar; }
- *       2. 初始化 op[] 命令表: add/sub/mul/div/power 五个命令
+ *       2. 初始化 op[] 命令表：add/sub/mul/div/power 五个命令
  *       3. 实现 command_do(argc, argv): 遍历 op[] 匹配 argv[0],
  *          设置全局 pf 和 opchar, 调用 math_main
  *
- * 验证: "mul 4 5" → "result: 4 x 5 = 20\n"
+ * 验证："mul 4 5" → "result: 4 x 5 = 20\n"
  */
 
 #include <stdio.h>

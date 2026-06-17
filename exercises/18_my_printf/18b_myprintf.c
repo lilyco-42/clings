@@ -1,10 +1,10 @@
 /*
  * Lesson 18b: myprintf — 可变参数格式化输出
  *
- * 知识点: stdarg.h, va_list, va_start, va_arg, va_end
+ * 知识点：stdarg.h, va_list, va_start, va_arg, va_end
  * 参考原课 myprintf.c 中的 myprintf 函数
  *
- * 任务: 实现 myprintf(format, ...):
+ * 任务：实现 myprintf(format, ...):
  *       1. va_start(ap, format) 初始化
  *       2. while ((c = *format++) != '\0') 遍历
  *       3. 非 '%' 直接 putchar(c); '%' 后看下一字符:
@@ -14,7 +14,7 @@
  *          %c → putchar(va_arg(ap, int))
  *       4. va_end(ap)
  *
- * 验证: "a = 100, b = 0xC8\nc = A, s = helloworld\n"
+ * 验证："a = 100, b = 0xC8\nc = A, s = helloworld\n"
  */
 
 #include <stdio.h>

@@ -1,17 +1,17 @@
 /*
  * Lesson 14a: 棋盘初始化与打印
  *
- * 知识点: 二维数组, 函数参数传数组, 随机初始化
+ * 知识点：二维数组，函数参数传数组，随机初始化
  *
- * 任务: 实现 init_chessboard() + print_chessboard():
+ * 任务：实现 init_chessboard() + print_chessboard():
  *       1. init_chessboard(): 用 my_rand() % 2 填充 chessboard[ROW][COL]
  *       2. print_chessboard(): 二重 for 循环打印，格式 "%d" + 元素间空格 + 每行换行
  *
- * 注意: 使用 my_rand() 代替 stdlib rand()——rand() 在不同平台 (Windows/Linux)
+ * 注意：使用 my_rand() 代替 stdlib rand()——rand() 在不同平台 (Windows/Linux)
  *       产生不同序列，自定义 LCG 保证跨平台输出一致。
- *       LCG 公式: seed = seed * 1103515245 + 12345 (glibc 经典参数)
+ *       LCG 公式：seed = seed * 1103515245 + 12345 (glibc 经典参数)
  *
- * 验证: 确定性输出 (见测试用例)
+ * 验证：确定性输出 (见测试用例)
  */
 
 #include <stdio.h>

@@ -1,17 +1,17 @@
 /*
  * Lesson 24b: 从 HTML 中提取链接
  *
- * 知识点: 字符串解析, 引号处理, 状态跟踪, 指针操作
+ * 知识点：字符串解析，引号处理，状态跟踪，指针操作
  * 参考原课 search.c 中的 extract_links() 函数
  *
- * 任务: find_istr 已实现，学生实现 extract_links(html):
+ * 任务：find_istr 已实现，学生实现 extract_links(html):
  *       1. while 循环用 find_istr 查找 "href="
  *       2. 跳过 "href=" (p += 5), 跳过空格
  *       3. 检测引号 ('"' 或 '\''), 提取 URL 直到引号结束或空格/换行
  *       4. printf("[%d] %s\n", ++count, url)
  *       5. 返回找到的链接数
  *
- * 验证: "<a href=\"http://a.com\"> <a href='http://b.com'>"
+ * 验证："<a href=\"http://a.com\"> <a href='http://b.com'>"
  *       → "[1] http://a.com\n[2] http://b.com\n"
  */
 
