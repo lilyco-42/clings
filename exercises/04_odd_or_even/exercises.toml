@@ -1,7 +1,7 @@
 [[exercises]]
 name = "04_odd_or_even"
 title = "if-else: 判断奇偶"
-unit = "unit1"
+unit = "unit0"
 lesson = 4
 order = 7
 mode = "stdout"

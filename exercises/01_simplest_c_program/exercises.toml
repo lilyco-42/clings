@@ -1,7 +1,7 @@
 [[exercises]]
 name = "01a_return_zero"
 title = "最简单的C程序: 返回0"
-unit = "unit1"
+unit = "unit0"
 lesson = 1
 order = 1
 mode = "return"
@@ -26,7 +26,7 @@ hint = '''
 [[exercises]]
 name = "01b_return_expression"
 title = "变量与表达式: global + local"
-unit = "unit1"
+unit = "unit0"
 lesson = 1
 order = 2
 mode = "return"
