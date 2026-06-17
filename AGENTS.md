@@ -25,6 +25,10 @@ python -m clings check unit1 --solutions   # Unit 1 (40 题)
 python -m build                     # 构建 wheel + sdist
 twine upload dist/*                 # 发布到 PyPI
 
+# CI 打分
+python -m clings score unit0              # 跑完全部题目, 输出 JSON + ##[set-output score=N]
+python -m clings score unit0 --json       # 同时在 stdout 输出 JSON 报告
+
 # 学生使用
 uvx clings init unit0              # 初始化 Unit 0 练习
 clings                              # 进入交互式 watch 模式
