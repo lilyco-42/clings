@@ -1,7 +1,7 @@
 [[exercises]]
 name = "05a_sum_1_to_100"
 title = "循环累加: 1到100求和"
-unit = "unit1"
+unit = "unit0"
 lesson = 5
 order = 8
 mode = "stdout"
@@ -28,7 +28,7 @@ sum = 5050
 [[exercises]]
 name = "05b_sum_even"
 title = "continue: 只加偶数"
-unit = "unit1"
+unit = "unit0"
 lesson = 5
 order = 9
 mode = "stdout"

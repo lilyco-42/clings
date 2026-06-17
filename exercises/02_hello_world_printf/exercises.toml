@@ -1,7 +1,7 @@
 [[exercises]]
 name = "02a_hello_printf"
 title = "printf: hello, world"
-unit = "unit1"
+unit = "unit0"
 lesson = 2
 order = 3
 mode = "stdout"
@@ -30,7 +30,7 @@ hello, world.
 [[exercises]]
 name = "02b_format_print"
 title = "格式化输出: %d 和 %x"
-unit = "unit1"
+unit = "unit0"
 lesson = 2
 order = 4
 mode = "stdout"

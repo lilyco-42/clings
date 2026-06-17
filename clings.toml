@@ -7,9 +7,15 @@ version = "3.0"
 # Use 'clings init unit1' to initialize exercises for a specific unit
 
 [[units]]
+id = "unit0"
+title = "C Primer"
+lessons = "01-05"
+url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-0-C-Primer"
+
+[[units]]
 id = "unit1"
 title = "C Fundamentals"
-lessons = "01-24"
+lessons = "06-24"
 url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals"
 
 [[units]]

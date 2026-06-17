@@ -1,7 +1,7 @@
 [[exercises]]
 name = "03a_while_loop"
 title = "while 循环: 数到10"
-unit = "unit1"
+unit = "unit0"
 lesson = 3
 order = 5
 mode = "stdout"
@@ -39,7 +39,7 @@ counter = 10
 [[exercises]]
 name = "03b_for_loop"
 title = "for 循环: 从10倒数到1"
-unit = "unit1"
+unit = "unit0"
 lesson = 3
 order = 6
 mode = "stdout"
