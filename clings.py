@@ -1102,11 +1102,22 @@ def _next_pending_exercise(config: dict) -> dict | None:
     return None if state.is_done(ex) and state.all_done() else ex
 
 
+def _get_version() -> str:
+    """Read version from pyproject.toml bundled with the package."""
+    try:
+        with open(PKG_DIR / "pyproject.toml", "rb") as f:
+            return tomllib.load(f).get("project", {}).get("version", "unknown")
+    except FileNotFoundError:
+        return "unknown"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="clings",
         description="Rustlings-style C exercises. Run without subcommand to enter watch mode.",
     )
+    parser.add_argument("-v", "--version", action="version",
+                        version=f"%(prog)s {_get_version()}")
     sub = parser.add_subparsers(dest="command")
 
     p = sub.add_parser("list", help="list exercises with progress status")
