@@ -1,0 +1,83 @@
+"""CLI entry point — argument parsing and command dispatch."""
+
+import argparse
+
+from .config import ClingsError, UNIT_LESSON_RANGES, get_version
+from .commands.check import cmd_check
+from .commands.doctor import cmd_doctor
+from .commands.hint import cmd_hint
+from .commands.init import cmd_init
+from .commands.list import cmd_list
+from .commands.reset import cmd_reset
+from .commands.run import cmd_run
+from .commands.watch import cmd_watch
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="clings",
+        description="Rustlings-style C exercises. Run without subcommand to enter watch mode.",
+    )
+    parser.add_argument("-v", "--version", action="version",
+                        version=f"%(prog)s {get_version()}")
+    sub = parser.add_subparsers(dest="command")
+
+    p = sub.add_parser("list", help="list exercises with progress status")
+    p.add_argument("selector", nargs="?")
+    p.set_defaults(func=cmd_list)
+
+    p = sub.add_parser("hint", help="show hint for an exercise (default: next pending)")
+    p.add_argument("exercise", nargs="?")
+    p.set_defaults(func=cmd_hint)
+
+    p = sub.add_parser("run", help="run an exercise (default: next pending, 'random' for random)")
+    p.add_argument("exercise", nargs="?")
+    p.add_argument("--solutions", action="store_true")
+    p.add_argument("--hidden", action="store_true")
+    p.set_defaults(func=cmd_run)
+
+    p = sub.add_parser("check", help="batch verify exercises")
+    p.add_argument("selector", nargs="?")
+    p.add_argument("--solutions", action="store_true")
+    p.add_argument("--hidden", action="store_true")
+    p.set_defaults(func=cmd_check)
+
+    p = sub.add_parser("watch", help="interactive watch mode (default when no subcommand)")
+    p.add_argument("selector", nargs="?")
+    p.add_argument("--solutions", action="store_true")
+    p.add_argument("--hidden", action="store_true")
+    p.add_argument("--manual-run", action="store_true",
+                   help="disable auto-rerun on file change; press r to rerun")
+    p.add_argument("--edit-cmd", metavar="CMD",
+                   help="command to open exercise file (e.g. 'code' or 'vim')")
+    p.set_defaults(func=cmd_watch)
+
+    p = sub.add_parser("reset", help="reset exercise file or all progress")
+    p.add_argument("exercise", help="exercise name or 'progress' to reset all progress")
+    p.set_defaults(func=cmd_reset)
+
+    p = sub.add_parser("init", help="initialize exercises (default: unit1)")
+    available_units = ", ".join(list(UNIT_LESSON_RANGES.keys()) + ["all"])
+    p.add_argument("unit", nargs="?", default="unit1",
+                   help=f"unit to initialize: {available_units} (default: unit1)")
+    p.set_defaults(func=cmd_init)
+
+    p = sub.add_parser("doctor", help="check environment")
+    p.set_defaults(func=cmd_doctor)
+
+    args = parser.parse_args()
+
+    if args.command is None:
+        args.selector = None
+        args.solutions = False
+        args.hidden = False
+        args.manual_run = False
+        args.func = cmd_watch
+
+    try:
+        return args.func(args)
+    except KeyboardInterrupt:
+        return 130
+    except ClingsError as exc:
+        print(exc, file=__import__("sys").stderr)
+        return 1
