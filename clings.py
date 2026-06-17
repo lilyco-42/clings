@@ -1013,12 +1013,24 @@ def cmd_reset(args: argparse.Namespace) -> int:
     return 0
 
 
-UNIT_LESSON_RANGES = {
-    "unit1": (1, 24),
-    "unit2": (25, 48),
-    "unit3": (49, 72),
-    "unit4": (73, 96),
-}
+def _load_unit_lesson_ranges() -> dict[str, tuple[int, int]]:
+    """Parse [[units]] from clings.toml to get unit -> (start, end) lesson ranges."""
+    config_path = PKG_DIR / "clings.toml"
+    if not config_path.exists():
+        return {}
+    with open(config_path, "rb") as f:
+        data = tomllib.load(f)
+    ranges = {}
+    for unit in data.get("units", []):
+        uid = unit.get("id", "")
+        lessons = unit.get("lessons", "")
+        if "-" in lessons:
+            start, end = lessons.split("-", 1)
+            ranges[uid] = (int(start), int(end))
+    return ranges
+
+
+UNIT_LESSON_RANGES = _load_unit_lesson_ranges()
 
 
 def cmd_init(args: argparse.Namespace) -> int:
@@ -1028,8 +1040,8 @@ def cmd_init(args: argparse.Namespace) -> int:
     elif unit in UNIT_LESSON_RANGES:
         units_to_init = [unit]
     else:
-        print(f"unknown unit: {unit!r} (available: unit1, unit2, unit3, unit4, all)",
-              file=sys.stderr)
+        available = ", ".join(list(UNIT_LESSON_RANGES.keys()) + ["all"])
+        print(f"unknown unit: {unit!r} (available: {available})", file=sys.stderr)
         return 1
 
     pkg_exercises = PKG_DIR / "exercises"
@@ -1155,8 +1167,9 @@ def main() -> int:
     p.set_defaults(func=cmd_reset)
 
     p = sub.add_parser("init", help="initialize exercises (default: unit1)")
+    available_units = ", ".join(list(UNIT_LESSON_RANGES.keys()) + ["all"])
     p.add_argument("unit", nargs="?", default="unit1",
-                   help="unit to initialize: unit1, unit2, unit3, unit4, all (default: unit1)")
+                   help=f"unit to initialize: {available_units} (default: unit1)")
     p.set_defaults(func=cmd_init)
 
     p = sub.add_parser("doctor", help="check environment")

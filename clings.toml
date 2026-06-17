@@ -1,10 +1,5 @@
-[project]
-name = "clings"
-description = "Rustlings-style C exercises for OpenCamp C 2026 Summer"
-version = "3.0"
-
 # Exercise metadata in exercises/*/exercises.toml (auto-discovered)
-# Use 'clings init unit1' to initialize exercises for a specific unit
+# Use 'clings init unit0' to initialize exercises for a specific unit
 
 [[units]]
 id = "unit0"
