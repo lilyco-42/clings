@@ -10,6 +10,7 @@ from .commands.init import cmd_init
 from .commands.list import cmd_list
 from .commands.reset import cmd_reset
 from .commands.run import cmd_run
+from .commands.score import cmd_score
 from .commands.watch import cmd_watch
 
 
@@ -41,6 +42,18 @@ def main() -> int:
     p.add_argument("--solutions", action="store_true")
     p.add_argument("--hidden", action="store_true")
     p.set_defaults(func=cmd_check)
+
+    p = sub.add_parser("score", help="run all exercises and output scoring report for CI")
+    p.add_argument("selector", nargs="?")
+    p.add_argument("--solutions", action="store_true",
+                   help="use solutions directory instead of exercises")
+    p.add_argument("--hidden", action="store_true",
+                   help="include hidden test cases")
+    p.add_argument("--output", "-o", metavar="FILE",
+                   help="output JSON report path (default: clings_score.json)")
+    p.add_argument("--json", action="store_true",
+                   help="also print JSON report to stdout")
+    p.set_defaults(func=cmd_score)
 
     p = sub.add_parser("watch", help="interactive watch mode (default when no subcommand)")
     p.add_argument("selector", nargs="?")
