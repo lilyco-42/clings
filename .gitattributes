@@ -1,0 +1,15 @@
+# Force LF line endings for all text files (cross-platform consistency)
+* text=auto eol=lf
+
+# Source files
+*.py   text eol=lf
+*.c    text eol=lf
+*.h    text eol=lf
+*.toml text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.sh   text eol=lf
+
+# Binary files
+*.whl  binary
+*.tar.gz binary
