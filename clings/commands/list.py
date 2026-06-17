@@ -3,7 +3,8 @@
 import argparse
 
 from ..config import STATE_FILE, exercises, load_config, select_exercises
-from .watch import WatchState, _progress_bar
+from ..state import WatchState
+from ..utils import progress_bar
 
 
 def cmd_list(args: argparse.Namespace) -> int:
@@ -20,5 +21,5 @@ def cmd_list(args: argparse.Namespace) -> int:
         marker = "\x1b[32m\u2714\x1b[0m" if ex["name"] in done_names else "\x1b[31m\u2022\x1b[0m"
         print(f"  {marker} {ex['unit']:5} {ex['lesson']:02d} {mode:8} {ex['name']:32} {ex['title']}")
     total = len(selected)
-    print(f"\n  {_progress_bar(n_done, total)}")
+    print(f"\n  {progress_bar(n_done, total)}")
     return 0

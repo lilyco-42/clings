@@ -1,26 +1,11 @@
 """clings reset — reset exercise files or progress."""
 
 import argparse
-import subprocess
 import sys
 
-from ..config import ROOT, STATE_FILE, find_exercise, load_config, select_exercises, source_dir_for
-from .watch import WatchState
-
-
-def _reset_exercise(ex: dict) -> bool:
-    """Reset an exercise file via git checkout."""
-    src_dir = source_dir_for(ex, use_solutions=False)
-    if not src_dir.exists():
-        return False
-    try:
-        result = subprocess.run(
-            ["git", "checkout", "--", str(src_dir)],
-            cwd=ROOT, text=True, capture_output=True,
-        )
-        return result.returncode == 0
-    except FileNotFoundError:
-        return False
+from ..config import STATE_FILE, find_exercise, load_config, select_exercises
+from ..state import WatchState
+from ..utils import reset_exercise
 
 
 def cmd_reset(args: argparse.Namespace) -> int:
@@ -33,7 +18,7 @@ def cmd_reset(args: argparse.Namespace) -> int:
             print("no progress file found")
         return 0
     ex = find_exercise(config, args.exercise)
-    if _reset_exercise(ex):
+    if reset_exercise(ex):
         print(f"reset {ex['name']} — file restored from git")
         if STATE_FILE.exists():
             selected = select_exercises(config, None)
