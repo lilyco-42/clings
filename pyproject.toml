@@ -1,6 +1,6 @@
 [project]
 name = "clings"
-version = "4.1.0"
+version = "4.1.2"
 description = "Rustlings-style C exercises CLI for OpenCamp C 2026 Summer"
 readme = "README.md"
 license = "MIT"
@@ -37,6 +37,7 @@ packages = ["clings"]
 [tool.hatch.build.targets.wheel.force-include]
 "exercises" = "clings/exercises"
 "clings.toml" = "clings/clings.toml"
+"pyproject.toml" = "clings/pyproject.toml"
 
 [tool.hatch.build.targets.sdist]
 include = ["clings/", "exercises/", "clings.toml", "pyproject.toml", "README.md"]
