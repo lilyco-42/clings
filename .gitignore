@@ -10,28 +10,23 @@ dist/
 *.elf
 
 # Docker/Linux 编译产物（无后缀 ELF 二进制）
-# 通配: 排除 exercises/ 和 solutions/ 下所有无扩展名的文件
-# 使用 git 的 pathspec: 匹配不含 '.' 的文件名
-exercises/*/*[!.][!c][!.]*
-solutions/*/*[!.][!c][!.]*
-
-# 明确列举已知编译产物（无后缀 ELF）
-25c_mycp
-29c_more
-31a_file_size
-31b_file_time
-31c_ls_l
-32c_mybash
-33e_array_ops
-34d_josephus
-36c_bfs_maze
-48d_gps_ncurses
-more
-sort
-ll
-bashclone
-array_test
-josephus
-stack_eval
-queue
+# 仅明确列举已知的编译产物名（不使用通配规则，避免干扰 hatchling sdist）
+/exercises/*/more
+/exercises/*/sort
+/exercises/*/ll
+/exercises/*/bashclone
+/exercises/*/array_test
+/exercises/*/josephus
+/exercises/*/stack_eval
+/exercises/*/queue
+/solutions/*/25c_mycp
+/solutions/*/29c_more
+/solutions/*/31a_file_size
+/solutions/*/31b_file_time
+/solutions/*/31c_ls_l
+/solutions/*/32c_mybash
+/solutions/*/33e_array_ops
+/solutions/*/34d_josephus
+/solutions/*/36c_bfs_maze
+/solutions/*/48d_gps_ncurses
 _test_*
