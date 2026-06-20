@@ -5,8 +5,8 @@
 # 镜像: opencamp-c-env/ci（含 gcc/ncurses/32位支持/python3）
 #
 # 策略:
-#   push     → unit1 + unit2 并行测试 + Build（日常验证）
-#   tag_push → unit1 + unit2 并行测试 + Build + Publish to PyPI（发版）
+#   push     → unit0 + unit1 + unit2 并行测试 + Build（日常验证）
+#   tag_push → unit0 + unit1 + unit2 并行测试 + Build + Publish to PyPI（发版）
 #
 # 每个 unit 流水线包含 5 个 stage:
 #   Init → List → Run → Check → Score
@@ -18,8 +18,46 @@ x-docker: &ci-docker
     image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
 
 cli:
-  # ====== 日常 push: unit1 + unit2 并行测试 + Build ======
+  # ====== 日常 push: unit0 + unit1 + unit2 并行测试 + Build ======
   push:
+    # --- Unit 0 流水线 ---
+    - name: unit0
+      <<: *ci-docker
+      stages:
+        - name: Init
+          script: |
+            pip3 install --break-system-packages -e .
+            clings doctor
+            cd /tmp && mkdir -p clings-ci-unit0 && cd clings-ci-unit0
+            clings init unit0
+
+        - name: List
+          script: |
+            cd /tmp/clings-ci-unit0
+            clings list unit0
+
+        - name: Run
+          script: |
+            cd /tmp/clings-ci-unit0
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            EXERCISES=$(clings list unit0 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | awk '{print $5}' | grep -v '^$')
+            for ex in $EXERCISES; do
+              echo "--- run $ex ---"
+              clings run "$ex" --solutions || exit 1
+            done
+
+        - name: Check
+          script: |
+            cd /tmp/clings-ci-unit0
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings check unit0 --solutions
+
+        - name: Score
+          script: |
+            cd /tmp/clings-ci-unit0
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings score unit0 --solutions --json
+
     # --- Unit 1 流水线 ---
     - name: unit1
       <<: *ci-docker
@@ -56,8 +94,6 @@ cli:
           script: |
             cd /tmp/clings-ci-unit1
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
-            clings score unit1 --solutions
-            echo "--- JSON Report ---"
             clings score unit1 --solutions --json
 
     # --- Unit 2 流水线（与 Unit 1 并行）---
@@ -96,8 +132,6 @@ cli:
           script: |
             cd /tmp/clings-ci-unit2
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
-            clings score unit2 --solutions
-            echo "--- JSON Report ---"
             clings score unit2 --solutions --json
 
     # --- Build 流水线（与测试并行）---
@@ -111,6 +145,28 @@ cli:
 
   # ====== 打 Tag 发版: 测试 + Build + Publish ======
   tag_push:
+    # --- Unit 0 验证 ---
+    - name: unit0
+      <<: *ci-docker
+      stages:
+        - name: Init
+          script: |
+            pip3 install --break-system-packages -e .
+            cd /tmp && mkdir -p clings-ci-unit0 && cd clings-ci-unit0
+            clings init unit0
+
+        - name: Check
+          script: |
+            cd /tmp/clings-ci-unit0
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings check unit0 --solutions
+
+        - name: Score
+          script: |
+            cd /tmp/clings-ci-unit0
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings score unit0 --solutions --json
+
     # --- Unit 1 验证 ---
     - name: unit1
       <<: *ci-docker
@@ -131,7 +187,6 @@ cli:
           script: |
             cd /tmp/clings-ci-unit1
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
-            clings score unit1 --solutions
             clings score unit1 --solutions --json
 
     # --- Unit 2 验证 ---
@@ -154,7 +209,6 @@ cli:
           script: |
             cd /tmp/clings-ci-unit2
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
-            clings score unit2 --solutions
             clings score unit2 --solutions --json
 
     # --- Build + Publish ---
