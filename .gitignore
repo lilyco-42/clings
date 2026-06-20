@@ -3,6 +3,7 @@ dist/
 *.egg-info/
 .clings/
 .clings-state.txt
+.devin/
 *.exe
 *.o
 *.out
