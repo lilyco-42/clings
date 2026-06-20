@@ -19,6 +19,13 @@ dist/
 /exercises/*/josephus
 /exercises/*/stack_eval
 /exercises/*/queue
+/exercises/*/readelf
+/exercises/*/26a_read_magic
+/exercises/*/26b_parse_header
+/exercises/*/26c_file_type
+/solutions/*/26a_read_magic
+/solutions/*/26b_parse_header
+/solutions/*/26c_file_type
 /solutions/*/25c_mycp
 /solutions/*/29c_more
 /solutions/*/31a_file_size
