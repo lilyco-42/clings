@@ -2,6 +2,7 @@
 # CNB CI: clings CLI
 # 仓库: q.qq/opencamp-c-2026-summer/clings (cli 分支)
 # 发布: https://pypi.org/project/clings/
+# 镜像: opencamp-c-env/ci（含 gcc/ncurses/32位支持/python3）
 #
 # 策略:
 #   push     → Install & Test + Build（日常验证）
@@ -12,12 +13,11 @@ cli:
   # ------ 日常 push: 测试 + 构建验证 ------
   push:
     - docker:
-        build:
-          dockerfile: Dockerfile.ci
+        image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
       stages:
         - name: Install & Test
           script: |
-            pip install --break-system-packages -e .
+            pip3 install --break-system-packages -e .
             clings doctor
             cd /tmp && mkdir -p clings-ci-test && cd clings-ci-test
             clings init all
@@ -27,18 +27,17 @@ cli:
 
         - name: Build
           script: |
-            pip install --break-system-packages build
+            pip3 install --break-system-packages build
             python3 -m build
 
   # ------ 打 Tag 发版: 测试 + 构建 + 发布 PyPI ------
   tag_push:
     - docker:
-        build:
-          dockerfile: Dockerfile.ci
+        image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
       stages:
         - name: Install & Test
           script: |
-            pip install --break-system-packages -e .
+            pip3 install --break-system-packages -e .
             clings doctor
             cd /tmp && mkdir -p clings-ci-test && cd clings-ci-test
             clings init all
@@ -48,7 +47,7 @@ cli:
 
         - name: Build
           script: |
-            pip install --break-system-packages build twine
+            pip3 install --break-system-packages build twine
             python3 -m build
 
         - name: Publish to PyPI
