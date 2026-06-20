@@ -1,19 +1,16 @@
 # =============================================================================
-# 一键发版流水线
+# 发版流水线
 #
-# 触发方式: CNB Web UI 按钮「一键发版」(web_trigger)
+# 两种触发方式:
 #
-# 流程（8 个 stage，顺序执行）:
-#   1. Install & Verify — 安装 + 全量测试，确保代码健康
-#   2. Build Gate — 预构建 wheel 验证打包正确
-#   3. Derive Version — git cliff 推导下一版本号
-#   4. Bump & Commit — 更新 pyproject.toml 并提交
-#   5. Create Tag — 创建并推送语义化版本 tag
-#   6. Build — 正式构建 wheel + sdist
-#   7. Publish to PyPI — 上传到 PyPI
-#   8. Create Release — 生成 release notes + 创建 CNB Release
+#   A. 一键发版 (web_trigger_release)
+#      verify → bump → commit → tag → build → publish → release
+#      全自动推导版本号，推荐使用
 #
-# 不生成 CHANGELOG.md 文件入仓库（PyPI 不需要，Release 页面用临时 notes）
+#   B. 手动打 tag (tag_push: v*)
+#      verify → build → publish → release
+#      跳过 bump/commit/tag（已手动完成），兜底发布
+#
 # =============================================================================
 
 .release-job: &release-job
@@ -117,3 +114,57 @@
 cli:
   web_trigger_release: *release-job
   api_trigger_release: *release-job
+
+# ── 方式 B: 手动打 tag 兜底发布 ──────────────────────────────────────────
+# 跳过版本推导/bump/commit/tag（已手动完成），直接 verify → build → publish
+'v*':
+  tag_push:
+    - name: tag-release
+      docker:
+        image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
+      stages:
+        - name: Install & Verify
+          script: |
+            set -eu
+            pip3 install --break-system-packages -e .
+            clings doctor
+            cd /tmp && mkdir -p clings-tag-verify && cd clings-tag-verify
+            clings init all
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings check unit0 --solutions
+            clings check unit1 --solutions
+            clings check unit2 --solutions
+            echo "==> All units passed ✓"
+
+        - name: Build
+          script: |
+            set -eu
+            pip3 install --break-system-packages build twine
+            python3 -m build
+            ls -la dist/
+
+        - name: Publish to PyPI
+          imports:
+            - https://cnb.cool/q.qq/opencamp-c-2026-summer/secrets/-/blob/main/values.yml
+          script: |
+            set -eu
+            export TWINE_USERNAME="__token__"
+            export TWINE_PASSWORD=${PYPI_TOKEN}
+            twine upload --verbose dist/*
+            echo "==> Published to PyPI ✓"
+
+        - name: Create Release
+          script: |
+            set -eu
+            pip3 install --break-system-packages git-cliff 2>/dev/null || true
+            git fetch origin cli --tags --force
+            git cliff --latest --strip header --config cliff.toml > release-notes.md 2>/dev/null || \
+              echo "clings ${CNB_BRANCH}" > release-notes.md
+            cat release-notes.md
+        - name: Publish Release
+          type: git:release
+          options:
+            title: clings ${CNB_BRANCH}
+            descriptionFromFile: release-notes.md
+            latest: true
+            overlying: true
