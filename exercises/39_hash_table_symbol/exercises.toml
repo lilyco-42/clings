@@ -1,13 +1,150 @@
 [[exercises]]
-name = "39_hash_table_symbol"
-title = "构造符号表"
+name = "39a_hash_func"
+title = "djb2 哈希函数"
 unit = "unit2"
 lesson = 39
-order = 64
+order = 99
 mode = "stdout"
-source = "hash.c"
+source = "39a_hash_func.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/39_hash_table_symbol"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+djb2 是一个经典的字符串哈希函数:
+
+    unsigned long djb2(const char *str) {
+        unsigned long hash = 5381;
+        int c;
+        while ((c = *str++))
+            hash = hash * 33 + c;
+        return hash;
+    }
+
+初始值 5381 和乘数 33 是经验值，能产生良好的分布。
+使用 unsigned long 处理溢出（自动取模）。
+输出时用 hash % 1024 限制范围。
+
+参考 39a_hash_func.c 中的 TODO 注释完成实现。
+'''
 
 [[exercises.cases]]
-compile_only = true
+stdout = """apple -> 567
+banana -> 38
+cherry -> 466
+"""
+
+
+[[exercises]]
+name = "39b_hash_insert"
+title = "哈希表插入与查找"
+unit = "unit2"
+lesson = 39
+order = 100
+mode = "stdout"
+source = "39b_hash_insert.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/39_hash_table_symbol"
+hint = '''
+链地址法: 每个桶是一个链表，冲突的元素接在同一桶的链表中。
+
+插入（头插法）:
+    void hash_insert(const char *key) {
+        unsigned long idx = djb2(key) % TABLE_SIZE;
+        // 先检查是否已存在
+        for (struct entry *p = table[idx]; p; p = p->next)
+            if (strcmp(p->key, key) == 0) return;
+        // 不存在则头插
+        struct entry *node = malloc(sizeof(struct entry));
+        strcpy(node->key, key);
+        node->next = table[idx];
+        table[idx] = node;
+    }
+
+查找:
+    int hash_lookup(const char *key) {
+        unsigned long idx = djb2(key) % TABLE_SIZE;
+        for (struct entry *p = table[idx]; p; p = p->next)
+            if (strcmp(p->key, key) == 0) return 1;
+        return 0;
+    }
+
+参考 39b_hash_insert.c 中的 TODO 注释完成实现。
+'''
+
+[[exercises.cases]]
+stdout = """banana: found
+grape: not found
+"""
+
+
+[[exercises]]
+name = "39c_hash_delete"
+title = "哈希表删除"
+unit = "unit2"
+lesson = 39
+order = 101
+mode = "stdout"
+source = "39c_hash_delete.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/39_hash_table_symbol"
+hint = '''
+链表删除: 需要维护前驱指针 prev。
+
+    void hash_delete(const char *key) {
+        unsigned long idx = djb2(key) % TABLE_SIZE;
+        struct entry *cur = table[idx];
+        struct entry *prev = NULL;
+
+        while (cur != NULL) {
+            if (strcmp(cur->key, key) == 0) {
+                if (prev == NULL)
+                    table[idx] = cur->next;  // 删头节点
+                else
+                    prev->next = cur->next;  // 删中间/尾节点
+                free(cur);
+                return;
+            }
+            prev = cur;
+            cur = cur->next;
+        }
+    }
+
+注意: 删除后要 free 释放内存。
+
+参考 39c_hash_delete.c 中的 TODO 注释完成实现。
+'''
+
+[[exercises.cases]]
+stdout = """a: found
+b: not found
+c: found
+"""
+
+
+[[exercises]]
+name = "39d_symbol_table"
+title = "符号表（词频统计）"
+unit = "unit2"
+lesson = 39
+order = 102
+mode = "stdout"
+source = "39d_symbol_table.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/39_hash_table_symbol"
+hint = '''
+带计数的哈希表: 每个 entry 增加 count 字段。
+
+插入时: 如果 key 已存在则 count++，否则新建节点(count=1)。
+
+排序输出: 为了确定性输出，需要收集所有 entry 后按 key 排序:
+    1. 遍历所有桶，将 entry 指针收集到数组
+    2. qsort 按 strcmp 排序
+    3. 遍历打印 "key:count"
+
+    int compare(const void *a, const void *b) {
+        struct entry *ea = *(struct entry **)a;
+        struct entry *eb = *(struct entry **)b;
+        return strcmp(ea->key, eb->key);
+    }
+
+参考 39d_symbol_table.c 中的 TODO 注释完成实现。
+'''
+
+[[exercises.cases]]
+stdin = "the cat sat on the mat\n"
+stdout = "cat:1 mat:1 on:1 sat:1 the:2\n"

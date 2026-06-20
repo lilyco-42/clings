@@ -1,13 +1,110 @@
 [[exercises]]
-name = "40_my_dictionary"
-title = "MyDictionary 项目 (查字典程序)"
+name = "40a_dict_load"
+title = "字典加载"
 unit = "unit2"
 lesson = 40
-order = 65
+order = 103
 mode = "stdout"
-source = "dict.c"
+source = "40a_dict_load.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/40_my_dictionary"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+字典加载: 从 stdin 逐行读取 "key value" 格式，存入哈希表。
+
+    int dict_put(const char *key, const char *value) {
+        unsigned long idx = djb2(key) % TABLE_SIZE;
+        // 遍历查找是否已存在
+        for (struct entry *p = table[idx]; p; p = p->next) {
+            if (strcmp(p->key, key) == 0) {
+                strcpy(p->value, value);  // 更新
+                return 0;
+            }
+        }
+        // 不存在: 新建节点
+        struct entry *node = malloc(sizeof(struct entry));
+        strcpy(node->key, key);
+        strcpy(node->value, value);
+        node->next = table[idx];
+        table[idx] = node;
+        return 1;  // 新增
+    }
+
+主程序: while (fgets(...)) + sscanf 解析。
+返回值 1 表示新增条目，用来累加 count。
+
+参考 40a_dict_load.c 中的 TODO 注释完成实现。
+'''
 
 [[exercises.cases]]
-compile_only = true
+stdin = "apple 1\nbanana 2\ncherry 3\n"
+stdout = "loaded: 3\n"
+
+
+[[exercises]]
+name = "40b_dict_lookup"
+title = "字典查找"
+unit = "unit2"
+lesson = 40
+order = 104
+mode = "stdout"
+source = "40b_dict_lookup.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/40_my_dictionary"
+hint = '''
+字典查找: 根据 key 返回对应的 value。
+
+    const char *dict_get(const char *key) {
+        unsigned long idx = djb2(key) % TABLE_SIZE;
+        for (struct entry *p = table[idx]; p; p = p->next)
+            if (strcmp(p->key, key) == 0)
+                return p->value;
+        return NULL;
+    }
+
+主程序:
+  1. 从 argv[1] 获取要查找的 key
+  2. 循环读 stdin 加载字典
+  3. dict_get 查找并打印结果
+
+参考 40b_dict_lookup.c 中的 TODO 注释完成实现。
+'''
+
+[[exercises.cases]]
+stdin = "apple 1\nbanana 2\ncherry 3\n"
+args = ["banana"]
+stdout = "banana: 2\n"
+
+
+[[exercises]]
+name = "40c_dict_stats"
+title = "字典统计"
+unit = "unit2"
+lesson = 40
+order = 105
+mode = "stdout"
+source = "40c_dict_stats.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/40_my_dictionary"
+hint = '''
+哈希表统计: 分析哈希表的分布质量。
+
+    int get_max_depth(void) {
+        int max = 0;
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            int depth = 0;
+            for (struct entry *p = table[i]; p; p = p->next)
+                depth++;
+            if (depth > max)
+                max = depth;
+        }
+        return max;
+    }
+
+max_depth = 1 说明没有哈希冲突（每个桶最多 1 个元素）。
+max_depth > 1 说明有冲突，深度越大性能越差。
+
+注意: 重复 key 只更新 value，不增加 total_entries。
+
+参考 40c_dict_stats.c 中的 TODO 注释完成实现。
+'''
+
+[[exercises.cases]]
+stdin = "apple 1\nbanana 2\ncherry 3\napple 4\n"
+stdout = "entries: 3\nmax_depth: 1\n"
