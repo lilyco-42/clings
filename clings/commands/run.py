@@ -9,7 +9,7 @@ from ..compiler import (
     _collect_cases,
     check_make,
     compile_exercise,
-    run_cases,
+    normalize,
 )
 from ..config import exercises, find_exercise, load_config
 from ..state import WatchState, next_pending_exercise
@@ -76,32 +76,65 @@ def cmd_run(args: argparse.Namespace) -> int:
         print(f"\x1b[32;1m\u2705 ok {ex['name']}\x1b[0m")
         return 0
 
-    # mode == "stdout": run first case, show output, then verify all
+    # mode == "stdout": run and show ALL cases, verify each one
     all_cases = _collect_cases(ex, args.hidden)
     if not all_cases:
         raise ClingsError(f"no test cases found for {ex['name']}")
-    first_case = None
-    for case in all_cases:
-        if not case.get("compile_only", False):
-            first_case = case
-            break
 
-    stdin_text = first_case.get("stdin", "") if first_case else ""
-    cmd = [str(binary)] + (first_case.get("args", []) if first_case else [])
-    proc = subprocess.run(
-        cmd, input=stdin_text, text=True,
-        capture_output=True, timeout=float(first_case.get("timeout", 2.0)) if first_case else 2.0,
-    )
-    if proc.stdout:
-        print(proc.stdout, end="")
-    if proc.stderr.strip():
-        print(f"\x1b[33m{proc.stderr.strip()}\x1b[0m", file=sys.stderr)
+    runnable = [c for c in all_cases if not c.get("compile_only", False)]
+    total = len(runnable)
 
-    # now verify all cases
-    try:
-        run_cases(ex, binary, args.hidden)
-    except ClingsError as exc:
-        print(f"\n\x1b[31;1m\u274c {ex['name']} FAILED\x1b[0m\n{exc}", file=sys.stderr)
-        return 1
+    for idx, case in enumerate(runnable, 1):
+        stdin_text = case.get("stdin", "")
+        expected_stdout = case.get("stdout", "")
+        expected_exit = int(case.get("exit_code", 0))
+        case_args = [str(a) for a in case.get("args", [])]
+        timeout = float(case.get("timeout", 2.0))
+
+        # 标注 case 序号（多 case 时才显示）
+        if total > 1:
+            args_str = " ".join(case_args) if case_args else ""
+            label = f"case {idx}/{total}"
+            if args_str:
+                label += f" args=[{args_str}]"
+            if stdin_text:
+                preview = stdin_text.replace("\n", "\\n")
+                if len(preview) > 40:
+                    preview = preview[:37] + "..."
+                label += f' stdin="{preview}"'
+            sys.stdout.flush()
+            sys.stderr.flush()
+            print(f"\x1b[90m[{label}]\x1b[0m", flush=True)
+
+        proc = subprocess.run(
+            [str(binary)] + case_args, input=stdin_text, text=True,
+            capture_output=True, timeout=timeout,
+        )
+
+        # 展示输出（stdout 和 stderr 统一输出到 stdout，保持顺序）
+        if proc.stdout:
+            print(proc.stdout, end="", flush=True)
+        if proc.stderr.strip():
+            print(f"\x1b[33m{proc.stderr.strip()}\x1b[0m", flush=True)
+
+        # 验证 exit code
+        if proc.returncode != expected_exit:
+            print(
+                f"\n\x1b[31;1m\u274c {ex['name']} case {idx} FAILED\x1b[0m"
+                f" (exit {proc.returncode}, expected {expected_exit})",
+                file=sys.stderr,
+            )
+            return 1
+
+        # 验证 stdout（如果定义了期望值）
+        if expected_stdout and normalize(proc.stdout) != normalize(expected_stdout):
+            print(
+                f"\n\x1b[31;1m\u274c {ex['name']} case {idx} output mismatch\x1b[0m\n"
+                f"expected:\n{expected_stdout}"
+                f"actual:\n{proc.stdout}",
+                file=sys.stderr,
+            )
+            return 1
+
     print(f"\n\x1b[32;1m\u2705 ok {ex['name']}\x1b[0m")
     return 0
