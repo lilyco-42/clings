@@ -1,13 +1,85 @@
 [[exercises]]
-name = "34_circular_list_josephus"
+name = "34a_clist_ops"
+title = "循环链表插入与遍历"
+unit = "unit2"
+lesson = 34
+order = 78
+mode = "stdout"
+source = "34a_clist_ops.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/34_circular_list_josephus"
+hint = '''
+循环链表的关键: 最后一个节点的 next 指向第一个节点（而非 NULL）。
+
+初始化（第一个节点自环）:
+    if (cur == NULL) {
+        item->next = item;
+        return item;
+    }
+
+插入到 cur 之后:
+    item->next = cur->next;
+    cur->next = item;
+    return item;
+
+遍历（do-while，因为起点也要访问）:
+    link p = cur;
+    do {
+        printf("%d ", *(int *)p->data);
+        p = p->next;
+    } while (p != cur);
+    printf("\n");
+
+构建 1..N: 每次 clist_insert_after 后更新 cur 到新节点，
+最后 cur->next 就是第一个节点。
+'''
+
+[[exercises.cases]]
+stdin = "5\n"
+stdout = "1 2 3 4 5\n"
+
+[[exercises.cases]]
+stdin = "1\n"
+stdout = "1\n"
+
+[[exercises.cases]]
+stdin = "3\n"
+stdout = "1 2 3\n"
+
+
+[[exercises]]
+name = "34b_josephus"
 title = "约瑟夫环问题"
 unit = "unit2"
 lesson = 34
-order = 59
+order = 79
 mode = "stdout"
-sources = ["main.c", "clist.c"]
+source = "34b_josephus.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/34_circular_list_josephus"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+约瑟夫环算法:
+
+1. 构建循环链表后，cur 指向最后一个节点:
+    // 这样第一次 "走 K 步" 是从节点 1 开始计数
+
+2. 每轮走 K 步找到被淘汰者:
+    for (int i = 0; i < k; i++)
+        cur = cur->next;
+    // 现在 cur 就是要被淘汰的节点
+
+3. 打印并删除:
+    printf("%d ", *(int *)cur->data);
+    cur = clist_delete(cur);  // 返回删除后的前驱
+
+4. 删除函数的关键:
+    - 找前驱: 遍历直到 prev->next == item
+    - 如果 item->next == item（最后一个），free 后返回 NULL
+    - 否则 prev->next = item->next，free item，返回 prev
+'''
 
 [[exercises.cases]]
-compile_only = true
+stdin = "10 3\n"
+stdout = "3 6 9 2 7 1 8 5 10 4\n"
+
+[[exercises.cases]]
+stdin = "5 2\n"
+stdout = "2 4 1 5 3\n"
