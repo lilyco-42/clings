@@ -1,27 +1,20 @@
 /*
- * cmd_math.c - Expression calculator with operator precedence
- *
- * Lesson 28: Recursive descent parser for arithmetic expressions.
- * Supports: +, -, *, /, (), unary minus, and math functions.
- *
- * Grammar:
- *   expr   = term (('+' | '-') term)*
- *   term   = factor (('*' | '/') factor)*
- *   factor = '-' factor | '(' expr ')' | number | func '(' expr ')'
+ * Lesson 28d: 完整计算器 — 参考答案
  */
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <ctype.h>
 
-static const char *pos; /* current parse position */
+static const char *pos;
 
 static double parse_expr(void);
 
 static void skip_spaces(void)
 {
-    while (*pos == ' ' || *pos == '\t') pos++;
+    while (*pos == ' ' || *pos == '\t')
+        pos++;
 }
 
 static double parse_number(void)
@@ -41,13 +34,13 @@ static double parse_factor(void)
 {
     skip_spaces();
 
-    /* unary minus */
+    /* 一元负号 */
     if (*pos == '-') {
         pos++;
         return -parse_factor();
     }
 
-    /* parenthesized expression */
+    /* 括号 */
     if (*pos == '(') {
         pos++;
         double val = parse_expr();
@@ -56,7 +49,7 @@ static double parse_factor(void)
         return val;
     }
 
-    /* math functions: sin, cos, sqrt, abs, log */
+    /* 数学函数 */
     if (isalpha(*pos)) {
         char func[16] = {0};
         int i = 0;
@@ -91,7 +84,10 @@ static double parse_term(void)
         double right = parse_factor();
         if (op == '*') val *= right;
         else {
-            if (right == 0) { fprintf(stderr, "Error: division by zero\n"); exit(1); }
+            if (right == 0) {
+                fprintf(stderr, "Error: division by zero\n");
+                exit(1);
+            }
             val /= right;
         }
         skip_spaces();
@@ -113,15 +109,13 @@ static double parse_expr(void)
     return val;
 }
 
-int math_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     if (argc < 2) {
-        printf("Usage: math <expression>\n");
-        printf("Examples: math \"2+3*4\"  math \"sqrt(16)\"  math \"(1+2)*(3+4)\"\n");
-        return -1;
+        fprintf(stderr, "Usage: %s expression\n", argv[0]);
+        return 1;
     }
 
-    /* concatenate all arguments into one expression string */
     char expr[1024] = {0};
     for (int i = 1; i < argc; i++) {
         if (i > 1) strcat(expr, " ");
@@ -131,7 +125,6 @@ int math_main(int argc, char *argv[])
     pos = expr;
     double result = parse_expr();
 
-    /* print as integer if no decimal part */
     if (result == (long)result && result > -1e15 && result < 1e15)
         printf("%ld\n", (long)result);
     else

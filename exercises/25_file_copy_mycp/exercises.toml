@@ -4,7 +4,7 @@ title = "文件打开与错误处理"
 unit = "unit2"
 lesson = 25
 order = 50
-mode = "return"
+mode = "stdout"
 source = "25a_open_file.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/25_file_copy_mycp"
 hint = '''
@@ -30,7 +30,7 @@ fopen 成功时返回 FILE* 指针，失败时返回 NULL。
 '''
 
 [[exercises.cases]]
-args = ["mycp.c"]
+args = ["exercises/25_file_copy_mycp/exercises.toml"]
 stdout = "open OK\n"
 
 [[exercises.cases]]
