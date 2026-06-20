@@ -1,39 +1,38 @@
 # =============================================================================
 # 发版流水线
 #
-# 两种触发方式:
+# 两种触发方式，统一由 tag_push 完成发布:
 #
 #   A. 一键发版 (web_trigger_release)
-#      verify → bump → commit → tag → build → publish → release
-#      全自动推导版本号，推荐使用
+#      verify → build gate → derive version → bump → commit → push tag
+#      push tag 后自动触发 B
 #
-#   B. 手动打 tag (tag_push: v*)
-#      verify → build → publish → release
-#      跳过 bump/commit/tag（已手动完成），兜底发布
+#   B. tag_push (v*)
+#      verify → build → publish to PyPI → create release
+#      无论是一键发版还是手动打 tag，都走这条路
 #
 # =============================================================================
 
-.release-job: &release-job
-  - name: release
+# ── 方式 A: 一键发版准备（web_trigger）─────────────────────────────────────
+# 职责: 验证 → 推导版本 → bump → commit → 打 tag
+# 不做 publish（交给 tag_push 统一处理）
+
+.release-prepare-job: &release-prepare-job
+  - name: release-prepare
     docker:
       image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
     stages:
-      # ── Gate: 确保代码健康 ──────────────────────────────────────────
       - name: Install & Verify
         script: |
           set -eu
-          # 安装发版依赖（镜像中无 git）
           apt-get update -qq && apt-get install -y -qq git > /dev/null
           pip3 install --break-system-packages -e .
           clings doctor
           cd /tmp && mkdir -p clings-release-verify && cd clings-release-verify
           clings init all
           export CLINGS_SOLUTIONS_DIR=/workspace/solutions
-          echo "==> Verifying unit0..."
           clings check unit0 --solutions
-          echo "==> Verifying unit1..."
           clings check unit1 --solutions
-          echo "==> Verifying unit2..."
           clings check unit2 --solutions
           echo "==> All units passed ✓"
 
@@ -42,10 +41,9 @@
           set -eu
           pip3 install --break-system-packages build
           python3 -m build
-          echo "==> Build gate passed ✓ (wheel + sdist OK)"
+          echo "==> Build gate passed ✓"
           rm -rf dist/
 
-      # ── Release: 版本推导 + 发布 ─────────────────────────────────────
       - name: Derive Version
         script: |
           set -eu
@@ -62,12 +60,13 @@
           next_tag: NEXT_TAG
           next_version: NEXT_VERSION
 
-      - name: Bump & Commit
+      - name: Bump Version
         script: |
           set -eu
           sed -i "s/^version = \".*\"/version = \"${NEXT_VERSION}\"/" pyproject.toml
           echo "==> pyproject.toml version → ${NEXT_VERSION}"
-      - name: Push Version
+
+      - name: Commit & Push
         image: tencentcom/git-commit:latest
         settings:
           add:
@@ -75,53 +74,22 @@
           commitMessage: 'chore(release): ${NEXT_TAG} [skip ci]'
           pushCurrent: true
 
-      - name: Create Tag
+      - name: Create & Push Tag
         script: |
           set -eu
           git tag -a "${NEXT_TAG}" -m "${NEXT_TAG}" -m "clings ${NEXT_VERSION}"
           git push origin "${NEXT_TAG}"
-          echo "==> Tag ${NEXT_TAG} pushed ✓"
-
-      - name: Build
-        script: |
-          set -eu
-          pip3 install --break-system-packages build twine
-          python3 -m build
-          ls -la dist/
-
-      - name: Publish to PyPI
-        imports:
-          - https://cnb.cool/q.qq/opencamp-c-2026-summer/secrets/-/blob/main/values.yml
-        script: |
-          set -eu
-          export TWINE_USERNAME="__token__"
-          export TWINE_PASSWORD=${PYPI_TOKEN}
-          twine upload --verbose dist/*
-          echo "==> Published to PyPI ✓"
-
-      - name: Create Release
-        script: |
-          set -eu
-          git cliff --latest --strip header --config cliff.toml > release-notes.md 2>/dev/null || \
-            echo "clings ${NEXT_TAG}" > release-notes.md
-          cat release-notes.md
-      - name: Publish Release
-        type: git:release
-        options:
-          title: clings ${NEXT_TAG}
-          descriptionFromFile: release-notes.md
-          latest: true
-          overlying: true
+          echo "==> Tag ${NEXT_TAG} pushed → tag_push 流水线将自动接管发布"
 
 cli:
-  web_trigger_release: *release-job
-  api_trigger_release: *release-job
+  web_trigger_release: *release-prepare-job
+  api_trigger_release: *release-prepare-job
 
-# ── 方式 B: 手动打 tag 兜底发布 ──────────────────────────────────────────
-# 跳过版本推导/bump/commit/tag（已手动完成），直接 verify → build → publish
+# ── 方式 B: tag_push 统一发布 ──────────────────────────────────────────────
+# 无论一键发版还是手动打 tag，都走这条路: verify → build → publish → release
 'v*':
   tag_push:
-    - name: tag-release
+    - name: publish
       docker:
         image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
       stages:
@@ -156,7 +124,7 @@ cli:
             twine upload --verbose dist/*
             echo "==> Published to PyPI ✓"
 
-        - name: Create Release
+        - name: Generate Release Notes
           script: |
             set -eu
             pip3 install --break-system-packages git-cliff 2>/dev/null || true
@@ -164,7 +132,8 @@ cli:
             git cliff --latest --strip header --config cliff.toml > release-notes.md 2>/dev/null || \
               echo "clings ${CNB_BRANCH}" > release-notes.md
             cat release-notes.md
-        - name: Publish Release
+
+        - name: Create CNB Release
           type: git:release
           options:
             title: clings ${CNB_BRANCH}
