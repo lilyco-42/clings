@@ -1,36 +1,100 @@
 [[exercises]]
-name = "34a_clist_ops"
-title = "循环链表插入与遍历"
+name = "34a_clist_insert"
+title = "循环链表插入"
 unit = "unit2"
 lesson = 34
-order = 78
+order = 80
 mode = "stdout"
-source = "34a_clist_ops.c"
+source = "34a_clist_insert.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/34_circular_list_josephus"
 hint = '''
-循环链表的关键: 最后一个节点的 next 指向第一个节点（而非 NULL）。
+循环链表插入的关键: 自环初始化 + cursor 追踪
 
-初始化（第一个节点自环）:
-    if (cur == NULL) {
-        item->next = item;
-        return item;
-    }
-
-插入到 cur 之后:
-    item->next = cur->next;
-    cur->next = item;
+第一个节点（自环）:
+    item->next = item;  // 指向自己
     return item;
 
-遍历（do-while，因为起点也要访问）:
-    link p = cur;
-    do {
-        printf("%d ", *(int *)p->data);
-        p = p->next;
-    } while (p != cur);
-    printf("\n");
+后续插入（在 cur 后面）:
+    item->next = cur->next;
+    cur->next = item;
+    return item;  // 返回新节点作为新的 cursor
 
-构建 1..N: 每次 clist_insert_after 后更新 cur 到新节点，
-最后 cur->next 就是第一个节点。
+计算长度: do-while 遍历
+    int count = 0;
+    link p = cur;
+    do { count++; p = p->next; } while (p != cur);
+'''
+
+[[exercises.cases]]
+stdin = "5\n"
+stdout = "5\n"
+
+[[exercises.cases]]
+stdin = "1\n"
+stdout = "1\n"
+
+[[exercises.cases]]
+stdin = "10\n"
+stdout = "10\n"
+
+
+[[exercises]]
+name = "34b_clist_delete"
+title = "循环链表删除"
+unit = "unit2"
+lesson = 34
+order = 81
+mode = "stdout"
+source = "34b_clist_delete.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/34_circular_list_josephus"
+hint = '''
+循环链表删除的关键: 唯一节点特殊处理
+
+唯一节点（item->next == item）:
+    free(item->data); free(item);
+    return NULL;
+
+一般情况: 找前驱 prev
+    link prev = item;
+    while (prev->next != item)
+        prev = prev->next;
+    prev->next = item->next;
+    free(item->data); free(item);
+    return prev->next;  // 返回被删节点的后继
+'''
+
+[[exercises.cases]]
+stdin = "5 3\n"
+stdout = "1 2 4 5\n"
+
+
+[[exercises]]
+name = "34c_clist_print"
+title = "循环链表遍历打印"
+unit = "unit2"
+lesson = 34
+order = 82
+mode = "stdout"
+source = "34c_clist_print.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/34_circular_list_josephus"
+hint = '''
+循环链表遍历必须用 do-while（因为起点也要访问）:
+
+    void clist_print(link cur) {
+        if (cur == NULL) return;
+        link p = cur;
+        int first = 1;
+        do {
+            if (!first) printf(" ");
+            printf("%d", *(int *)p->data);
+            first = 0;
+            p = p->next;
+        } while (p != cur);
+        printf("\n");
+    }
+
+注意: while 循环会跳过第一个节点（如果条件是 p != cur）!
+必须用 do-while 确保起始节点也被处理。
 '''
 
 [[exercises.cases]]
@@ -47,13 +111,13 @@ stdout = "1 2 3\n"
 
 
 [[exercises]]
-name = "34b_josephus"
+name = "34d_josephus"
 title = "约瑟夫环问题"
 unit = "unit2"
 lesson = 34
-order = 79
+order = 83
 mode = "stdout"
-source = "34b_josephus.c"
+source = "34d_josephus.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/34_circular_list_josephus"
 hint = '''
 约瑟夫环算法:

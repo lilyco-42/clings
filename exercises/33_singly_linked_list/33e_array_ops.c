@@ -1,11 +1,11 @@
-// 33c_array_ops.c — 基于链表实现动态数组操作
+// 33e_array_ops.c — 基于链表实现动态数组操作
 //
 // 任务: 实现 array_insert(), array_at(), array_length() 函数
 //       使用已有的 list.h/list.c 链表接口来实现动态数组
 //
 // 知识点: 链表封装为数组接口、index 到 node 的映射
 //
-// 编译: gcc -Wall -Wextra -std=c11 33c_array_ops.c list.c -o test_33c
+// 编译: gcc -Wall -Wextra -std=c11 33e_array_ops.c list.c -o test_33e
 //
 // 预期输出:
 //   ['a', 'b', 'c', 'd']

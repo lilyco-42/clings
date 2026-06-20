@@ -35,16 +35,16 @@ C
 
 
 [[exercises]]
-name = "33b_list_ops"
-title = "链表尾插与遍历打印"
+name = "33b_insert_tail"
+title = "链表尾插法"
 unit = "unit2"
 lesson = 33
 order = 76
 mode = "stdout"
-source = "33b_list_ops.c"
+source = "33b_insert_tail.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_singly_linked_list"
 hint = '''
-尾插: 从 head 遍历到最后一个节点（next==NULL），然后挂上新节点:
+尾插法: 从头遍历到尾部（p->next==NULL），然后挂新节点:
 
     link list_insert_tail(link head, link item) {
         link p = head;
@@ -55,34 +55,84 @@ hint = '''
         return head;
     }
 
-遍历打印（跳过头节点）:
+关键: head 是哨兵节点（data=NULL），实际数据从 head->next 开始。
+'''
+
+[[exercises.cases]]
+stdout = "x -> y -> z\n"
+
+
+[[exercises]]
+name = "33c_list_delete"
+title = "链表节点删除"
+unit = "unit2"
+lesson = 33
+order = 77
+mode = "stdout"
+source = "33c_list_delete.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_singly_linked_list"
+hint = '''
+删除节点的关键: 找到前驱节点 prev，让 prev->next 跳过被删节点:
+
+    link list_delete(link head, link item) {
+        link p = head;
+        while (p && p->next != item)
+            p = p->next;
+        if (p) {
+            p->next = item->next;
+            free(item->data);
+            free(item);
+        }
+        return head;
+    }
+
+关键: 从 head 开始找（不是 head->next），这样 head 就是第一个数据节点的"前驱"。
+'''
+
+[[exercises.cases]]
+stdout = "a -> c\n"
+
+
+[[exercises]]
+name = "33d_list_print"
+title = "函数指针遍历打印链表"
+unit = "unit2"
+lesson = 33
+order = 78
+mode = "stdout"
+source = "33d_list_print.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_singly_linked_list"
+hint = '''
+函数指针遍历: 将"如何打印数据"作为回调参数传入:
 
     void list_print(link head, void (*pf)(void *)) {
-        link p = head->next;
+        link p = head->next;  // 跳过哨兵
         while (p) {
-            if (p != head->next) printf(" -> ");
             pf(p->data);
             p = p->next;
         }
         printf("\n");
     }
 
-关键: 头节点 data 为 NULL，实际数据从 head->next 开始。
+void* 泛型: data 是 void*，回调函数负责类型转换:
+    void print_int(void *data) {
+        printf("%d ", *(int *)data);
+    }
 '''
 
 [[exercises.cases]]
-stdout = "a -> b -> c\n"
+stdout = "10 20 30 \n"
 
 
 [[exercises]]
-name = "33c_array_ops"
+name = "33e_array_ops"
 title = "基于链表的动态数组"
 unit = "unit2"
 lesson = 33
-order = 77
+order = 79
 mode = "make"
-source = "33c_array_ops.c"
-make_targets = ["test_33c"]
+source = "33e_array_ops.c"
+make_targets = ["test_33e"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_singly_linked_list"
 hint = '''
 array_insert 的关键: index==0 时特殊处理!
@@ -113,3 +163,8 @@ array_at 遍历链表找第 index 个数据节点:
 
 array_length 计数 head->next 之后的节点数。
 '''
+
+[[exercises.cases]]
+stdout = """['a', 'b', 'c', 'd']
+length: 4
+"""
