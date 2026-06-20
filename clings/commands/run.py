@@ -36,7 +36,21 @@ def cmd_run(args: argparse.Namespace) -> int:
     use_solutions = args.solutions
 
     if mode == "make":
-        check_make(ex, use_solutions)
+        # run 模式: 展示 make 执行过程（不捕获输出，直接流向终端）
+        from ..compiler import source_dir_for, find_compiler
+        import os
+        src_dir = source_dir_for(ex, use_solutions)
+        targets = ex.get("make_targets", ["test"])
+        env = os.environ.copy()
+        env.setdefault("CC", find_compiler() or "cc")
+        for target in targets:
+            proc = subprocess.run(
+                ["make", target], cwd=src_dir, text=True,
+                timeout=float(ex.get("timeout", 120.0)), env=env,
+            )
+            if proc.returncode != 0:
+                print(f"\n\x1b[31;1m\u274c {ex['name']} FAILED\x1b[0m", file=sys.stderr)
+                return 1
         print(f"\n\x1b[32;1m\u2705 ok {ex['name']}\x1b[0m")
         return 0
 
