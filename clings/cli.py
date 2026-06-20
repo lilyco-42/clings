@@ -31,8 +31,9 @@ def main() -> int:
     p.add_argument("exercise", nargs="?")
     p.set_defaults(func=cmd_hint)
 
-    p = sub.add_parser("run", help="run an exercise (default: next pending, 'random' for random)")
-    p.add_argument("exercise", nargs="?")
+    p = sub.add_parser("run", help="run exercise(s): name, unit selector, 'random', or next pending")
+    p.add_argument("exercise", nargs="?", metavar="exercise|selector",
+                   help="exercise name, unit (unit0/unit1/unit2), lesson number, or 'random'")
     p.add_argument("--solutions", action="store_true")
     p.add_argument("--hidden", action="store_true")
     p.set_defaults(func=cmd_run)

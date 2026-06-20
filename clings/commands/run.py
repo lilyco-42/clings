@@ -1,4 +1,4 @@
-"""clings run — run a single exercise."""
+"""clings run — run exercises with output display."""
 
 import argparse
 import subprocess
@@ -7,36 +7,23 @@ import sys
 from ..compiler import (
     ClingsError,
     _collect_cases,
-    check_make,
     compile_exercise,
     normalize,
 )
-from ..config import exercises, find_exercise, load_config
+from ..config import (
+    exercises,
+    find_exercise,
+    load_config,
+    select_exercises,
+)
 from ..state import WatchState, next_pending_exercise
 
 
-def cmd_run(args: argparse.Namespace) -> int:
-    import random as _random
-
-    config = load_config()
-    if not args.exercise or args.exercise == "next":
-        ex = next_pending_exercise(config)
-        if ex is None:
-            print("all exercises completed!")
-            return 0
-    elif args.exercise == "random":
-        all_ex = exercises(config)
-        pending = [e for e in all_ex if not WatchState(all_ex).is_done(e)]
-        if not pending:
-            pending = all_ex
-        ex = _random.choice(pending)
-    else:
-        ex = find_exercise(config, args.exercise)
+def _run_one(ex: dict, use_solutions: bool, include_hidden: bool) -> int:
+    """Run a single exercise: compile, execute all cases, show output, verify."""
     mode = ex.get("mode", "stdout")
-    use_solutions = args.solutions
 
     if mode == "make":
-        # run 模式: 展示 make 执行过程（不捕获输出，直接流向终端）
         from ..compiler import source_dir_for, find_compiler
         import os
         src_dir = source_dir_for(ex, use_solutions)
@@ -77,7 +64,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         return 0
 
     # mode == "stdout": run and show ALL cases, verify each one
-    all_cases = _collect_cases(ex, args.hidden)
+    all_cases = _collect_cases(ex, include_hidden)
     if not all_cases:
         raise ClingsError(f"no test cases found for {ex['name']}")
 
@@ -91,7 +78,6 @@ def cmd_run(args: argparse.Namespace) -> int:
         case_args = [str(a) for a in case.get("args", [])]
         timeout = float(case.get("timeout", 2.0))
 
-        # 标注 case 序号（多 case 时才显示）
         if total > 1:
             args_str = " ".join(case_args) if case_args else ""
             label = f"case {idx}/{total}"
@@ -111,13 +97,11 @@ def cmd_run(args: argparse.Namespace) -> int:
             capture_output=True, timeout=timeout,
         )
 
-        # 展示输出（stdout 和 stderr 统一输出到 stdout，保持顺序）
         if proc.stdout:
             print(proc.stdout, end="", flush=True)
         if proc.stderr.strip():
             print(f"\x1b[33m{proc.stderr.strip()}\x1b[0m", flush=True)
 
-        # 验证 exit code
         if proc.returncode != expected_exit:
             print(
                 f"\n\x1b[31;1m\u274c {ex['name']} case {idx} FAILED\x1b[0m"
@@ -126,7 +110,6 @@ def cmd_run(args: argparse.Namespace) -> int:
             )
             return 1
 
-        # 验证 stdout（如果定义了期望值）
         if expected_stdout and normalize(proc.stdout) != normalize(expected_stdout):
             print(
                 f"\n\x1b[31;1m\u274c {ex['name']} case {idx} output mismatch\x1b[0m\n"
@@ -138,3 +121,50 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     print(f"\n\x1b[32;1m\u2705 ok {ex['name']}\x1b[0m")
     return 0
+
+
+def _is_selector(value: str) -> bool:
+    """Check if value is a batch selector (unit/lesson) rather than an exercise name."""
+    if value.startswith("unit"):
+        return True
+    if value.isdigit():
+        return True
+    return False
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    import random as _random
+
+    config = load_config()
+    selector = args.exercise
+
+    # 批量模式: selector 为 unit0/unit1/unit2 或 lesson 号
+    if selector and _is_selector(selector):
+        selected = select_exercises(config, selector)
+        total = len(selected)
+        failed = 0
+        for index, ex in enumerate(selected, 1):
+            print(f"\x1b[1m--- [{index}/{total}] {ex['name']} ---\x1b[0m", flush=True)
+            rc = _run_one(ex, args.solutions, args.hidden)
+            if rc != 0:
+                failed += 1
+                return 1
+        print(f"\n\x1b[32;1m\u2705 all {total} exercise(s) passed\x1b[0m")
+        return 0
+
+    # 单题模式
+    if not selector or selector == "next":
+        ex = next_pending_exercise(config)
+        if ex is None:
+            print("all exercises completed!")
+            return 0
+    elif selector == "random":
+        all_ex = exercises(config)
+        pending = [e for e in all_ex if not WatchState(all_ex).is_done(e)]
+        if not pending:
+            pending = all_ex
+        ex = _random.choice(pending)
+    else:
+        ex = find_exercise(config, selector)
+
+    return _run_one(ex, args.solutions, args.hidden)
