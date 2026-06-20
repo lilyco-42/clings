@@ -73,8 +73,9 @@ def cmd_run(args: argparse.Namespace) -> int:
             break
 
     stdin_text = first_case.get("stdin", "") if first_case else ""
+    cmd = [str(binary)] + (first_case.get("args", []) if first_case else [])
     proc = subprocess.run(
-        [str(binary)], input=stdin_text, text=True,
+        cmd, input=stdin_text, text=True,
         capture_output=True, timeout=float(first_case.get("timeout", 2.0)) if first_case else 2.0,
     )
     if proc.stdout:
