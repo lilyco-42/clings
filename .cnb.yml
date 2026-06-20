@@ -43,11 +43,7 @@ cli:
           script: |
             cd /tmp/clings-ci-unit0
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
-            EXERCISES=$(clings list unit0 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | awk '{print $5}' | grep -v '^$')
-            for ex in $EXERCISES; do
-              echo "--- run $ex ---"
-              clings run "$ex" --solutions || exit 1
-            done
+            clings run unit0 --solutions
 
         - name: Check
           script: |
@@ -81,11 +77,7 @@ cli:
           script: |
             cd /tmp/clings-ci-unit1
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
-            EXERCISES=$(clings list unit1 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | awk '{print $5}' | grep -v '^$')
-            for ex in $EXERCISES; do
-              echo "--- run $ex ---"
-              clings run "$ex" --solutions || exit 1
-            done
+            clings run unit1 --solutions
 
         - name: Check
           script: |
@@ -119,11 +111,7 @@ cli:
           script: |
             cd /tmp/clings-ci-unit2
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
-            EXERCISES=$(clings list unit2 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | awk '{print $5}' | grep -v '^$')
-            for ex in $EXERCISES; do
-              echo "--- run $ex ---"
-              clings run "$ex" --solutions || exit 1
-            done
+            clings run unit2 --solutions
 
         - name: Check
           script: |
