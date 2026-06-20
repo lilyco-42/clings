@@ -6,7 +6,7 @@
 // 知识点: KMP 算法、next 表应用、O(n+m) 时间复杂度
 //
 // 用法: ./44c_kmp_search <text> <pattern>
-// 示例: ./44c_kmp_search ABABDABACDABABCABAB ABABCABAB → 输出 "9"
+// 示例: ./44c_kmp_search ABABDABACDABABCABAB ABABCABAB → 输出 "10"
 //       ./44c_kmp_search AAAAAB AAB                   → 输出 "3"
 
 #include <stdio.h>
