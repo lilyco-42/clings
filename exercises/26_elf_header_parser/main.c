@@ -1,7 +1,13 @@
+/*
+ * main.c - readelf 命令入口（供 Makefile 独立编译使用）
+ *
+ * 学生练习请使用 26a/26b/26c 文件。
+ */
 #include <stdio.h>
 
-int main(void)
+int readelf_main(int argc, char *argv[]);
+
+int main(int argc, char *argv[])
 {
-#error TODO: implement 26_elf_header_parser according to README.md and make the public tests pass
-    return 0;
+    return readelf_main(argc, argv);
 }

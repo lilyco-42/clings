@@ -1,13 +1,108 @@
 [[exercises]]
-name = "25_file_copy_mycp"
-title = "mycp (cp命令实现)"
+name = "25a_open_file"
+title = "文件打开与错误处理"
 unit = "unit2"
 lesson = 25
 order = 50
-mode = "stdout"
-sources = ["main.c", "mycp.c"]
+mode = "return"
+source = "25a_open_file.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/25_file_copy_mycp"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+fopen 打开文件的基本模式：
+- "r"  只读文本
+- "rb" 只读二进制
+- "w"  写文本（会清空）
+- "wb" 写二进制
+
+fopen 成功时返回 FILE* 指针，失败时返回 NULL。
+用 perror(filename) 可以打印系统错误原因。
+
+代码框架：
+    FILE *fp = fopen(argv[1], "rb");
+    if (fp == NULL) {
+        perror(argv[1]);
+        return 1;
+    }
+    printf("open OK\n");
+    fclose(fp);
+
+参考: 同目录下的 mycp.c。
+'''
+
+[[exercises.cases]]
+args = ["mycp.c"]
+stdout = "open OK\n"
+
+[[exercises.cases]]
+args = ["__nonexistent_file_xyz__"]
+exit_code = 1
+
+
+[[exercises]]
+name = "25b_read_write"
+title = "fread/fwrite 文件读写"
+unit = "unit2"
+lesson = 25
+order = 51
+mode = "stdout"
+source = "25b_read_write.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/25_file_copy_mycp"
+hint = '''
+fread/fwrite 是二进制读写的核心函数：
+
+    size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
+    size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
+
+正确的循环读写模式：
+    while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
+        fwrite(buf, 1, n, stdout);
+    }
+
+注意: 不要用 while (!feof(fp))！这是经典 C 反模式。
+feof 只在读操作失败后才返回 true，会导致多循环一次。
+
+读完后用 ferror(fp) 检查是否因错误而停止。
+
+参考: 同目录下的 mycp.c。
+'''
+
+[[exercises.cases]]
+args = ["README.md"]
+compile_only = true
+
+
+[[exercises]]
+name = "25c_mycp"
+title = "mycp: 完整文件拷贝命令"
+unit = "unit2"
+lesson = 25
+order = 52
+mode = "stdout"
+source = "25c_mycp.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/25_file_copy_mycp"
+hint = '''
+综合前两题的知识，实现完整的 cp 命令。
+
+关键点：
+1. 打开两个文件：源文件 "rb"，目标文件 "wb"
+2. 目标文件打开失败时，记得先关闭已打开的源文件（防止资源泄漏）
+3. fwrite 返回值必须等于 fread 返回值，否则写入不完整
+4. 循环结束后检查 ferror(源文件)
+
+完整框架：
+    fp1 = fopen(argv[1], "rb");
+    if (!fp1) { perror(argv[1]); return 1; }
+
+    fp2 = fopen(argv[2], "wb");
+    if (!fp2) { perror(argv[2]); fclose(fp1); return 1; }
+
+    while ((n = fread(buf, 1, sizeof(buf), fp1)) > 0)
+        fwrite(buf, 1, n, fp2);
+
+    fclose(fp1); fclose(fp2);
+
+参考: 同目录下的 mycp.c。
+'''
 
 [[exercises.cases]]
 compile_only = true

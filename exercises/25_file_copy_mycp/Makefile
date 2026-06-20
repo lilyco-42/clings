@@ -1,16 +1,20 @@
-
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11 -g
 SRC = mycp.c
-
 CMD = mycp
 
-all:
-	gcc main.c $(SRC) -o $(CMD)
+.PHONY: all test clean
 
-t test:
+all: $(CMD)
+
+$(CMD): main.c $(SRC)
+	$(CC) $(CFLAGS) main.c $(SRC) -o $(CMD)
+
+test: $(CMD)
+	echo "hello mycp" > a
 	./$(CMD) a b
-	cat a
-	cat b
+	diff a b
+	@echo "PASS: files are identical"
 
 clean:
-	-rm a b
-	-rm $(CMD)
+	-rm -f a b $(CMD)

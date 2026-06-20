@@ -1,13 +1,143 @@
 [[exercises]]
-name = "27_sed_stream_editor"
-title = "sed simple (简单流处理器实现和正则表达式)"
+name = "27a_find_replace"
+title = "字符串查找与替换"
 unit = "unit2"
 lesson = 27
-order = 52
+order = 56
 mode = "stdout"
-sources = ["main.c", "sed.c"]
+source = "27a_find_replace.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/27_sed_stream_editor"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+strstr(haystack, needle) 在 haystack 中查找 needle 的首次出现。
+返回匹配位置的指针，或 NULL（未找到）。
+
+替换算法：
+1. where = strstr(buf, pattern)
+2. 如果 where != NULL:
+   - 打印 buf[0] 到 where-1（匹配前的部分）
+   - 打印 replace（替换串）
+   - 打印 where+patlen 到末尾（匹配后的部分）
+3. 如果 where == NULL:
+   - 直接打印 buf（无匹配）
+
+打印部分字符串可以用:
+    fwrite(buf, 1, where - buf, stdout);  // 或逐字符 putchar
+
+参考: 同目录下的 sed.c。
+'''
 
 [[exercises.cases]]
-compile_only = true
+args = ["unix", "linux"]
+stdin = "I love unix. unix is great.\n"
+stdout = "I love linux. unix is great.\n"
+
+[[exercises.cases]]
+args = ["hello", "world"]
+stdin = "say hello to hello\n"
+stdout = "say world to hello\n"
+
+[[exercises.cases]]
+args = ["xyz", "abc"]
+stdin = "no match here\n"
+stdout = "no match here\n"
+
+
+[[exercises]]
+name = "27b_replace_all"
+title = "全局替换 (/g 标志)"
+unit = "unit2"
+lesson = 27
+order = 57
+mode = "stdout"
+source = "27b_replace_all.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/27_sed_stream_editor"
+hint = '''
+在 27a 的基础上，增加循环和计数器实现多次替换。
+
+核心算法：
+    char *cursor = buf;
+    int counter = 0;
+    while ((where = strstr(cursor, pattern)) != NULL) {
+        counter++;
+        fwrite(cursor, 1, where - cursor, stdout);  // 匹配前部分
+        if (flag == 'g' || flag - '0' == counter)
+            fputs(replace, stdout);     // 替换
+        else
+            fputs(pattern, stdout);     // 不替换，保留原文
+        cursor = where + patlen;        // 跳过匹配部分继续
+    }
+    fputs(cursor, stdout);              // 剩余部分
+
+注意空正则保护: if (patlen == 0) 直接输出原文，避免死循环。
+
+参考: 同目录下的 sed.c。
+'''
+
+[[exercises.cases]]
+args = ["unix", "linux", "g"]
+stdin = "unix is great. unix is free.\n"
+stdout = "linux is great. linux is free.\n"
+
+[[exercises.cases]]
+args = ["unix", "linux", "2"]
+stdin = "unix is great. unix is free. unix is open.\n"
+stdout = "unix is great. linux is free. unix is open.\n"
+
+[[exercises.cases]]
+args = ["unix", "linux"]
+stdin = "unix is great. unix is free.\n"
+stdout = "linux is great. unix is free.\n"
+
+
+[[exercises]]
+name = "27c_sed"
+title = "完整 sed 流处理器"
+unit = "unit2"
+lesson = 27
+order = 58
+mode = "stdout"
+source = "27c_sed.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/27_sed_stream_editor"
+hint = '''
+在 27b 的基础上，增加:
+1. 解析 s/regexp/replace/flags 格式（用 strtok 按 '/' 分割）
+2. 多行处理（while fgets 循环）
+3. ^ 行首锚定
+
+strtok 解析:
+    cmd     = strtok(argv[1], "/");  // "s"
+    regexp  = strtok(NULL, "/");     // "unix"
+    replace = strtok(NULL, "/");     // "linux"
+    flags   = strtok(NULL, "/");     // NULL 或 "g" 或 "3"
+
+^ 行首锚定:
+    if (regexp[0] == '^') {
+        pat = regexp + 1;  // 去掉 ^
+        // 只检查行首: strncmp(buf, pat, patlen)
+    }
+
+多行: 外层 while (fgets(buf, SIZE, stdin)) 循环，
+      每行独立执行替换逻辑。
+
+参考: 同目录下的 sed.c。
+'''
+
+[[exercises.cases]]
+args = ["s/unix/linux"]
+stdin = "unix is great. unix is free.\n"
+stdout = "linux is great. unix is free.\n"
+
+[[exercises.cases]]
+args = ["s/unix/linux/g"]
+stdin = "unix is great. unix is free.\n"
+stdout = "linux is great. linux is free.\n"
+
+[[exercises.cases]]
+args = ["s/^unix/linux"]
+stdin = "unix is great. unix is free.\n"
+stdout = "linux is great. unix is free.\n"
+
+[[exercises.cases]]
+args = ["s/unix/linux/g"]
+stdin = "line1 unix\nline2 unix\n"
+stdout = "line1 linux\nline2 linux\n"
