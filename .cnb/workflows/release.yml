@@ -22,6 +22,8 @@
       - name: Install & Verify
         script: |
           set -eu
+          # 安装发版依赖（镜像中无 git）
+          apt-get update -qq && apt-get install -y -qq git > /dev/null
           pip3 install --break-system-packages -e .
           clings doctor
           cd /tmp && mkdir -p clings-release-verify && cd clings-release-verify
@@ -126,6 +128,7 @@ cli:
         - name: Install & Verify
           script: |
             set -eu
+            apt-get update -qq && apt-get install -y -qq git > /dev/null
             pip3 install --break-system-packages -e .
             clings doctor
             cd /tmp && mkdir -p clings-tag-verify && cd clings-tag-verify
