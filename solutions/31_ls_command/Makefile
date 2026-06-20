@@ -4,9 +4,15 @@ CFLAGS = -Wall -Wextra -std=c11 -g
 .PHONY: test_31a test_31b test_31c clean
 
 test_31a: 31a_file_size
+	@# Test 1: 已知大小文件
 	@printf 'hello' > _test_31a.txt
 	./31a_file_size _test_31a.txt | grep -q "size: 5"
-	@rm -f _test_31a.txt
+	@# Test 2: 空文件
+	@printf '' > _test_31a_empty.txt
+	./31a_file_size _test_31a_empty.txt | grep -q "size: 0"
+	@# Test 3: 错误路径
+	! ./31a_file_size __nonexistent_file__ 2>/dev/null
+	@rm -f _test_31a.txt _test_31a_empty.txt
 	@echo "PASS: 31a_file_size"
 
 31a_file_size: 31a_file_size.c

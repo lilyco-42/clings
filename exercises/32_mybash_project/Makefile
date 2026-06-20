@@ -22,7 +22,14 @@ test: bashclone
 	echo "exit" | ./bashclone
 
 test_32c: 32c_mybash
-	@echo "32c_mybash: compile OK (interactive test requires terminal)"
+	@# Test 1: exit 命令正常退出
+	echo "exit" | ./32c_mybash > /dev/null
+	@# Test 2: sort 命令功能验证
+	printf 'sort ../../exercises/30_sort_command/test.txt\nexit\n' | ./32c_mybash | grep -q "black"
+	@# Test 3: 未知命令报错
+	printf 'nonexistent_cmd\nexit\n' | ./32c_mybash 2>&1 | grep -q "command not found"
+	@# Test 4: Ctrl+D (EOF) 正常退出
+	printf '' | ./32c_mybash > /dev/null
 	@echo "PASS: 32c_mybash"
 
 32c_mybash: 32c_mybash.c $(CMD_MOD)

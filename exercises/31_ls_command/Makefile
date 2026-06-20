@@ -17,10 +17,15 @@ test: $(CMD)
 	./$(CMD) Makefile -T
 
 test_31a: 31a_file_size
-	@# 创建已知大小的测试文件
+	@# Test 1: 已知大小文件
 	@printf 'hello' > _test_31a.txt
 	./31a_file_size _test_31a.txt | grep -q "size: 5"
-	@rm -f _test_31a.txt
+	@# Test 2: 空文件
+	@printf '' > _test_31a_empty.txt
+	./31a_file_size _test_31a_empty.txt | grep -q "size: 0"
+	@# Test 3: 错误路径（不存在的文件应返回非零）
+	! ./31a_file_size __nonexistent_file__ 2>/dev/null
+	@rm -f _test_31a.txt _test_31a_empty.txt
 	@echo "PASS: 31a_file_size"
 
 31a_file_size: 31a_file_size.c
@@ -48,4 +53,4 @@ test_31c: 31c_ls_l
 	$(CC) $(CFLAGS) 31c_ls_l.c -o 31c_ls_l
 
 clean:
-	-rm -f $(CMD) 31a_file_size 31b_file_time 31c_ls_l _test_31a.txt
+	-rm -f $(CMD) 31a_file_size 31b_file_time 31c_ls_l _test_31a.txt _test_31a_empty.txt
