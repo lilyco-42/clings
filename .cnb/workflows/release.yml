@@ -1,0 +1,134 @@
+# =============================================================================
+# 一键发版流水线（合并版）
+#
+# 触发方式: CNB Web UI 按钮「一键发版」(web_trigger)
+#
+# 完整流程（单条流水线，顺序执行）:
+#   1. Install & Verify — 安装 + 全量测试（unit0/1/2），确保代码健康
+#   2. Build Gate — 预构建 wheel 验证打包正确，避免后续被打断
+#   3. Derive Version — git cliff 推导下一版本号
+#   4. Bump Version — 更新 pyproject.toml
+#   5. Generate CHANGELOG — 生成变更日志
+#   6. Commit & Push — 提交版本文件到 cli 分支
+#   7. Create & Push Tag — 创建语义化版本 tag
+#   8. Build Release — 正式构建 wheel + sdist
+#   9. Publish to PyPI — 上传到 PyPI
+#  10. Create CNB Release — 创建 Release 页面（附 release notes）
+# =============================================================================
+
+.release-job: &release-job
+  - name: release
+    docker:
+      image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
+    stages:
+      # ── Gate: 确保代码健康 ──────────────────────────────────────────
+      - name: Install & Verify
+        script: |
+          set -eu
+          pip3 install --break-system-packages -e .
+          clings doctor
+          cd /tmp && mkdir -p clings-release-verify && cd clings-release-verify
+          clings init all
+          export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+          echo "==> Verifying unit0..."
+          clings check unit0 --solutions
+          echo "==> Verifying unit1..."
+          clings check unit1 --solutions
+          echo "==> Verifying unit2..."
+          clings check unit2 --solutions
+          echo "==> All units passed ✓"
+
+      - name: Build Gate
+        script: |
+          set -eu
+          pip3 install --break-system-packages build
+          python3 -m build
+          echo "==> Build gate passed ✓ (wheel + sdist OK)"
+          rm -rf dist/
+
+      # ── Release: 版本推导 + 发布 ─────────────────────────────────────
+      - name: Derive Version
+        script: |
+          set -eu
+          git fetch origin cli --tags --force
+          # 安装 git-cliff（优先用 pip，fallback 到预编译二进制）
+          pip3 install --break-system-packages git-cliff 2>/dev/null || {
+            curl -sSL https://github.com/orhun/git-cliff/releases/download/v2.7.0/git-cliff-2.7.0-x86_64-unknown-linux-gnu.tar.gz \
+              | tar xz -C /usr/local/bin --strip-components=1
+          }
+          next_tag="$(git cliff --bumped-version --config cliff.toml)"
+          echo "##[set-output next_tag=${next_tag}]"
+          echo "##[set-output next_version=${next_tag#v}]"
+          echo "==> 目标版本: ${next_tag#v} (tag: ${next_tag})"
+        exports:
+          next_tag: NEXT_TAG
+          next_version: NEXT_VERSION
+
+      - name: Bump Version
+        script: |
+          set -eu
+          sed -i "s/^version = \".*\"/version = \"${NEXT_VERSION}\"/" pyproject.toml
+          echo "==> pyproject.toml version → ${NEXT_VERSION}"
+          grep '^version' pyproject.toml
+
+      - name: Generate CHANGELOG
+        script: |
+          set -eu
+          git cliff --tag "${NEXT_TAG}" --config cliff.toml -o CHANGELOG.md
+          echo "==> CHANGELOG.md generated for ${NEXT_TAG}"
+
+      - name: Commit & Push
+        image: tencentcom/git-commit:latest
+        settings:
+          add:
+            - pyproject.toml
+            - CHANGELOG.md
+          commitMessage: 'chore(release): prepare for ${NEXT_TAG} [skip ci]'
+          pushCurrent: true
+
+      - name: Create & Push Tag
+        script: |
+          set -eu
+          echo "==> Creating tag ${NEXT_TAG}"
+          git tag -a "${NEXT_TAG}" -m "${NEXT_TAG}" -m "clings ${NEXT_VERSION}"
+          git push origin "${NEXT_TAG}"
+          echo "==> Tag ${NEXT_TAG} pushed ✓"
+
+      - name: Build Release
+        script: |
+          set -eu
+          pip3 install --break-system-packages build twine
+          python3 -m build
+          ls -la dist/
+          echo "==> Release artifacts built ✓"
+
+      - name: Publish to PyPI
+        imports:
+          - https://cnb.cool/q.qq/opencamp-c-2026-summer/secrets/-/blob/main/values.yml
+        script: |
+          set -eu
+          export TWINE_USERNAME="__token__"
+          export TWINE_PASSWORD=${PYPI_TOKEN}
+          twine upload --verbose dist/*
+          echo "==> Published to PyPI ✓"
+
+      - name: Create CNB Release
+        script: |
+          set -eu
+          # 提取最新版本的 release notes
+          git cliff --latest --strip header --config cliff.toml > release-notes.md 2>/dev/null || \
+            echo "clings ${NEXT_TAG}" > release-notes.md
+          echo "==> Release notes:"
+          cat release-notes.md
+        # CNB Release 通过 git:release 插件创建
+      - name: Publish Release
+        type: git:release
+        options:
+          title: clings ${NEXT_TAG}
+          descriptionFromFile: release-notes.md
+          latest: true
+          overlying: true
+
+cli:
+  web_trigger_release: *release-job
+  api_trigger_release: *release-job

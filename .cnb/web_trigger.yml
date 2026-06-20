@@ -1,0 +1,5 @@
+branch:
+  - buttons:
+      - name: 一键发版
+        description: 自动推导版本号、验证全部题目、更新 CHANGELOG、发布到 PyPI 并创建 Release
+        event: web_trigger_release
