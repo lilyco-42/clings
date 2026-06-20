@@ -60,17 +60,26 @@ clings/                    # 仓库根目录 (cli 分支)
 
 **绝不引入第三方依赖**。所有功能仅使用 Python 标准库实现。这是项目的核心设计约束——保证 `pip install clings` 在任何 Python 3.11+ 环境即装即用。
 
-### 包发布检查清单
+### 版本号管理
 
-每次修改包代码（`clings/` 目录或 `pyproject.toml`）时：
+版本号由**一键发版流程**统一管理，**不要手动修改** `pyproject.toml` 中的 `version`。
 
-1. **bump 版本号**（`pyproject.toml` 中的 `version`）
-   - 新功能：minor bump（如 4.0 → 4.1）
-   - bug 修复 / 重构：patch bump（如 4.0.1 → 4.0.2）
-   - 破坏性变更：major bump（如 4.x → 5.0）
-2. **运行测试**: `python -m clings check unit0 --solutions && python -m clings check unit1 --solutions`
-3. **验证版本**: `python -m clings -v`
-4. PyPI 不允许覆盖已发布的同版本文件
+- 发版时 `git cliff --bumped-version` 根据 commit type 自动推导：
+  - `feat` commit → minor bump（如 4.3 → 4.4）
+  - `fix` / `refactor` commit → patch bump（如 4.3.0 → 4.3.1）
+  - `BREAKING CHANGE` → major bump（如 4.x → 5.0）
+- 流水线自动更新 `pyproject.toml`、commit、打 tag、发布到 PyPI
+- 触发方式：CNB Web UI「一键发版」按钮，或手动 `git tag vX.Y.Z && git push origin vX.Y.Z`
+
+### 开发验证
+
+修改包代码（`clings/` 目录）后，提交前运行：
+
+```bash
+python -m clings check unit0 --solutions
+python -m clings check unit1 --solutions
+python -m clings check unit2 --solutions
+```
 
 ### Unit 配置
 
