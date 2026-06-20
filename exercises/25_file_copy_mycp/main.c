@@ -1,7 +1,13 @@
+/*
+ * main.c - mycp 命令入口（供 Makefile 独立编译使用）
+ *
+ * 学生练习请使用 25a/25b/25c 文件。
+ */
 #include <stdio.h>
 
-int main(void)
+int mycp_main(int argc, char *argv[]);
+
+int main(int argc, char *argv[])
 {
-#error TODO: implement 25_file_copy_mycp according to README.md and make the public tests pass
-    return 0;
+    return mycp_main(argc, argv);
 }

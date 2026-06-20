@@ -1,83 +1,95 @@
+/*
+ * sed.c - 参考实现：简化版 sed 流处理器
+ *
+ * 支持: s/regexp/replacement/flags 格式
+ * flags: 无(第1个), g(全部), N(第N个)
+ * 支持: ^ 行首锚定
+ *
+ * 本文件为 Lesson 27 的参考代码，供学生阅读学习。
+ * 学生练习文件为 27a/27b/27c。
+ */
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
-#include <ctype.h>
 
-#define SIZE	512
-#ifdef DEBUG
-#define debug(fmt, args...) 	fprintf(stderr, fmt, ##args)
-#else
-#define debug(fmt, args...) 	;
-#endif
+#define SIZE 512
 
 int sed_main(int argc, char *argv[])
 {
-	int i = 0;
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s 's/pattern/replace/[flags]'\n", argv[0]);
+        return 1;
+    }
 
-	if (argc < 2)
-	{
-		printf("Usage: sed pattern\n");
-		return -1;
-	}
+    char *cmd, *regexp, *replace, *flags = NULL;
+    char flag;
 
-	char buf[SIZE];
-	int n;
-	// [2addr]s/regular expression/replacement/flags from man sed
-	char *cmd, *regexp, *replace, *flags = NULL;
-	char flag;
+    /* 解析 s/regexp/replace/flags */
+    cmd = strtok(argv[1], "/");
+    regexp = strtok(NULL, "/");
+    replace = strtok(NULL, "/");
+    flags = strtok(NULL, "/");
 
-	// parse pattern like 's/unix/linux'
-	debug("patter = %s\n", argv[1]);
+    if (cmd == NULL || regexp == NULL || replace == NULL) {
+        fprintf(stderr, "invalid pattern\n");
+        return 1;
+    }
 
-	// cmd = s
-	cmd = strtok(argv[1], "/");
-	debug("cmd = %s\n", cmd);
+    flag = (flags == NULL) ? '1' : flags[0];
 
-	// regexp = unix
-	regexp = strtok(NULL, "/");
-	debug("regexp = %s\n", regexp);
+    /* 检查 ^ 行首锚定 */
+    int anchor_start = 0;
+    char *pat = regexp;
+    if (regexp[0] == '^') {
+        anchor_start = 1;
+        pat = regexp + 1;
+    }
+    size_t patlen = strlen(pat);
 
-	// replace = linux 
-	replace = strtok(NULL, "/");
-	debug("replace = %s\n", replace);
-	
-	// flags = "", "g", "3" 
-	flags = strtok(NULL, "/");
-	debug("flags = %s\n", flags);
-	if (flags == NULL)	// if no flag, that means replace the 1st match
-		flag = '1';
-	else
-		flag = flags[0];
-	
-	debug("flag = %c\n", flag);
+    if (patlen == 0) {
+        /* 空正则: 直接透传所有输入 */
+        char buf[SIZE];
+        while (fgets(buf, SIZE, stdin) != NULL)
+            fputs(buf, stdout);
+        return 0;
+    }
 
-	fgets(buf, SIZE, stdin);
-	//strcpy(buf, "I love unix. Linux is GNU is not unix");
-	debug("%s", buf);
+    /* 逐行处理 */
+    char buf[SIZE];
+    while (fgets(buf, SIZE, stdin) != NULL) {
+        char *cursor = buf;
+        char *where;
+        int counter = 0;
 
-	char *cursor = buf;	// the beginning pointer of where we start
-	char *where;		// the pointer where we find a match
-	int counter = 0;	// how many matches we find 
+        if (anchor_start) {
+            /* ^ 锚定: 只检查行首是否匹配 */
+            if (strncmp(buf, pat, patlen) == 0) {
+                fputs(replace, stdout);
+                cursor = buf + patlen;
+            }
+            fputs(cursor, stdout);
+            continue;
+        }
 
-	while ((where = strstr(cursor, regexp)) != NULL)
-	{
-		counter++;
+        /* 普通替换 */
+        while ((where = strstr(cursor, pat)) != NULL) {
+            counter++;
 
-		debug("where = %s\n", where);
-		for (i = 0; i < where - cursor; i++)
-			putchar(cursor[i]);
-		
-		if (flag == 'g' || flag - '0' == counter)
-			printf("%s", replace);
-		else
-			printf("%s", regexp);
-	
-		cursor += where - cursor + strlen(regexp);
-		debug("cursor = %s\n", cursor);
-	} 
+            /* 打印匹配前的部分 */
+            for (char *p = cursor; p < where; p++)
+                putchar(*p);
 
-	for (i = 0; cursor[i] != '\0'; i++)
-		putchar(cursor[i]);
+            /* 根据 flag 决定是否替换 */
+            if (flag == 'g' || flag - '0' == counter)
+                fputs(replace, stdout);
+            else
+                fputs(pat, stdout);
 
-	return 0;
+            cursor = where + patlen;
+        }
+
+        /* 打印剩余部分 */
+        fputs(cursor, stdout);
+    }
+
+    return 0;
 }

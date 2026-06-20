@@ -1,7 +1,13 @@
+/*
+ * main.c - sed 命令入口（供 Makefile 独立编译使用）
+ *
+ * 学生练习请使用 27a/27b/27c 文件。
+ */
 #include <stdio.h>
 
-int main(void)
+int sed_main(int argc, char *argv[]);
+
+int main(int argc, char *argv[])
 {
-#error TODO: implement 27_sed_stream_editor according to README.md and make the public tests pass
-    return 0;
+    return sed_main(argc, argv);
 }

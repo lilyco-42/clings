@@ -1,22 +1,21 @@
-
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11 -g
 SRC = sed.c
+CMD = mysed
 
-CMD = sed 
+.PHONY: all test clean
 
-all:
-	gcc main.c $(SRC) -o $(CMD)
+all: $(CMD)
 
-t test: 
-	gcc main.c $(SRC) -o $(CMD)
-	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) s/unix/linux
-	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) s/unix/linux/g
-	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) s/unix/linux/3
+$(CMD): main.c $(SRC)
+	$(CC) $(CFLAGS) main.c $(SRC) -o $(CMD)
 
-d debug: 
-	gcc main.c $(SRC) -o $(CMD) -DDEBUG
-	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) s/unix/linux
-	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) s/unix/linux/g
-	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) s/unix/linux/3
+test: $(CMD)
+	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) 's/unix/linux'
+	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) 's/unix/linux/g'
+	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) 's/unix/linux/3'
+	echo "unix is great os. unix is opensource. unix is free os." | ./$(CMD) 's/^unix/linux'
+	@echo "PASS"
 
 clean:
-	-rm $(CMD)
+	-rm -f $(CMD)

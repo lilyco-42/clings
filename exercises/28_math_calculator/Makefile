@@ -1,18 +1,22 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11 -g
+SRC = cmd_math.c
+CMD = math
+LDLIBS = -lm
 
-# http://wiki.ubuntu.org.cn/%E8%B7%9F%E6%88%91%E4%B8%80%E8%B5%B7%E5%86%99Makefile:%E4%BD%BF%E7%94%A8%E5%87%BD%E6%95%B0
+.PHONY: all test clean
 
-SRC = $(wildcard cmd_*.c)
+all: $(CMD)
 
-# patter substitute cmd_math.c to math
-CMD = $(patsubst cmd_%.c,%,$(SRC))
+$(CMD): main.c $(SRC)
+	$(CC) $(CFLAGS) main.c $(SRC) -o $(CMD) $(LDLIBS)
 
-all:
-	@echo making $(SRC) to $(CMD)
-	gcc main.c $(SRC) -o $(CMD)
-
-t test: all
-	./$(CMD) sqrt 49
-	./$(CMD) sin 1
+test: $(CMD)
+	./$(CMD) "2+3*4"
+	./$(CMD) "(1+2)*(3+4)"
+	./$(CMD) "sqrt(16)+sin(0)"
+	./$(CMD) "-(-5)"
+	@echo "PASS"
 
 clean:
-	-rm $(CMD)
+	-rm -f $(CMD)

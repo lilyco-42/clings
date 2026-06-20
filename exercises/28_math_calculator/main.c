@@ -1,7 +1,13 @@
+/*
+ * main.c - math 命令入口（供 Makefile 独立编译使用）
+ *
+ * 学生练习请使用 28a/28b/28c/28d 文件。
+ */
 #include <stdio.h>
 
-int main(void)
+int math_main(int argc, char *argv[]);
+
+int main(int argc, char *argv[])
 {
-#error TODO: implement 28_math_calculator according to README.md and make the public tests pass
-    return 0;
+    return math_main(argc, argv);
 }
