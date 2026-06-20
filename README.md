@@ -18,19 +18,27 @@
 ## 快速开始
 
 ```sh
-# 1. 安装 (推荐 uvx，不污染系统环境)
-uvx clings init unit1              # 一行搞定：安装 + 初始化 (需要 uv)
+# 1. 安装 uv (推荐)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 或传统方式：
-pip install clings                 # 安装到系统/虚拟环境
-clings init unit1                  # 初始化 Unit 1 (24 课 49 题)
-
-# 2. 开始做题！
-clings                             # 进入交互式 watch 模式 (uvx clings 亦可)
+# 2. 初始化练习 + 开始做题 (一行搞定，无需安装 clings)
+uvx clings init unit0
+uvx clings
 ```
 
-> **推荐使用 [uv](https://docs.astral.sh/uv/)**：`uvx clings` 会自动下载 clings 到隔离环境运行，
-> 不影响系统 Python。安装 uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+### 其他安装方式
+
+```sh
+# pipx (隔离安装到独立环境)
+pipx install clings
+
+# pip + 虚拟环境
+python3 -m venv .venv && source .venv/bin/activate
+pip install clings
+```
+
+> **注意**: Ubuntu 23.04+ / Python 3.11+ 禁止直接 `pip install` 到系统环境（PEP 668）。
+> 请使用上述 uvx / pipx / venv 方式，避免 `--break-system-packages`。
 
 ## 命令参考
 
