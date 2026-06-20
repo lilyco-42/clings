@@ -67,8 +67,16 @@ feof 只在读操作失败后才返回 true，会导致多循环一次。
 '''
 
 [[exercises.cases]]
-args = ["README.md"]
-compile_only = true
+args = ["exercises/25_file_copy_mycp/test_input.txt"]
+stdout = """Hello, this is a test file for mycp.
+It has multiple lines.
+Line 3 with special chars: !@#$%
+End of file.
+"""
+
+[[exercises.cases]]
+args = ["__nonexistent_file_xyz__"]
+exit_code = 1
 
 
 [[exercises]]
@@ -77,8 +85,9 @@ title = "mycp: 完整文件拷贝命令"
 unit = "unit2"
 lesson = 25
 order = 52
-mode = "stdout"
+mode = "make"
 source = "25c_mycp.c"
+make_targets = ["test_25c"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/25_file_copy_mycp"
 hint = '''
 综合前两题的知识，实现完整的 cp 命令。
@@ -103,6 +112,3 @@ hint = '''
 
 参考: 同目录下的 mycp.c。
 '''
-
-[[exercises.cases]]
-compile_only = true
