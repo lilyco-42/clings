@@ -1,13 +1,115 @@
 [[exercises]]
-name = "33_singly_linked_list"
-title = "动态数组实现"
+name = "33a_make_node"
+title = "链表节点创建与释放"
 unit = "unit2"
 lesson = 33
-order = 58
+order = 75
 mode = "stdout"
-sources = ["main.c", "array.c", "list.c"]
+source = "33a_make_node.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_singly_linked_list"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+链表节点的核心是 malloc + 结构体赋值:
+
+    link make_node(void *data) {
+        link p = malloc(sizeof(*p));
+        p->data = data;
+        p->next = NULL;
+        return p;
+    }
+
+释放节点时要先释放 data，再释放节点本身:
+
+    void delete_node(link p) {
+        free(p->data);
+        free(p);
+    }
+
+注意: sizeof(*p) 而不是 sizeof(struct node)，这样更安全。
+'''
 
 [[exercises.cases]]
-compile_only = true
+stdout = """A
+B
+C
+"""
+
+
+[[exercises]]
+name = "33b_list_ops"
+title = "链表尾插与遍历打印"
+unit = "unit2"
+lesson = 33
+order = 76
+mode = "stdout"
+source = "33b_list_ops.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_singly_linked_list"
+hint = '''
+尾插: 从 head 遍历到最后一个节点（next==NULL），然后挂上新节点:
+
+    link list_insert_tail(link head, link item) {
+        link p = head;
+        while (p->next != NULL)
+            p = p->next;
+        p->next = item;
+        item->next = NULL;
+        return head;
+    }
+
+遍历打印（跳过头节点）:
+
+    void list_print(link head, void (*pf)(void *)) {
+        link p = head->next;
+        while (p) {
+            if (p != head->next) printf(" -> ");
+            pf(p->data);
+            p = p->next;
+        }
+        printf("\n");
+    }
+
+关键: 头节点 data 为 NULL，实际数据从 head->next 开始。
+'''
+
+[[exercises.cases]]
+stdout = "a -> b -> c\n"
+
+
+[[exercises]]
+name = "33c_array_ops"
+title = "基于链表的动态数组"
+unit = "unit2"
+lesson = 33
+order = 77
+mode = "make"
+source = "33c_array_ops.c"
+make_targets = ["test_33c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_singly_linked_list"
+hint = '''
+array_insert 的关键: index==0 时特殊处理!
+
+    void array_insert(Array name, int index, char data) {
+        char *p = make_data(data);
+        link item = make_node(p);
+        if (index == 0) {
+            list_insert_after(name, item);  // 插到头节点之后
+            return;
+        }
+        Item where = array_at(name, index - 1);
+        list_insert_after(where, item);
+    }
+
+array_at 遍历链表找第 index 个数据节点:
+
+    Item array_at(Array name, int index) {
+        Item p = name;
+        int count = -1;
+        while (p != NULL) {
+            if (count == index) return p;
+            p = p->next;
+            count++;
+        }
+        return NULL;
+    }
+
+array_length 计数 head->next 之后的节点数。
+'''

@@ -1,23 +1,15 @@
 CC ?= gcc
 CFLAGS = -Wall -Wextra -std=c11 -g
 
-.PHONY: all test test_33c clean
-
-all: test_array
-
-test_array: main.c array.c list.c
-	$(CC) $(CFLAGS) main.c array.c list.c -o test_array
-
-test: test_array
-	./test_array
+.PHONY: test_33c clean
 
 test_33c: 33c_array_ops
 	./33c_array_ops | grep -q "\['a', 'b', 'c', 'd'\]"
 	./33c_array_ops | grep -q "length: 4"
 	@echo "PASS: 33c_array_ops"
 
-33c_array_ops: 33c_array_ops.c list.c
+33c_array_ops: 33c_array_ops.c list.c list.h
 	$(CC) $(CFLAGS) 33c_array_ops.c list.c -o 33c_array_ops
 
 clean:
-	-rm -f test_array 33c_array_ops
+	-rm -f 33c_array_ops

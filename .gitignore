@@ -18,8 +18,15 @@ dist/
 31b_file_time
 31c_ls_l
 32c_mybash
+33c_array_ops
+34b_josephus
+36b_bfs_maze
 more
 sort
 ll
 bashclone
+array_test
+josephus
+stack_eval
+queue
 _test_*

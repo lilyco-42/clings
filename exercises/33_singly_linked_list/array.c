@@ -97,6 +97,12 @@ void array_insert(Array name, int index, char data)
 	Item where;
 	int i = 0;
 
+	if (index == 0)
+	{
+		list_insert_after(name, item);
+		return;
+	}
+
 	if (index <= length)
 	{
 		where = array_at(name, index-1);
@@ -136,6 +142,18 @@ int array_index(Array name, char data)
 
 void array_sort(Array name)
 {
-
-	return;
+	int len = array_length(name);
+	for (int i = 0; i < len - 1; i++) {
+		link p = name->next;
+		for (int j = 0; j < len - 1 - i; j++) {
+			link q = p->next;
+			if (p->data && q->data &&
+			    *(char *)p->data > *(char *)q->data) {
+				void *tmp = p->data;
+				p->data = q->data;
+				q->data = tmp;
+			}
+			p = p->next;
+		}
+	}
 }

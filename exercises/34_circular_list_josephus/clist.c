@@ -109,7 +109,7 @@ void clist_print(link cur, void (*pf)(void *))
 void print_int_data(void *data)
 {
 	if (data)
-		printf("%d ", *(char *)data);
+		printf("%d ", *(int *)data);
 
 	return;
 }
