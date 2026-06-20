@@ -148,3 +148,11 @@ hint = '''
 [[exercises.cases]]
 stdin = "the cat sat on the mat\n"
 stdout = "cat:1 mat:1 on:1 sat:1 the:2\n"
+
+[[exercises.cases]]
+stdin = "a b c\n"
+stdout = "a:1 b:1 c:1\n"
+
+[[exercises.cases]]
+stdin = "hello hello world\n"
+stdout = "hello:2 world:1\n"

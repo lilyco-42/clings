@@ -105,6 +105,14 @@ hint = '''
 stdin = "hello\n"
 stdout = "e:1 h:1 l:2 o:1\n"
 
+[[exercises.cases]]
+stdin = "aaa\n"
+stdout = "a:3\n"
+
+[[exercises.cases]]
+stdin = "abcba\n"
+stdout = "a:2 b:2 c:1\n"
+
 
 [[exercises]]
 name = "37d_word_freq"
@@ -140,6 +148,14 @@ hint = '''
 [[exercises.cases]]
 stdin = "the cat sat on the mat\n"
 stdout = "cat:1 mat:1 on:1 sat:1 the:2\n"
+
+[[exercises.cases]]
+stdin = "foo foo foo\n"
+stdout = "foo:3\n"
+
+[[exercises.cases]]
+stdin = "x y z\n"
+stdout = "x:1 y:1 z:1\n"
 
 
 [[exercises]]

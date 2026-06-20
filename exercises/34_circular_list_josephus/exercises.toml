@@ -67,6 +67,14 @@ hint = '''
 stdin = "5 3\n"
 stdout = "1 2 4 5\n"
 
+[[exercises.cases]]
+stdin = "5 1\n"
+stdout = "2 3 4 5\n"
+
+[[exercises.cases]]
+stdin = "5 5\n"
+stdout = "1 2 3 4\n"
+
 
 [[exercises]]
 name = "34c_clist_print"

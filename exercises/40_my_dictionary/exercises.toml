@@ -38,6 +38,14 @@ hint = '''
 stdin = "apple 1\nbanana 2\ncherry 3\n"
 stdout = "loaded: 3\n"
 
+[[exercises.cases]]
+stdin = "x 1\n"
+stdout = "loaded: 1\n"
+
+[[exercises.cases]]
+stdin = "a 1\na 2\nb 3\n"
+stdout = "loaded: 2\n"
+
 
 [[exercises]]
 name = "40b_dict_lookup"
@@ -71,6 +79,16 @@ hint = '''
 stdin = "apple 1\nbanana 2\ncherry 3\n"
 args = ["banana"]
 stdout = "banana: 2\n"
+
+[[exercises.cases]]
+stdin = "apple 1\nbanana 2\n"
+args = ["grape"]
+stdout = "grape: not found\n"
+
+[[exercises.cases]]
+stdin = "hello world\n"
+args = ["hello"]
+stdout = "hello: world\n"
 
 
 [[exercises]]
@@ -108,3 +126,11 @@ max_depth > 1 说明有冲突，深度越大性能越差。
 [[exercises.cases]]
 stdin = "apple 1\nbanana 2\ncherry 3\napple 4\n"
 stdout = "entries: 3\nmax_depth: 1\n"
+
+[[exercises.cases]]
+stdin = "x 1\n"
+stdout = "entries: 1\nmax_depth: 1\n"
+
+[[exercises.cases]]
+stdin = "a 1\nq 2\n"
+stdout = "entries: 2\nmax_depth: 2\n"
