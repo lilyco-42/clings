@@ -4,8 +4,9 @@ title = "读取 ELF 魔数"
 unit = "unit2"
 lesson = 26
 order = 53
-mode = "stdout"
+mode = "make"
 source = "26a_read_magic.c"
+make_targets = ["test_26a"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/26_elf_header_parser"
 hint = '''
 ELF 文件的前 16 字节叫做 e_ident（标识区）。
@@ -25,9 +26,6 @@ ELF 文件的前 16 字节叫做 e_ident（标识区）。
 参考: 同目录下的 readelf.c。
 '''
 
-[[exercises.cases]]
-compile_only = true
-
 
 [[exercises]]
 name = "26b_parse_header"
@@ -35,8 +33,9 @@ title = "解析 ELF Header 结构体"
 unit = "unit2"
 lesson = 26
 order = 54
-mode = "stdout"
+mode = "make"
 source = "26b_parse_header.c"
+make_targets = ["test_26b"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/26_elf_header_parser"
 hint = '''
 ELF Header 的关键：
@@ -57,9 +56,6 @@ ELF Header 的关键：
 参考: 同目录下的 readelf.c。
 '''
 
-[[exercises.cases]]
-compile_only = true
-
 
 [[exercises]]
 name = "26c_file_type"
@@ -67,8 +63,9 @@ title = "ELF 文件类型识别"
 unit = "unit2"
 lesson = 26
 order = 55
-mode = "stdout"
+mode = "make"
 source = "26c_file_type.c"
+make_targets = ["test_26c"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/26_elf_header_parser"
 hint = '''
 用结构体数组实现数字到字符串的映射（查表法）：
@@ -91,6 +88,3 @@ struct type_string {
 
 参考: 同目录下的 readelf.c。
 '''
-
-[[exercises.cases]]
-compile_only = true
