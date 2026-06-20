@@ -1,10 +1,15 @@
 # =============================================================================
-# CNB CI: clings CLI — test + build + publish to PyPI.org
+# CNB CI: clings CLI
 # 仓库: q.qq/opencamp-c-2026-summer/clings (cli 分支)
 # 发布: https://pypi.org/project/clings/
+#
+# 策略:
+#   push     → Install & Test + Build（日常验证）
+#   tag_push → Install & Test + Build + Publish to PyPI（发版）
 # =============================================================================
 
 cli:
+  # ------ 日常 push: 测试 + 构建验证 ------
   push:
     - docker:
         build:
@@ -18,6 +23,28 @@ cli:
             clings init all
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
             clings check unit1 --solutions
+            clings check unit2 --solutions
+
+        - name: Build
+          script: |
+            pip install --break-system-packages build
+            python3 -m build
+
+  # ------ 打 Tag 发版: 测试 + 构建 + 发布 PyPI ------
+  tag_push:
+    - docker:
+        build:
+          dockerfile: Dockerfile.ci
+      stages:
+        - name: Install & Test
+          script: |
+            pip install --break-system-packages -e .
+            clings doctor
+            cd /tmp && mkdir -p clings-ci-test && cd clings-ci-test
+            clings init all
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings check unit1 --solutions
+            clings check unit2 --solutions
 
         - name: Build
           script: |
@@ -25,19 +52,9 @@ cli:
             python3 -m build
 
         - name: Publish to PyPI
-          allowFailure: true
           imports:
             - https://cnb.cool/q.qq/opencamp-c-2026-summer/secrets/-/blob/main/values.yml
           script: |
-            # PyPI API Token (project-scoped, minimum privilege)
             export TWINE_USERNAME="__token__"
             export TWINE_PASSWORD=${PYPI_TOKEN}
             twine upload --verbose dist/*
-
-        # - name: Publish to CNB
-        #   allowFailure: true
-        #   script: |
-        #     export TWINE_USERNAME="cnb"
-        #     export TWINE_PASSWORD=$CNB_TOKEN
-        #     export TWINE_REPOSITORY_URL="https://pypi.cnb.cool/q.qq/opencamp-c-2026-summer/clings-cli/-/packages/simple"
-        #     twine upload --verbose dist/*
