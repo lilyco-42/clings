@@ -15,12 +15,8 @@ all: 48a_city_graph 48b_shortest_path 48c_print_route
 	$(CC) $(CFLAGS) $< -o $@
 
 test_48d: 48d_gps_ncurses.c
-	@if echo '#include <ncurses.h>' | $(CC) -x c -fsyntax-only - 2>/dev/null; then \
-		$(CC) $(CFLAGS) $< -o 48d_gps_ncurses -lncurses && \
-		echo "PASS: 48d_gps_ncurses compiled"; \
-	else \
-		echo "SKIP: 48d_gps_ncurses (ncurses not available)"; \
-	fi
+	$(CC) $(CFLAGS) $< -o 48d_gps_ncurses -lncurses
+	@echo "PASS: 48d_gps_ncurses"
 
 clean:
 	-rm -f 48a_city_graph 48b_shortest_path 48c_print_route 48d_gps_ncurses
