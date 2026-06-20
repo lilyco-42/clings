@@ -1,5 +1,5 @@
 /*
- * Lesson 33c: 基于链表的动态数组 — 参考答案
+ * Lesson 33e: 基于链表的动态数组 — 参考答案
  */
 #include <stdio.h>
 #include <stdlib.h>

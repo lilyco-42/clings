@@ -1,13 +1,13 @@
-// 34a_clist_ops.c — 循环链表插入与遍历
+// 34a_clist_insert.c — 循环链表插入
 //
-// 任务: 实现循环链表的 clist_insert_after() 和 clist_print() 函数
-//       从 stdin 读取 N，构建包含 1..N 的循环链表并打印
+// 任务: 实现 clist_insert_after() 函数
+//       从 stdin 读取 N，构建包含 1..N 的循环链表，输出节点数
 //
-// 知识点: 循环链表的自环初始化、do-while 遍历
+// 知识点: 循环链表的自环初始化、插入到 cur 之后
 //
-// 用法: echo "5" | ./34a_clist_ops
+// 用法: echo "5" | ./34a_clist_insert
 // 预期输出:
-//   1 2 3 4 5
+//   5
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,11 +40,10 @@ int *make_int_data(int val)
 //       一般情况: item->next = cur->next; cur->next = item; 返回 item
 // link clist_insert_after(link cur, link item) { ... }
 
-// TODO: 实现 clist_print 函数
-// 功能: 使用 do-while 循环遍历循环链表，打印每个节点的 int 数据
-//       格式: 每个数字后跟一个空格，最后打印换行
-//       注意: 循环链表不能用 while(p!=NULL)，要用 do{...}while(p!=start)
-// void clist_print(link cur) { ... }
+// TODO: 实现 clist_length 函数
+// 功能: 使用 do-while 遍历循环链表，计算节点个数
+//       如果 cur == NULL，返回 0
+// int clist_length(link cur) { ... }
 
 int main(void)
 {
@@ -55,8 +54,8 @@ int main(void)
 
     // TODO: 循环 1..n，创建节点并用 clist_insert_after 插入
     //       每次插入后 cur 指向新插入的节点（尾部）
-    // TODO: 让 cur 指向第一个节点（即最后插入节点的 next）
-    // TODO: 调用 clist_print(cur) 打印链表
+    // TODO: 输出链表长度
+    //       printf("%d\n", clist_length(cur));
 
     return 0;
 }

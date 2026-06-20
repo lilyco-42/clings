@@ -1,5 +1,5 @@
 /*
- * Lesson 34b: 约瑟夫环问题 — 参考答案
+ * Lesson 34d: 约瑟夫环问题 — 参考答案
  */
 #include <stdio.h>
 #include <stdlib.h>

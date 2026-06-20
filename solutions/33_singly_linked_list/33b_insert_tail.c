@@ -1,5 +1,5 @@
 /*
- * Lesson 33b: 链表尾插与遍历打印 — 参考答案
+ * Lesson 33b: 链表尾插法 — 参考答案
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,18 +29,6 @@ link list_insert_tail(link head, link item)
     return head;
 }
 
-void list_print(link head, void (*pf)(void *))
-{
-    link p = head->next;
-    while (p) {
-        if (p != head->next)
-            printf(" -> ");
-        pf(p->data);
-        p = p->next;
-    }
-    printf("\n");
-}
-
 void print_char(void *data)
 {
     if (data)
@@ -51,15 +39,21 @@ int main(void)
 {
     link head = make_node(NULL);
 
-    char *a = malloc(1); *a = 'a';
-    char *b = malloc(1); *b = 'b';
-    char *c = malloc(1); *c = 'c';
+    char *x = malloc(1); *x = 'x';
+    char *y = malloc(1); *y = 'y';
+    char *z = malloc(1); *z = 'z';
 
-    list_insert_tail(head, make_node(a));
-    list_insert_tail(head, make_node(b));
-    list_insert_tail(head, make_node(c));
+    list_insert_tail(head, make_node(x));
+    list_insert_tail(head, make_node(y));
+    list_insert_tail(head, make_node(z));
 
-    list_print(head, print_char);
+    link p = head->next;
+    while (p) {
+        if (p != head->next) printf(" -> ");
+        print_char(p->data);
+        p = p->next;
+    }
+    printf("\n");
 
     return 0;
 }

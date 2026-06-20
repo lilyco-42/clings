@@ -3,7 +3,7 @@ name = "36a_queue_basic"
 title = "数组实现队列"
 unit = "unit2"
 lesson = 36
-order = 83
+order = 88
 mode = "stdout"
 source = "36a_queue_basic.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/36_queue_bfs_maze"
@@ -34,13 +34,50 @@ stdout = """10
 
 
 [[exercises]]
-name = "36b_bfs_maze"
+name = "36b_bfs_visit"
+title = "BFS 标记可达格子"
+unit = "unit2"
+lesson = 36
+order = 89
+mode = "stdout"
+source = "36b_bfs_visit.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/36_queue_bfs_maze"
+hint = '''
+BFS 标记可达: 从 (0,0) 出发，标记所有能到达的格子。
+
+    void bfs_visit(void) {
+        visited[0][0] = 1;
+        enqueue(0, 0);
+        while (!is_empty()) {
+            int r, c;
+            dequeue(&r, &c);
+            for (int d = 0; d < 4; d++) {
+                int nr = r + dr[d], nc = c + dc[d];
+                if (nr>=0 && nr<N && nc>=0 && nc<N
+                    && !visited[nr][nc] && maze[nr][nc]==0) {
+                    visited[nr][nc] = 1;
+                    enqueue(nr, nc);
+                }
+            }
+        }
+    }
+
+四个方向: dr[]={-1,1,0,0}, dc[]={0,0,-1,1}（上下左右）
+计数: 遍历 visited[][] 统计 1 的个数。
+'''
+
+[[exercises.cases]]
+stdout = "reachable: 10\n"
+
+
+[[exercises]]
+name = "36c_bfs_maze"
 title = "BFS 解迷宫最短路径"
 unit = "unit2"
 lesson = 36
-order = 84
+order = 90
 mode = "stdout"
-source = "36b_bfs_maze.c"
+source = "36c_bfs_maze.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/36_queue_bfs_maze"
 hint = '''
 BFS 迷宫求解:

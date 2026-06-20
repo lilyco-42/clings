@@ -1,5 +1,5 @@
 /*
- * Lesson 34a: 循环链表插入与遍历 — 参考答案
+ * Lesson 34c: 循环链表 do-while 遍历打印 — 参考答案
  */
 #include <stdio.h>
 #include <stdlib.h>
