@@ -1,167 +1,136 @@
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 #include <stdlib.h>
 
 #include <termios.h>
 #include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>	// STDIN_FILENO
+#include <unistd.h>
 
-int width;
-int height;	// 80*24 -> display only line 0 -> line 22, last line is for command
+static int width;
+static int height;
+static struct termios orig_ts;  // 保存原始终端属性，退出时恢复
 
-void get_termios(void)
+static void get_termios(void)
 {
-	struct winsize *ws;
-
-	ws=(struct winsize*)malloc(sizeof(struct winsize));
-	memset(ws,0x00,sizeof(struct winsize));
-	ioctl(STDIN_FILENO, TIOCGWINSZ, ws);
-
-	width=ws->ws_col;
-	height=ws->ws_row;
-
-	printf("w = %d, h = %d\n", width, height);
-
-	return;
+	struct winsize ws;  // 栈变量，避免 malloc 泄漏
+	memset(&ws, 0, sizeof(ws));
+	ioctl(STDIN_FILENO, TIOCGWINSZ, &ws);
+	width = ws.ws_col;
+	height = ws.ws_row;
 }
 
-void set_no_echo(void)
+static void set_raw_mode(void)
 {
-	struct termios ts; //终端属性
-
-	tcgetattr(STDIN_FILENO,&ts); //获取终端属性 
-	ts.c_lflag &= (~ECHO); //阻止回显
-	tcsetattr(STDIN_FILENO,TCSAFLUSH,&ts); //设置终端的新属性
+	tcgetattr(STDIN_FILENO, &orig_ts);  // 保存原始属性
+	struct termios ts = orig_ts;
+	ts.c_lflag &= ~(ECHO | ICANON);    // 关闭回显和行缓冲
+	ts.c_cc[VMIN] = 1;
+	ts.c_cc[VTIME] = 0;
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &ts);
 }
 
-void set_echo(void)
+static void restore_term(void)
 {
-	struct termios ts; //终端属性
-
-	tcgetattr(STDIN_FILENO,&ts); //获取终端属性 
-	ts.c_lflag |= ECHO;	// 开启回显
-	tcsetattr(STDIN_FILENO,TCSAFLUSH,&ts); //设置终端的新属性
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_ts);  // 恢复原始属性
 }
 
-void set_no_enter(void)
-{
-	struct termios ts; //终端属性
+#define MAX_LINES 65536
 
-	tcgetattr(STDIN_FILENO,&ts);	//获取终端属性 
-	ts.c_lflag &= (~ICANON);	//设置终端为非标准模式，在非标准模式下终端驱动程序没有缓冲区，输入立即交换程序处理
-	ts.c_cc[VMIN]=1;	//VMIN 的值告诉驱动程序一次可以读取多少个字符。如果想一次读取 3 个字符就设为 3
-	ts.c_cc[VTIME]=0;	//VTIME 设置超时
-	tcsetattr(STDIN_FILENO,TCSAFLUSH,&ts);	//设置终端的新属性 
+static char *pv[MAX_LINES];  // 行指针数组
+static int lines = 0;
+static int top = 0;
+static int dropdown = 0;
+
+static void display(void)
+{
+	for (int i = 0; i < dropdown; i++)
+		printf("%s", pv[top + i]);
 }
 
-int top = 0;
-int dropdown = 0;	// all lines from top to bottom
-
-char *pv[1024];		// every line buffer pointer array
-int lines = 0;		// total lines in file
-
-void display(void)
+static void free_lines(void)
 {
-	int i = 0;
-
-	for (i = 0; i < dropdown; i++)	
-		printf("%s", pv[top+i]);
+	for (int i = 0; i < lines; i++)
+		free(pv[i]);
+	lines = 0;
 }
 
 int more_main(int argc, char *argv[])
 {
-	FILE *fp;
-
-	if (argc < 2)
-	{
-		printf("Usage: more filename\n");
-		return -1;
+	if (argc < 2) {
+		fprintf(stderr, "Usage: more <filename>\n");
+		return 1;
 	}
 
-	fp = fopen(argv[1], "rb");
-	if (fp == NULL)
-	{
-		printf("file <%s> open error\n", argv[1]);
-		return -1;
+	FILE *fp = fopen(argv[1], "r");
+	if (fp == NULL) {
+		perror(argv[1]);
+		return 1;
 	}
-	// verify that fp1 not NULL
-	assert(fp);
-	
+
 	char buf[1024];
-
-	// http://www.programmer-club.com/showsametitlen/c/39966.html
-	while (fgets(buf, 1024, fp))
-	{
-		//printf("lines %d: %s", lines, buf);
+	lines = 0;
+	while (fgets(buf, sizeof(buf), fp) && lines < MAX_LINES) {
 		pv[lines] = malloc(strlen(buf) + 1);
+		if (pv[lines] == NULL) {
+			fprintf(stderr, "malloc failed\n");
+			break;
+		}
 		strcpy(pv[lines], buf);
 		lines++;
 	}
-	printf("lines = %d\n", lines);
+	fclose(fp);
 
 	get_termios();
-	set_no_echo();
-	set_no_enter();
+	set_raw_mode();
 
 	top = 0;
-	if (lines <= height - 1)
-	{
+	if (lines <= height - 1) {
 		dropdown = lines;
 		goto quit;
 	}
-	else
-		dropdown = height - 1;
+	dropdown = height - 1;
 
-	while (1)
-	{            
+	while (1) {
 		system("clear");
 		display();
 		printf(":");
 
-		char c;
-		// get user input
-		if ((c = getc(stdin)) == EOF)
+		int c = getc(stdin);  // int 才能正确接收 EOF
+		if (c == EOF)
 			break;
 
-		switch (c)
-		{
+		switch (c) {
 		case 'q':
 			goto quit;
-		case 'k':	// up
-			if (top == 0)
-				continue;
-			top -= 1;
+		case 'k':
+			if (top > 0)
+				top -= 1;
 			break;
-		case '\n':	// enter
-		case 'j':	// down
-			if (top + 1 + dropdown > lines)
-				goto quit;
-			top += 1;
+		case '\n':
+		case 'j':
+			if (top + 1 + dropdown <= lines)
+				top += 1;
 			break;
-		case ' ':	// down a page
-			if (top + height - 1 + dropdown > lines)
-			{
+		case ' ':
+		case 'f':
+			if (top + height - 1 + dropdown > lines) {
 				top = lines - dropdown;
 				goto quit;
 			}
 			top += height - 1;
 			break;
-		case 'b':	// up a page
-			if (top - (height - 1) < 0)
-			{
-				top = 0;
-				continue;
-			}
+		case 'b':
 			top -= height - 1;
+			if (top < 0)
+				top = 0;
 			break;
 		}
 	}
 
 quit:
+	system("clear");
 	display();
-	set_echo();
+	restore_term();  // 恢复终端到原始状态
+	free_lines();
 	return 0;
 }

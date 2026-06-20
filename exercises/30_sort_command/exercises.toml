@@ -1,13 +1,159 @@
 [[exercises]]
-name = "30_sort_command"
-title = "sort (sort命令实现)"
+name = "30a_qsort_int"
+title = "qsort 整数排序"
 unit = "unit2"
 lesson = 30
-order = 55
+order = 66
 mode = "stdout"
-sources = ["main.c", "cmd_sort.c"]
+source = "30a_qsort_int.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/30_sort_command"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+qsort 的函数签名:
+    void qsort(void *base, size_t nmemb, size_t size,
+               int (*compar)(const void *, const void *));
+
+整数比较函数模板:
+    int cmp_int(const void *a, const void *b) {
+        int va = *(const int *)a;
+        int vb = *(const int *)b;
+        return (va > vb) - (va < vb);
+    }
+
+注意: 不要用 return *a - *b，INT_MAX - (-1) 会溢出!
+(va > vb) - (va < vb) 只产生 -1/0/1，绝对安全。
+
+参考: 同目录下的 cmd_sort.c。
+'''
 
 [[exercises.cases]]
-compile_only = true
+args = ["5", "3", "8", "1", "4"]
+stdout = """1
+3
+4
+5
+8
+"""
+
+[[exercises.cases]]
+args = ["100", "-5", "0", "42"]
+stdout = """-5
+0
+42
+100
+"""
+
+
+[[exercises]]
+name = "30b_qsort_str"
+title = "qsort 字符串排序"
+unit = "unit2"
+lesson = 30
+order = 67
+mode = "stdout"
+source = "30b_qsort_str.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/30_sort_command"
+hint = '''
+对 char* 数组排序时，qsort 传给比较函数的是"指向 char* 的指针"。
+
+所以在比较函数中需要二级指针转换:
+    int cmp_str(const void *a, const void *b) {
+        const char *s1 = *(const char **)a;
+        const char *s2 = *(const char **)b;
+        return strcmp(s1, s2);
+    }
+
+理解要点:
+- 数组元素类型是 char*（指针）
+- qsort 传的是"元素的地址"，即 char** 
+- 所以 (const void *a) 实际是 (const char **a)
+- 解引用一次 *(const char **)a 才得到实际的字符串指针
+
+参考: 同目录下的 cmd_sort.c。
+'''
+
+[[exercises.cases]]
+args = ["red", "black", "blue", "green", "yellow"]
+stdout = """black
+blue
+green
+red
+yellow
+"""
+
+[[exercises.cases]]
+args = ["zebra", "apple", "mango"]
+stdout = """apple
+mango
+zebra
+"""
+
+
+[[exercises]]
+name = "30c_sort_file"
+title = "sort: 文件行排序命令"
+unit = "unit2"
+lesson = 30
+order = 68
+mode = "stdout"
+source = "30c_sort_file.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/30_sort_command"
+hint = '''
+综合前两题，实现文件行排序:
+
+1. fgets + malloc 读取所有行（同 Lesson 29a）
+2. 根据命令行选项选择比较函数:
+   - 默认: cmp_str（字典序）
+   - -r: cmp_str_r（逆序，返回 -strcmp）
+   - -n: cmp_str_n（数值排序，用 atoi）
+3. 调用 qsort 排序
+4. 输出时，如果有 -u 选项，跳过与上一行相同的行
+
+选项解析建议（支持任意顺序和组合）:
+    for (int i = 2; i < argc; i++) {
+        if (argv[i][0] != '-') continue;
+        for (const char *p = argv[i]+1; *p; p++) {
+            if (*p == 'u') opt_u = 1;
+            if (*p == 'r') opt_r = 1;
+            if (*p == 'n') opt_n = 1;
+        }
+    }
+
+参考: 同目录下的 cmd_sort.c。
+'''
+
+[[exercises.cases]]
+args = ["exercises/30_sort_command/test.txt"]
+stdout = """1 red
+15 blue
+15 blue
+17 yello
+2 blue
+30 green 
+5 black
+"""
+
+[[exercises.cases]]
+args = ["exercises/30_sort_command/test.txt", "-n"]
+stdout = """1 red
+2 blue
+5 black
+15 blue
+15 blue
+17 yello
+30 green 
+"""
+
+[[exercises.cases]]
+args = ["exercises/30_sort_command/test.txt", "-r"]
+stdout = """5 black
+30 green 
+2 blue
+17 yello
+15 blue
+15 blue
+1 red
+"""
+
+[[exercises.cases]]
+args = ["__nonexistent_file_xyz__"]
+exit_code = 1

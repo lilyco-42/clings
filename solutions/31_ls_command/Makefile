@@ -1,23 +1,9 @@
 CC ?= gcc
 CFLAGS = -Wall -Wextra -std=c11 -g
-SRC = cmd_ll.c
-CMD = ll
 
-.PHONY: all test test_31a test_31b test_31c clean
-
-all: $(CMD)
-
-$(CMD): main.c $(SRC)
-	$(CC) $(CFLAGS) main.c $(SRC) -o $(CMD)
-
-test: $(CMD)
-	./$(CMD) Makefile
-	./$(CMD) Makefile -i
-	./$(CMD) Makefile -s
-	./$(CMD) Makefile -T
+.PHONY: test_31a test_31b test_31c clean
 
 test_31a: 31a_file_size
-	@# 创建已知大小的测试文件
 	@printf 'hello' > _test_31a.txt
 	./31a_file_size _test_31a.txt | grep -q "size: 5"
 	@rm -f _test_31a.txt
@@ -27,7 +13,6 @@ test_31a: 31a_file_size
 	$(CC) $(CFLAGS) 31a_file_size.c -o 31a_file_size
 
 test_31b: 31b_file_time
-	@# 验证输出格式为 "mtime: YYYY-MM-DD HH:MM:SS"
 	./31b_file_time Makefile | grep -qE "^mtime: [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$$"
 	@echo "PASS: 31b_file_time"
 
@@ -35,7 +20,6 @@ test_31b: 31b_file_time
 	$(CC) $(CFLAGS) 31b_file_time.c -o 31b_file_time
 
 test_31c: 31c_ls_l
-	@# 验证不同选项的输出
 	./31c_ls_l Makefile | grep -q "Access mode:"
 	./31c_ls_l Makefile | grep -q "file uid ="
 	./31c_ls_l Makefile | grep -q "file size ="
@@ -48,4 +32,4 @@ test_31c: 31c_ls_l
 	$(CC) $(CFLAGS) 31c_ls_l.c -o 31c_ls_l
 
 clean:
-	-rm -f $(CMD) 31a_file_size 31b_file_time 31c_ls_l _test_31a.txt
+	-rm -f 31a_file_size 31b_file_time 31c_ls_l _test_31a.txt

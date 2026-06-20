@@ -7,3 +7,19 @@ dist/
 *.exe
 *.o
 *.out
+*.elf
+
+# Docker/Linux 编译产物（无后缀 ELF 二进制）
+# 策略: exercises/ 和 solutions/ 下只应有 .c .h .toml .txt .md Makefile
+# 以下是已知的编译产物名
+25c_mycp
+29c_more
+31a_file_size
+31b_file_time
+31c_ls_l
+32c_mybash
+more
+sort
+ll
+bashclone
+_test_*

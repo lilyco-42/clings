@@ -1,17 +1,7 @@
 CC ?= gcc
 CFLAGS = -Wall -Wextra -std=c11 -g
-SRC = cmd_more.c
-CMD = more
 
-.PHONY: all test test_29c clean
-
-all: $(CMD)
-
-$(CMD): main.c $(SRC)
-	$(CC) $(CFLAGS) main.c $(SRC) -o $(CMD)
-
-test: $(CMD)
-	./$(CMD) Makefile
+.PHONY: test_29c clean
 
 test_29c: 29c_more
 	@echo "29c_more: compile OK (interactive test requires terminal)"
@@ -21,4 +11,4 @@ test_29c: 29c_more
 	$(CC) $(CFLAGS) 29c_more.c -o 29c_more
 
 clean:
-	-rm -f $(CMD) 29c_more
+	-rm -f 29c_more
