@@ -1,89 +1,75 @@
 #include <stdio.h>
 #include <string.h>
 
-int mycp_main(int, char**);
-int readelf_main(int, char**);
-int sed_main(int, char**);
-int math_main(int, char**);
-int more_main(int, char**);
-int sort_main(int, char**);
-int ll_main(int, char**);
+int mycp_main(int, char **);
+int readelf_main(int, char **);
+int sed_main(int, char **);
+int math_main(int, char **);
+int more_main(int, char **);
+int sort_main(int, char **);
+int ll_main(int, char **);
 
-struct operation
-{
-	char name[8];
+struct operation {
+	char name[16];
 	int (*pf)(int, char **);
-} op[] =
-{
-	{ "mycp", mycp_main },
+};
+
+static struct operation op[] = {
+	{ "mycp",    mycp_main },
 	{ "readelf", readelf_main },
-	{ "sed", sed_main },
-	{ "math", math_main },
-	{ "more", more_main },
-	{ "sort", sort_main },
-	{ "ll", ll_main },
-	// add more opeation here
+	{ "sed",     sed_main },
+	{ "math",    math_main },
+	{ "more",    more_main },
+	{ "sort",    sort_main },
+	{ "ll",      ll_main },
 };
 
 int command_do(int argc, char *argv[])
 {
-	int i = 0;
+	if (argc < 1 || argv[0] == NULL)
+		return -1;
 
-	for (i = 0; i < sizeof(op)/sizeof(op[0]); i++)
-	{
+	for (int i = 0; i < (int)(sizeof(op) / sizeof(op[0])); i++) {
 		if (strcmp(argv[0], op[i].name) == 0)
-		{
-			op[i].pf(argc, argv);
-			break;
-		}
+			return op[i].pf(argc, argv);
 	}
 
-	return 0;
+	fprintf(stderr, "command not found: %s\n", argv[0]);
+	return -1;
 }
 
-void shell_parse(char *buf)
-{
-	int argc;
-	char *argv[8];
-	int state = 0;
-	int i = 0;
+#define MAX_ARGS 32
 
-	argc = 0;
-	// parse buf	
-	while (*buf)
-	{
-		char c = *buf;
-		if(c == ' ' && state == 0)	// "   add 100"
-			state = 0;
-		else
-		if(c != ' ' && state == 0)	// "add 100"
-		{
-			argv[argc++] = buf;
-			state = 1;
-		}
-		else
-		if(c == ' ' && state == 1)	// "a dd 100"
-		{
+int shell_parse(char *buf)
+{
+	int argc = 0;
+	char *argv[MAX_ARGS];
+	int in_word = 0;
+
+	while (*buf) {
+		if (*buf == '\n') {
 			*buf = '\0';
-			state = 0;
+			break;
 		}
-		else
-		if(c != ' ' && state == 1)	// "add 100"
-		{
-			state = 1;
+		if (*buf == ' ' || *buf == '\t') {
+			if (in_word) {
+				*buf = '\0';
+				in_word = 0;
+			}
+		} else {
+			if (!in_word && argc < MAX_ARGS - 1) {
+				argv[argc++] = buf;
+				in_word = 1;
+			}
 		}
 		buf++;
-		if (*buf == '\n')
-			*buf = '\0';
 	}
-
 	argv[argc] = NULL;
-#if 0
-	printf("argc = %d\n", argc);
-	for (i = 0; i <= argc; i++)
-		printf("argv[%d] : %s\n", i, argv[i]);
-#endif
-	command_do(argc, argv);
+
+	if (argc == 0)
+		return 0;
+
+	return command_do(argc, argv);
 }
 
 

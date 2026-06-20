@@ -1,13 +1,141 @@
 [[exercises]]
-name = "32_mybash_project"
-title = "Bash Clone (Bash项目)"
+name = "32a_shell_parse"
+title = "命令行字符串解析"
 unit = "unit2"
 lesson = 32
-order = 57
+order = 72
 mode = "stdout"
-sources = ["main.c", "shell.c", "mycp.c", "readelf.c", "sed.c", "cmd_math.c", "cmd_more.c", "cmd_sort.c", "cmd_ll.c"]
+source = "32a_shell_parse.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/32_mybash_project"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+命令行解析的核心: 将 "cmd arg1 arg2\n" 分割为 argc/argv。
+
+状态机算法（两个状态: 在词中 / 不在词中）:
+    int argc = 0, in_word = 0;
+    char *argv[MAX_ARGS];
+
+    while (*buf) {
+        if (*buf == '\n') { *buf = '\0'; break; }
+        if (*buf == ' ' || *buf == '\t') {
+            if (in_word) { *buf = '\0'; in_word = 0; }
+        } else {
+            if (!in_word) { argv[argc++] = buf; in_word = 1; }
+        }
+        buf++;
+    }
+    argv[argc] = NULL;
+
+关键: 用 '\0' 原地分割字符串，argv[i] 指向原 buf 中的位置。
+
+参考: 同目录下的 shell.c。
+'''
 
 [[exercises.cases]]
-compile_only = true
+stdin = "hello world foo\n"
+stdout = """argc: 3
+argv[0]: hello
+argv[1]: world
+argv[2]: foo
+"""
+
+[[exercises.cases]]
+stdin = "  ls  -l  /tmp  \n"
+stdout = """argc: 3
+argv[0]: ls
+argv[1]: -l
+argv[2]: /tmp
+"""
+
+[[exercises.cases]]
+stdin = "single\n"
+stdout = """argc: 1
+argv[0]: single
+"""
+
+
+[[exercises]]
+name = "32b_dispatch"
+title = "函数指针分发表"
+unit = "unit2"
+lesson = 32
+order = 73
+mode = "stdout"
+source = "32b_dispatch.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/32_mybash_project"
+hint = '''
+函数指针分发表的核心模式:
+
+    struct operation {
+        char name[16];
+        int (*pf)(int, char **);
+    };
+
+    struct operation op[] = {
+        { "hello", cmd_hello },
+        { "add",   cmd_add },
+        { "echo",  cmd_echo },
+    };
+
+查找并调用:
+    for (int i = 0; i < sizeof(op)/sizeof(op[0]); i++) {
+        if (strcmp(argv[0], op[i].name) == 0)
+            return op[i].pf(argc, argv);
+    }
+    fprintf(stderr, "command not found: %s\n", argv[0]);
+
+这就是 shell 的核心——根据命令名查表，调用对应函数。
+
+参考: 同目录下的 shell.c。
+'''
+
+[[exercises.cases]]
+stdin = "hello\n"
+stdout = "Hello, NCCL!\n"
+
+[[exercises.cases]]
+stdin = "add 3 5\n"
+stdout = "8\n"
+
+[[exercises.cases]]
+stdin = "echo foo bar baz\n"
+stdout = "foo bar baz\n"
+
+
+[[exercises]]
+name = "32c_mybash"
+title = "mybash: Bash Clone 整合项目"
+unit = "unit2"
+lesson = 32
+order = 74
+mode = "make"
+source = "32c_mybash.c"
+make_targets = ["test_32c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/32_mybash_project"
+hint = '''
+整合项目的关键步骤:
+
+1. 在 shell.c 中声明所有外部命令的函数原型:
+    int mycp_main(int, char **);
+    int sort_main(int, char **);
+    ...
+
+2. 定义分发表，将命令名映射到函数指针:
+    struct operation op[] = {
+        { "mycp", mycp_main },
+        { "sort", sort_main },
+        ...
+    };
+
+3. main.c 中实现 REPL 循环:
+    while (1) {
+        printf("NCCL# ");
+        if (fgets(buf, sizeof(buf), stdin) == NULL) break;
+        // 检查 exit/quit
+        shell_parse(buf);
+    }
+
+4. Makefile 中链接所有模块:
+    gcc main.c shell.c ../25_.../mycp.c ... -lm -o bashclone
+
+参考: 同目录下的 shell.c 和 README.md。
+'''

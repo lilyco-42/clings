@@ -1,13 +1,125 @@
 [[exercises]]
-name = "29_more_command"
-title = "more command (more命令实现)"
+name = "29a_read_lines"
+title = "文件行读取与动态内存"
 unit = "unit2"
 lesson = 29
-order = 54
+order = 63
 mode = "stdout"
-sources = ["main.c", "cmd_more.c"]
+source = "29a_read_lines.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/29_more_command"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+fgets 逐行读取文件，每行用 malloc 分配内存保存:
+
+    char buf[1024];
+    char *pv[MAX_LINES];
+    int lines = 0;
+
+    while (fgets(buf, sizeof(buf), fp) && lines < MAX_LINES) {
+        pv[lines] = malloc(strlen(buf) + 1);
+        strcpy(pv[lines], buf);
+        lines++;
+    }
+
+打印格式: 先输出 "lines: %d\n"，再逐行 printf("%s", pv[i])。
+
+用完后记得 free 每一行:
+    for (int i = 0; i < lines; i++) free(pv[i]);
+
+参考: 同目录下的 cmd_more.c。
+'''
 
 [[exercises.cases]]
-compile_only = true
+args = ["exercises/29_more_command/test_input.txt"]
+stdout = """lines: 5
+Line 1: Hello, more command!
+Line 2: This is a test file.
+Line 3: It has multiple lines.
+Line 4: For testing pagination.
+Line 5: End of file.
+"""
+
+[[exercises.cases]]
+args = ["__nonexistent_file_xyz__"]
+exit_code = 1
+
+
+[[exercises]]
+name = "29b_display_page"
+title = "分页显示算法"
+unit = "unit2"
+lesson = 29
+order = 64
+mode = "stdout"
+source = "29b_display_page.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/29_more_command"
+hint = '''
+分页的核心: 用 page_size 控制每次显示的行数。
+
+第一页显示逻辑:
+    int dropdown = (lines < page_size) ? lines : page_size;
+    for (int i = 0; i < dropdown; i++)
+        printf("%s", pv[i]);
+
+如果文件行数少于 page_size，就全部显示。
+
+参考: 同目录下的 cmd_more.c 中的 display() 函数。
+'''
+
+[[exercises.cases]]
+args = ["exercises/29_more_command/test_input.txt", "3"]
+stdout = """Line 1: Hello, more command!
+Line 2: This is a test file.
+Line 3: It has multiple lines.
+"""
+
+[[exercises.cases]]
+args = ["exercises/29_more_command/test_input.txt", "100"]
+stdout = """Line 1: Hello, more command!
+Line 2: This is a test file.
+Line 3: It has multiple lines.
+Line 4: For testing pagination.
+Line 5: End of file.
+"""
+
+[[exercises.cases]]
+args = ["__nonexistent_file_xyz__", "10"]
+exit_code = 1
+
+
+[[exercises]]
+name = "29c_more"
+title = "more: 完整分页浏览器"
+unit = "unit2"
+lesson = 29
+order = 65
+mode = "make"
+source = "29c_more.c"
+make_targets = ["test_29c"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/29_more_command"
+hint = '''
+termios 控制终端的关键步骤:
+
+1. 保存原始属性:
+    static struct termios orig_ts;
+    tcgetattr(STDIN_FILENO, &orig_ts);
+
+2. 进入 raw 模式（关闭回显和行缓冲）:
+    struct termios ts = orig_ts;
+    ts.c_lflag &= ~(ECHO | ICANON);
+    ts.c_cc[VMIN] = 1;
+    ts.c_cc[VTIME] = 0;
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &ts);
+
+3. 退出时必须恢复（否则终端会异常！）:
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_ts);
+
+获取终端尺寸:
+    struct winsize ws;
+    ioctl(STDIN_FILENO, TIOCGWINSZ, &ws);
+    int height = ws.ws_row;
+
+按键读取用 int（不是 char）:
+    int c = getc(stdin);  // char 无法正确判断 EOF
+
+参考: 同目录下的 cmd_more.c。
+'''
