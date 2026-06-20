@@ -1,13 +1,99 @@
 [[exercises]]
-name = "38_heap_sort"
-title = "堆排序问题"
+name = "38a_max_heapify"
+title = "最大堆调整"
 unit = "unit2"
 lesson = 38
-order = 63
+order = 96
 mode = "stdout"
-source = "heap.c"
+source = "38a_max_heapify.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/38_heap_sort"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+堆的数组表示中，对节点 i:
+  - 左子节点: 2*i + 1
+  - 右子节点: 2*i + 2
+
+max_heapify: 让节点 i "下沉"到正确位置。
+
+    void max_heapify(int i) {
+        int left = 2*i + 1;
+        int right = 2*i + 2;
+        int largest = i;
+
+        if (left < heap_size && arr[left] > arr[largest])
+            largest = left;
+        if (right < heap_size && arr[right] > arr[largest])
+            largest = right;
+
+        if (largest != i) {
+            swap(i, largest);
+            max_heapify(largest);  // 递归下沉
+        }
+    }
+
+参考 38a_max_heapify.c 中的 TODO 注释完成实现。
+'''
 
 [[exercises.cases]]
-compile_only = true
+stdout = "10 5 3 4 1\n"
+
+
+[[exercises]]
+name = "38b_build_heap"
+title = "构建最大堆"
+unit = "unit2"
+lesson = 38
+order = 97
+mode = "stdout"
+source = "38b_build_heap.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/38_heap_sort"
+hint = '''
+建堆: 从最后一个非叶节点开始，自底向上对每个节点调用 max_heapify。
+
+    void build_max_heap(void) {
+        // 最后一个非叶节点的下标是 heap_size/2 - 1
+        for (int i = heap_size/2 - 1; i >= 0; i--)
+            max_heapify(i);
+    }
+
+为什么从后往前? 因为 max_heapify 假设子树已经是合法的堆，
+自底向上可以保证这个前提条件。
+
+时间复杂度: O(n)，不是 O(n log n)!
+
+参考 38b_build_heap.c 中的 TODO 注释完成实现。
+'''
+
+[[exercises.cases]]
+stdout = "16 14 10 8 7 9 3 2 4 1\n"
+
+
+[[exercises]]
+name = "38c_heap_sort"
+title = "堆排序"
+unit = "unit2"
+lesson = 38
+order = 98
+mode = "stdout"
+source = "38c_heap_sort.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/38_heap_sort"
+hint = '''
+堆排序算法:
+1. build_max_heap() — 先建堆
+2. 循环取出堆顶（最大值）放到数组末尾:
+
+    void heap_sort(void) {
+        build_max_heap();
+        for (int i = arr_size - 1; i >= 1; i--) {
+            swap(0, i);     // 堆顶（最大值）放到末尾
+            heap_size--;    // 缩小堆的范围
+            max_heapify(0); // 恢复堆性质
+        }
+    }
+
+排序后数组从小到大排列。时间复杂度: O(n log n)。
+
+参考 38c_heap_sort.c 中的 TODO 注释完成实现。
+'''
+
+[[exercises.cases]]
+stdout = "1 2 3 4 5 8\n"

@@ -1,15 +1,139 @@
 [[exercises]]
-name = "48_gps_navigation"
-title = "地图导航项目"
+name = "48a_city_graph"
+title = "城市图数据结构"
 unit = "unit2"
 lesson = 48
-order = 73
+order = 129
 mode = "stdout"
-source = "gps.c"
-compiler = "g++"
-cflags = ["-std=c++11", "-Wall", "-Wextra", "-O2"]
+source = "48a_city_graph.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/48_gps_navigation"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+邻接矩阵表示无向加权图:
+
+    struct city_graph {
+        int num_cities;
+        int num_edges;
+        int dist[MAX_CITIES][MAX_CITIES];
+        char names[MAX_CITIES][32];
+    };
+
+初始化: dist[i][j] = (i==j) ? 0 : INF
+添加无向边: dist[u][v] = dist[v][u] = weight; num_edges++;
+
+5个城市: Beijing(0), Shanghai(1), Guangzhou(2), Shenzhen(3), Hangzhou(4)
+6条边: Beijing-Shanghai:1200, Beijing-Hangzhou:1400,
+       Shanghai-Hangzhou:200, Shanghai-Guangzhou:1500,
+       Hangzhou-Guangzhou:1200, Guangzhou-Shenzhen:150
+'''
+
+[[exercises.cases]]
+stdout = """cities: 5
+edges: 6
+"""
+
+
+[[exercises]]
+name = "48b_shortest_path"
+title = "城市间最短路径距离"
+unit = "unit2"
+lesson = 48
+order = 130
+mode = "stdout"
+source = "48b_shortest_path.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/48_gps_navigation"
+hint = '''
+Dijkstra 算法求最短路径（无向图版本）:
+
+    void dijkstra(struct city_graph *g, int src) {
+        for (int i = 0; i < n; i++) { shortest[i] = INF; visited[i] = 0; }
+        shortest[src] = 0;
+        for (int count = 0; count < n; count++) {
+            // 找未访问中 shortest 最小的 u
+            // 标记 u 已访问
+            // 对 u 的所有邻居 v 松弛
+        }
+    }
+
+Beijing(0) → Shenzhen(3) 的最短路径:
+  Beijing → Hangzhou → Guangzhou → Shenzhen = 1400+1200+150 = 2750 km
+'''
+
+[[exercises.cases]]
+args = ["0", "3"]
+stdout = "2750\n"
+
+[[exercises.cases]]
+args = ["0", "2"]
+stdout = "2600\n"
+
+
+[[exercises]]
+name = "48c_print_route"
+title = "格式化打印导航路线"
+unit = "unit2"
+lesson = 48
+order = 131
+mode = "stdout"
+source = "48c_print_route.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/48_gps_navigation"
+hint = '''
+路径回溯并格式化打印:
+
+    void print_route(struct city_graph *g, int dst) {
+        int path[MAX_CITIES], len = 0;
+        for (int v = dst; v != -1; v = prev_node[v])
+            path[len++] = v;
+        for (int i = len-1; i >= 0; i--) {
+            printf("%%s", g->names[path[i]]);
+            if (i > 0) printf(" -> ");
+        }
+        printf(" (%%d km)\n", shortest[dst]);
+    }
+
+dijkstra 中记录 prev_node[v] = u（松弛时更新）。
+'''
+
+[[exercises.cases]]
+args = ["0", "3"]
+stdout = "Beijing -> Hangzhou -> Guangzhou -> Shenzhen (2750 km)\n"
+
+[[exercises.cases]]
+args = ["0", "2"]
+stdout = "Beijing -> Hangzhou -> Guangzhou (2600 km)\n"
+
+
+[[exercises]]
+name = "48d_gps_ncurses"
+title = "ncurses 地图显示 (Linux-only)"
+unit = "unit2"
+lesson = 48
+order = 132
+mode = "make"
+source = "48d_gps_ncurses.c"
+make_targets = ["test_48d"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/48_gps_navigation"
+hint = '''
+ncurses 终端 UI 基本流程:
+    #include <ncurses.h>
+
+    initscr();      // 初始化屏幕
+    cbreak();       // 禁用行缓冲
+    noecho();       // 不回显输入
+
+    start_color();  // 启用颜色
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+
+    mvprintw(y, x, "text");  // 在 (y,x) 打印
+    attron(COLOR_PAIR(1));   // 启用颜色
+    attroff(COLOR_PAIR(1));  // 关闭颜色
+
+    refresh();      // 刷新屏幕
+    getch();        // 等待按键
+    endwin();       // 结束 ncurses
+
+使用 #ifdef __linux__ 条件编译，非 Linux 环境 fallback 为文本输出。
+编译: gcc -Wall -Wextra -std=c11 48d_gps_ncurses.c -o 48d -lncurses
+'''
 
 [[exercises.cases]]
 compile_only = true

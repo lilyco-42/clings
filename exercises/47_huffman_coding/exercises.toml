@@ -1,13 +1,143 @@
 [[exercises]]
-name = "47_huffman_coding"
-title = "Huffman Coding 算法"
+name = "47a_freq_count"
+title = "字符频率统计"
 unit = "unit2"
 lesson = 47
-order = 72
+order = 125
 mode = "stdout"
-source = "huffman.c"
+source = "47a_freq_count.c"
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/47_huffman_coding"
-hint = '''?????? README ? TODO ?????????????????????'''
+hint = '''
+字符频率统计:
+    int freq[256] = {0};
+    for (int i = 0; s[i]; i++)
+        freq[(unsigned char)s[i]]++;
+
+输出格式: 按 ASCII 顺序输出非零频率字符，格式 "c:n"，空格分隔。
+例: "aabbbcccc" → "a:2 b:3 c:4"
+'''
 
 [[exercises.cases]]
-compile_only = true
+args = ["aabbbcccc"]
+stdout = "a:2 b:3 c:4\n"
+
+[[exercises.cases]]
+args = ["hello"]
+stdout = "e:1 h:1 l:2 o:1\n"
+
+
+[[exercises]]
+name = "47b_build_tree"
+title = "构建 Huffman 树（加权路径长度）"
+unit = "unit2"
+lesson = 47
+order = 126
+mode = "stdout"
+source = "47b_build_tree.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/47_huffman_coding"
+hint = '''
+Huffman 树构建:
+1. 为每个字符创建叶子节点
+2. 重复: 选频率最小的两个节点合并为一棵新树
+   - 频率相同时，含最小 ASCII 字符的节点优先
+   - 小的做左子树，大的做右子树
+3. 直到只剩一棵树
+
+加权路径长度 WPL = Σ(freq[i] * depth[i])，即 Huffman 编码的总位数。
+
+例: "aabbbcccc" (a:2, b:3, c:4)
+  合并 a(2)+b(3) → ab(5)
+  合并 c(4)+ab(5) → root(9)
+  c 深度1, a 深度2, b 深度2
+  WPL = 4*1 + 2*2 + 3*2 = 14
+'''
+
+[[exercises.cases]]
+args = ["aabbbcccc"]
+stdout = "14\n"
+
+[[exercises.cases]]
+args = ["hello"]
+stdout = "10\n"
+
+
+[[exercises]]
+name = "47c_encode"
+title = "Huffman 编码长度表"
+unit = "unit2"
+lesson = 47
+order = 127
+mode = "stdout"
+source = "47c_encode.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/47_huffman_coding"
+hint = '''
+求编码长度: 在 Huffman 树上 DFS，记录每个叶子的深度即为其编码长度。
+
+    void calc_code_lengths(struct huff_node *root, int depth) {
+        if (!root) return;
+        if (root->ch != -1) {  // 叶子
+            code_len[root->ch] = depth;
+            return;
+        }
+        calc_code_lengths(root->left, depth + 1);
+        calc_code_lengths(root->right, depth + 1);
+    }
+
+输出格式: 按字符 ASCII 顺序，每行 "c: len"
+'''
+
+[[exercises.cases]]
+args = ["aabbbcccc"]
+stdout = """a: 2
+b: 2
+c: 1
+"""
+
+[[exercises.cases]]
+args = ["hello"]
+stdout = """e: 3
+h: 3
+l: 1
+o: 2
+"""
+
+
+[[exercises]]
+name = "47d_compress"
+title = "计算 Huffman 压缩率"
+unit = "unit2"
+lesson = 47
+order = 128
+mode = "stdout"
+source = "47d_compress.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/47_huffman_coding"
+hint = '''
+压缩率计算:
+- 原始大小: strlen(s) * 8 (每字符8位)
+- 编码大小: Σ(freq[c] * code_len[c]) (Huffman 编码后的总位数)
+- 压缩率: encoded / original * 100%%
+
+例: "aabbbcccc" (9字符)
+  原始: 9 * 8 = 72 bits
+  编码: 2*2 + 3*2 + 4*1 = 14 bits
+  压缩率: 14/72 * 100 = 19.4%%
+
+输出格式:
+  original: <N> bits
+  encoded: <M> bits
+  ratio: <R>%%
+'''
+
+[[exercises.cases]]
+args = ["aabbbcccc"]
+stdout = """original: 72 bits
+encoded: 14 bits
+ratio: 19.4%
+"""
+
+[[exercises.cases]]
+args = ["hello"]
+stdout = """original: 40 bits
+encoded: 10 bits
+ratio: 25.0%
+"""
