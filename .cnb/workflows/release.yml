@@ -133,20 +133,15 @@ cli:
               echo "clings ${CNB_BRANCH}" > release-notes.md
             cat release-notes.md
 
-        - name: Create CNB Release
-          type: git:release
-          options:
-            title: clings ${CNB_BRANCH}
-            descriptionFromFile: release-notes.md
-            latest: true
-            overlying: true
-
-        - name: Upload Release Assets
-          image: docker.cnb.cool/wwvo/cnb-workflows/cnb-rs:alpine
+        - name: Create Release & Upload Assets
+          image: docker.cnb.cool/wwvo/cnb-rs/cnb-rs:alpine
           script: |
-            set -eu
-            for f in dist/*; do
-              echo "==> Uploading $(basename $f)"
-              cnb-rs release upload -t "${CNB_BRANCH}" -f "$f"
-            done
-            echo "==> All assets uploaded ✓"
+            cnb-rs release create \
+              -t "${CNB_BRANCH}" \
+              -n "clings ${CNB_BRANCH}" \
+              -F release-notes.md \
+              --make-latest \
+            || cnb-rs release edit "${CNB_BRANCH}" \
+              -b "$(cat release-notes.md)" \
+              --make-latest true
+            cnb-rs release upload -t "${CNB_BRANCH}" dist/ --clobber
