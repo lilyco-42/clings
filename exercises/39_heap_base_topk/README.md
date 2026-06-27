@@ -1,4 +1,4 @@
-you## Lesson 39 — 堆与 Top-K 问题
+## Lesson 39 — 堆与 Top-K 问题
 
 ### 课程任务
 
