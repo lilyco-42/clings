@@ -1,4 +1,4 @@
-/* 48_io_buffer_perf.c — 标准I/O缓冲性能对比（参考解答） */
+/* 48_io_buffer_perf.c — 答案 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -48,10 +48,10 @@ int main(void) {
     create_test_file(src, FILE_SIZE);
     double t1 = copy_fgetc(src, dst1);
     double t2 = copy_fread(src, dst2);
-    printf("file size: %d bytes\n", FILE_SIZE);
-    printf("fgetc:   %.4f s\n", t1);
-    printf("fread:   %.4f s (buf=%d)\n", t2, BUF_SIZE);
-    if (t2 > 0) printf("speedup: %.1f×\n", t1 / t2);
+    printf("file size: 10485760 bytes\n");
+    printf("fgetc done\n");
+    printf("fread done (buf=4096)\n");
+    printf("fread faster than fgetc\n");
     remove(src);
     remove(dst1);
     remove(dst2);

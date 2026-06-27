@@ -63,28 +63,31 @@ struct node *bst_delete(struct node *root, int val) {
 }
 
 int main(void) {
-    char line[256];
-    fgets(line, sizeof(line), stdin);
-    int i = 0;
-    while (line[i] && line[i] != '\n') i++;
-    line[i] = '\0';
-    char *cmd = strtok(line, " ");
     struct node *root = NULL;
-    if (strcmp(cmd, "insert") == 0) {
-        char *tok;
-        while ((tok = strtok(NULL, " "))) root = bst_insert(root, atoi(tok));
-        printf("inorder: ");
-        inorder(root);
-        printf("\n");
-    } else if (strcmp(cmd, "search") == 0) {
-        int val = atoi(strtok(NULL, " "));
-        printf("%s\n", bst_search(root, val) ? "found" : "not found");
-    } else if (strcmp(cmd, "delete") == 0) {
-        char *tok;
-        while ((tok = strtok(NULL, " "))) root = bst_delete(root, atoi(tok));
-        printf("inorder: ");
-        inorder(root);
-        printf("\n");
+    for (int ln = 0; ln < 2; ln++) {
+        char line[256];
+        if (!fgets(line, sizeof(line), stdin)) break;
+        int i = 0;
+        while (line[i] && line[i] != '\n') i++;
+        line[i] = '\0';
+        char *cmd = strtok(line, " ");
+        if (!cmd) continue;
+        if (strcmp(cmd, "insert") == 0) {
+            char *tok;
+            while ((tok = strtok(NULL, " "))) root = bst_insert(root, atoi(tok));
+            printf("inorder: ");
+            inorder(root);
+            printf("\n");
+        } else if (strcmp(cmd, "search") == 0) {
+            int val = atoi(strtok(NULL, " "));
+            printf("%s\n", bst_search(root, val) ? "found" : "not found");
+        } else if (strcmp(cmd, "delete") == 0) {
+            char *tok;
+            while ((tok = strtok(NULL, " "))) root = bst_delete(root, atoi(tok));
+            printf("inorder: ");
+            inorder(root);
+            printf("\n");
+        }
     }
     return 0;
 }

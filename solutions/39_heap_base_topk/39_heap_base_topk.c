@@ -34,8 +34,8 @@ void top_k(int arr[], int n, int k) {
         swap(&heap[0], &heap[i]);
         heapify(heap, i, 0);
     }
-    for (int i = k - 1; i >= 0; i--) {
-        if (i < k - 1) printf(" ");
+    for (int i = 0; i < k; i++) {
+        if (i > 0) printf(" ");
         printf("%d", heap[i]);
     }
     printf("\n");

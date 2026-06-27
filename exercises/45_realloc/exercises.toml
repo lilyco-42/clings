@@ -54,4 +54,4 @@ realloc 安全扩容:
 
 [[exercises.cases]]
 stdin = "1 2 3 4 5\n"
-stdout = "expansions: 2"
+stdout = "#1: cap 2 -> 4 [in-place]\n#2: cap 4 -> 8 [moved]\nexpansions: 2\nvalues: 1 2 3 4 5\n"

@@ -53,14 +53,8 @@ hint = '''
 
 [[exercises.cases]]
 stdin = "A B C . . .\n"
-stdout = """preorder: A B C
-inorder: B A C
-postorder: B C A
-"""
+stdout = "preorder: A B C \ninorder: B A C \npostorder: B C A \n"
 
 [[exercises.cases]]
 stdin = "A . .\n"
-stdout = """preorder: A
-inorder: A
-postorder: A
-"""
+stdout = "preorder: A \ninorder: A \npostorder: A \n"

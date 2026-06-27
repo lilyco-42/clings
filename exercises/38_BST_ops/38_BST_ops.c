@@ -92,21 +92,26 @@ struct node *bst_delete(struct node *root, int val) {
 }
 
 int main(void) {
-    char line[256];
-    fgets(line, sizeof(line), stdin);
-    int i = 0;
-    while (line[i] && line[i] != '\n') i++;
-    line[i] = '\0';
-
-    char *cmd = strtok(line, " ");
     struct node *root = NULL;
+    /* 处理最多两行命令：
+     *   第一行 → 构建一颗树（insert）或空树（search/delete）
+     *   第二行 → 对树执行查询或删除 */
+    for (int ln = 0; ln < 2; ln++) {
+        char line[256];
+        if (!fgets(line, sizeof(line), stdin)) break;
+        int i = 0;
+        while (line[i] && line[i] != '\n') i++;
+        line[i] = '\0';
+
+        char *cmd = strtok(line, " ");
+        if (!cmd) continue;
 
 #error TODO: Finish this exercise. Run "clings hint" for help.
-    /* 根据 cmd 分发：
-     *   "insert": 循环 tok = strtok(NULL, " ") 读取数字，逐个 bst_insert
-     *             最后 printf("inorder: "); inorder(root); printf("\n");
-     *   "search": 读数字，bst_search，打印 found/not found
-     *   "delete": 循环读数字，逐个 bst_delete，最后打印中序遍历结果 */
-
+        /* 根据 cmd 分发：
+         *   "insert": 循环 tok = strtok(NULL, " ") 读数字，逐个 bst_insert
+         *             最后 printf("inorder: "); inorder(root); printf("\n");
+         *   "search": 读数字，bst_search，打印 found/not found
+         *   "delete": 循环读数字，逐个 bst_delete，最后打印中序遍历结果 */
+    }
     return 0;
 }
