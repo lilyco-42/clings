@@ -12,19 +12,19 @@ int main(void) {
 
     int cap = 2, size = 0, expansions = 0;
     int *arr = malloc(cap * sizeof(int));
-    printf("initial: %p (cap=%d)\n", (void *)arr, cap);
 
     char *tok = strtok(line, " \n");
     while (tok) {
         int val = atoi(tok);
         if (size >= cap) {
+            int old_cap = cap;
             cap *= 2;
             uintptr_t old_addr = (uintptr_t)arr;
             int *tmp = realloc(arr, cap * sizeof(int));
             if (tmp) {
                 int moved = ((uintptr_t)tmp != old_addr);
-                printf("realloc: 0x%lx -> 0x%lx (cap=%d) %s\n", (unsigned long)old_addr, (unsigned long)(uintptr_t)tmp,
-                       cap, moved ? "[moved]" : "[in-place]");
+                printf("#%d: cap %d -> %d %s\n", expansions + 1, old_cap, cap,
+                       moved ? "[moved]" : "[in-place]");
                 arr = tmp;
                 expansions++;
             } else {
@@ -35,7 +35,7 @@ int main(void) {
         arr[size++] = val;
         tok = strtok(NULL, " \n");
     }
-    printf("%d expansions, final cap=%d\n", expansions, cap);
+    printf("expansions: %d\n", expansions);
     printf("values:");
     for (int i = 0; i < size; i++) printf(" %d", arr[i]);
     printf("\n");

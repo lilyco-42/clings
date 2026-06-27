@@ -13,6 +13,7 @@
  *   stdin: "echo   hello\n"      → argc: 2  （连续空格不产生空 token）
  *   stdin: "gcc\t-Wall\tmain.c\n" → argc: 3  （tab 分隔）
  */
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 

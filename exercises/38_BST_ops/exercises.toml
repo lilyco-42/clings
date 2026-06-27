@@ -65,16 +65,16 @@ find_min 已提供。参考: 本课 README 中的删除三种情况。
 
 [[exercises.cases]]
 stdin = "insert 5 3 7 2 4\n"
-stdout = "inorder: 2 3 4 5 7\n"
+stdout = "inorder: 2 3 4 5 7 \n"
 
 [[exercises.cases]]
 stdin = "insert 5 3 7\nsearch 3\n"
-stdout = "found\n"
+stdout = "inorder: 3 5 7 \nfound\n"
 
 [[exercises.cases]]
 stdin = "insert 5 3 7\nsearch 9\n"
-stdout = "not found\n"
+stdout = "inorder: 3 5 7 \nnot found\n"
 
 [[exercises.cases]]
 stdin = "insert 5 3 7 2 4\ndelete 3\n"
-stdout = "inorder: 2 4 5 7\n"
+stdout = "inorder: 2 3 4 5 7 \ninorder: 2 4 5 7 \n"

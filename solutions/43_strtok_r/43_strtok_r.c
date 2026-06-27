@@ -1,4 +1,5 @@
 /* 43_strtok_r.c — strtok_r 线程安全字符串切分（参考解答） */
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 
