@@ -1,0 +1,39 @@
+[[exercises]]
+name = "29_eight_queens"
+title = "八皇后问题 — 回溯 + 剪枝【标杆题】"
+unit = "unit2"
+lesson = 29
+order = 77
+mode = "stdout"
+source = "29_eight_queens.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/29_eight_queens"
+hint = '''
+八皇后: 逐行放置 + 冲突检测 + 回溯。
+
+冲突检测 (is_safe 已提供):
+- 同列: col[i] == c
+- 同对角线: abs(row - i) == abs(c - col[i])
+  解释: 若两点在同一对角线，行差 = 列差
+
+为什么是 92？
+8 皇后共有 92 个不同的解（旋转/镜像对称视为不同解）。
+如果去掉对称，只有 12 个本质不同的解。
+
+回溯 + 剪枝 vs 暴力枚举:
+- 暴力: 8^8 = 16,777,216 种可能
+- 回溯剪枝: 只探索约 15,000 个节点
+- 剪枝率 > 99.9%！
+
+思考:
+- 为什么用一维数组 col[8] 就能表示棋盘？(col[row] = 皇后在第 row 行的列号)
+- 行冲突需要检查吗？(不需要，按行递归天然避免)
+- 列冲突怎么判断？(col[i] == c)
+- 对角线冲突怎么判断？(提示: 同一对角线上两点的行差等于列差)
+- 什么时候找到一个解？(row == 8，所有行都放好了)
+
+is_safe 函数已经提供，你只需要实现 solve 的递归逻辑。
+参考: 本课 README 中的剪枝分析。
+'''
+
+[[exercises.cases]]
+stdout = "92\n"

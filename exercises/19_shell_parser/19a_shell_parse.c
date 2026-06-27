@@ -14,25 +14,23 @@
 
 #include <stdio.h>
 
-int main(void)
-{
-	char buf[256];
-	char *argv[32];
-	int argc = 0;
-	int state = 0;
-	int i;
+int main(void) {
+    char buf[256];
+    char *argv[32];
+    int argc = 0;
+    int state = 0;
+    int i;
 
-	fgets(buf, sizeof(buf), stdin);
+    fgets(buf, sizeof(buf), stdin);
 
 #error TODO: Fix this exercise. Run "clings hint" for help.
 
-	/* 用 | 连接打印 */
-	for (i = 0; i < argc; i++)
-	{
-		if (i > 0) printf("|");
-		printf("%s", argv[i]);
-	}
-	printf("\n");
+    /* 用 | 连接打印 */
+    for (i = 0; i < argc; i++) {
+        if (i > 0) printf("|");
+        printf("%s", argv[i]);
+    }
+    printf("\n");
 
-	return 0;
+    return 0;
 }

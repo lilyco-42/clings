@@ -23,16 +23,16 @@
  */
 
 #include <stdio.h>
-#include "yy_nxt.c"
-#include "yy_accept.c"
 
-int main(void)
-{
-	int state = 1;
-	char buf[64];
-	int i = 0;
+#include "yy_accept.c"
+#include "yy_nxt.c"
+
+int main(void) {
+    int state = 1;
+    char buf[64];
+    int i = 0;
 
 #error TODO: Implement DFA loop: accumulate chars, lookup yy_nxt, emit tokens. Run "clings hint" for help.
 
-	return 0;
+    return 0;
 }

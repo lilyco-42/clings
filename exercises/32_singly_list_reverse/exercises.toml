@@ -1,0 +1,52 @@
+[[exercises]]
+name = "32_singly_list_reverse"
+title = "单链表反转与快慢指针环检测【高频题】"
+unit = "unit2"
+lesson = 32
+order = 80
+mode = "stdout"
+source = "32_singly_list_reverse.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/32_singly_list_reverse"
+hint = '''
+反转用三指针，环检测用快慢指针。
+
+三步图解:
+  初始:  NULL  1 → 2 → 3 → NULL
+         ↑    ↑
+        prev curr
+  第1轮: NULL ← 1   2 → 3 → NULL
+               ↑    ↑
+              prev curr
+  第2轮: NULL ← 1 ← 2   3 → NULL
+                    ↑    ↑
+                   prev curr
+  第3轮: NULL ← 1 ← 2 ← 3
+                         ↑
+                        prev (返回)
+
+反转思考:
+- 需要几个指针？(prev, curr, next 三个)
+- 每一步做什么？(保存 next → 反转 curr 的指向 → prev/curr 前进)
+- 循环结束时谁是新 head？(prev)
+- 初始 prev 是什么？(NULL)
+
+环检测思考:
+- 快指针走几步？慢指针走几步？(2 步 / 1 步)
+- 有环时它们会怎样？(必相遇，操场套圈原理)
+- 无环时怎样？(快指针先到 NULL)
+- 循环条件要注意什么？(fast 和 fast->next 都不能为 NULL)
+
+参考: 本课 README 中的三步图解。
+'''
+
+[[exercises.cases]]
+stdin = "1 2 3 4 5\n"
+stdout = "5 4 3 2 1\n"
+
+[[exercises.cases]]
+stdin = "1\n"
+stdout = "1\n"
+
+[[exercises.cases]]
+stdin = "1 2 3 cycle\n"
+stdout = "cycle detected\n"

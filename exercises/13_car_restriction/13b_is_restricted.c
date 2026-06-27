@@ -17,32 +17,21 @@
 
 #include <stdio.h>
 
-enum day
-{
-	MONDAY = 1,
-	TUESDAY,
-	WEDNESDAY,
-	THURSDAY,
-	FRIDAY,
-	SATURDAY,
-	SUNDAY
-};
+enum day { MONDAY = 1, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY };
 
-int is_restricted(int tail_num, enum day today)
-{
+int is_restricted(int tail_num, enum day today) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
-int main(void)
-{
-	int weekday, tail_num;
+int main(void) {
+    int weekday, tail_num;
 
-	scanf("%d %d", &weekday, &tail_num);
+    scanf("%d %d", &weekday, &tail_num);
 
-	if (is_restricted(tail_num, (enum day)weekday))
-		printf("restricted\n");
-	else
-		printf("free\n");
+    if (is_restricted(tail_num, (enum day)weekday))
+        printf("restricted\n");
+    else
+        printf("free\n");
 
-	return 0;
+    return 0;
 }

@@ -1,0 +1,66 @@
+[[exercises]]
+name = "36_binary_tree_traversal"
+title = "二叉树的前中后序遍历（递归实现）"
+unit = "unit2"
+lesson = 36
+order = 84
+mode = "stdout"
+source = "36_binary_tree_traversal.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/36_binary_tree_traversal"
+hint = '''
+三种遍历只是"访问根节点"的时机不同，只差一行代码的顺序。
+
+    void preorder(struct node *root) {
+        if (root == NULL) return;
+        printf("%c ", root->ch);   /* 根 */
+        preorder(root->left);      /* 左 */
+        preorder(root->right);     /* 右 */
+    }
+
+    void inorder(struct node *root) {
+        if (root == NULL) return;
+        inorder(root->left);       /* 左 */
+        printf("%c ", root->ch);   /* 根 */
+        inorder(root->right);      /* 右 */
+    }
+
+    void postorder(struct node *root) {
+        if (root == NULL) return;
+        postorder(root->left);     /* 左 */
+        postorder(root->right);    /* 右 */
+        printf("%c ", root->ch);   /* 根 */
+    }
+
+记忆口诀:
+- 前序: 根左右 (Pre → Root first)
+- 中序: 左根右 (In → Root in middle)
+- 后序: 左右根 (Post → Root last)
+
+都是 DFS 深度优先, 只是"访问根节点"的时机不同。
+二叉树已由 main 中的 build_tree 函数按层序构建完成。
+
+思考:
+- 前序: 根在什么时候访问？(最先) 那左和右呢？
+- 中序: 根在中间，左和右的顺序？
+- 后序: 根在最后，左右在前？
+
+记忆口诀: 前=根左右, 中=左根右, 后=左右根
+都是递归，终止条件是 root == NULL。
+
+二叉树已由 build_tree 按层序构建好，你只写三个遍历函数。
+参考: 本课 README 中的口诀。
+'''
+
+[[exercises.cases]]
+stdin = "A B C . . .\n"
+stdout = """preorder: A B C
+inorder: B A C
+postorder: B C A
+"""
+
+[[exercises.cases]]
+stdin = "A . .\n"
+stdout = """preorder: A
+inorder: A
+postorder: A
+"""

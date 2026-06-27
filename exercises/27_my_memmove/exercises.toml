@@ -1,0 +1,49 @@
+[[exercises]]
+name = "27_my_memmove"
+title = "实现 my_memmove — 内存重叠拷贝【重点】"
+unit = "unit2"
+lesson = 27
+order = 75
+mode = "stdout"
+source = "27_my_memmove.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/27_my_memmove"
+hint = '''
+memmove 与 memcpy 的区别: 要处理内存重叠。
+
+思考:
+- 什么情况下 dest 和 src 指向的内存区域会重叠？
+- 如果 dest < src（目的在源前面），正向拷贝会有问题吗？
+- 如果 dest > src（目的在源后面），正向拷贝会怎样？(提示: 会覆盖未读数据)
+- 两种情况应该分别用什么方向拷贝？
+- dest == src 时需要拷贝吗？
+
+
+当 dest 和 src 指向的内存区域有交集时:
+- 若 dest < src（目的在源前面）: 正向拷贝（和 memcpy 一样），不会冲突
+- 若 dest > src（目的在源后面）: 必须反向拷贝，否则会覆盖尚未读取的数据
+反向拷贝的循环写法:
+    for (size_t i = n; i > 0; i--)
+        d[i - 1] = s[i - 1];
+等价于:
+    while (n-- > 0)
+        d[n] = s[n];
+
+关键理解:
+为什么 dest > src 时反向拷贝就能避免冲突？
+因为反向从末尾开始读，读到的数据还没被覆盖过（覆盖从 dest 位置开始向右）。
+
+画图: 在纸上画出 src 和 dest 重叠的两种情况，标出拷贝方向。
+参考: 本课 README 中的场景示意图。
+'''
+
+[[exercises.cases]]
+stdin = "abcd\n"
+stdout = "aabc\n"
+
+[[exercises.cases]]
+stdin = "hello\n"
+stdout = "hhell\n"
+
+[[exercises.cases]]
+stdin = "xy\n"
+stdout = "xx\n"

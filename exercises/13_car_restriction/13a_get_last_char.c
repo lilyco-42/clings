@@ -14,17 +14,15 @@
 
 #include <stdio.h>
 
-char get_last_char(char str[])
-{
+char get_last_char(char str[]) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
-int main(void)
-{
-	char buf[64];
+int main(void) {
+    char buf[64];
 
-	scanf("%s", buf);
-	printf("%c\n", get_last_char(buf));
+    scanf("%s", buf);
+    printf("%c\n", get_last_char(buf));
 
-	return 0;
+    return 0;
 }

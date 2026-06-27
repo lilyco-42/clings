@@ -1,0 +1,45 @@
+[[exercises]]
+name = "30_singly_list_insert"
+title = "单链表动态插入：头插法与尾插法"
+unit = "unit2"
+lesson = 30
+order = 78
+mode = "stdout"
+source = "30_singly_list_insert.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/30_singly_list_insert"
+hint = '''
+头插法和尾插法的区别在于新节点放在哪里。
+
+头插法: 新节点成为新的 head，原 head 接在后面。
+尾插法: 遍历到链表末尾，将新节点挂上去。
+
+关键区别:
+- 头插法: O(1)，返回新 head（原来的 head 成了第二个节点）
+- 尾插法: O(n)，返回原 head（除非原链表为空）
+- 头插结果是逆序（3 2 1），尾插是顺序（1 2 3）
+
+头插法思考:
+- 新节点要指向哪里？(原来的 head)
+- 新的 head 是谁？(新节点)
+- 时间复杂度？(O(1))
+
+尾插法思考:
+- 怎么找到最后一个节点？(遍历到 next == NULL)
+- 空链表怎么处理？(新节点就是全部，直接返回)
+- 时间复杂度？(O(n))
+
+观察: 头插 1 2 3 结果是 3 2 1（逆序），尾插是 1 2 3（顺序）。
+参考: make_node 和 list_print 已提供。
+'''
+
+[[exercises.cases]]
+stdin = "head 1 2 3\n"
+stdout = "3 2 1\n"
+
+[[exercises.cases]]
+stdin = "tail 1 2 3\n"
+stdout = "1 2 3\n"
+
+[[exercises.cases]]
+stdin = "head 5\n"
+stdout = "5\n"

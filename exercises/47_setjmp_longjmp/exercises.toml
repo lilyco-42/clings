@@ -1,0 +1,60 @@
+[[exercises]]
+name = "47_setjmp_longjmp"
+title = "setjmp/longjmp 非局部跳转"
+unit = "unit2"
+lesson = 47
+order = 95
+mode = "stdout"
+source = "47_setjmp_longjmp.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/47_setjmp_longjmp"
+hint = '''
+setjmp/longjmp 实现跨函数跳转。
+
+funcC:
+    void funcC(const char *input) {
+        if (strcmp(input, "error") == 0)
+            longjmp(env, 1);           /* 跳回 setjmp */
+        printf("funcC: %s\n", input);
+    }
+
+main:
+    int r = setjmp(env);               /* 设锚点 */
+    if (r == 0) {
+        funcA(line);                   /* 正常路径 */
+        printf("success: %s\n", line);
+    } else {
+        printf("caught error: %s\n", line);  /* longjmp 跳回 */
+    }
+
+关键理解:
+1. setjmp(env) 首次调用返回 0，保存当前执行环境（SP/PC/寄存器）
+2. longjmp(env, val) 跳回 setjmp 位置，让 setjmp 返回 val
+3. 被跳过的栈帧（funcC→funcB→funcA 的后续代码）不会执行
+4. C++ 的 try/catch 底层就基于 setjmp/longjmp 实现
+
+思考:
+- setjmp 首次调用返回什么？(0)
+- longjmp 跳回后 setjmp 返回什么？(longjmp 的第二个参数)
+- 怎么区分"初次设置"和"跳回"？(判断返回值是否为 0)
+
+funcC 里:
+- input 是 "error" 时做什么？(longjmp(env, 1))
+- 否则呢？(正常打印)
+
+main 里:
+- 先 setjmp 设锚点
+- 返回 0 → 正常路径，调用 funcA
+- 返回非 0 → 异常路径，打印 caught error
+
+被跳过的栈帧会怎样？(不执行后续代码)
+C++ 的 try-catch 底层就是用这个实现的。
+参考: man setjmp。
+'''
+
+[[exercises.cases]]
+stdin = "error\n"
+stdout = "caught error: error\n"
+
+[[exercises.cases]]
+stdin = "ok\n"
+stdout = "funcC: ok\nfuncB done\nfuncA done\nsuccess: ok\n"

@@ -15,14 +15,13 @@
 
 #include <stdio.h>
 
-int main(void)
-{
-	int i;
-	int sum = 0;
+int main(void) {
+    int i;
+    int sum = 0;
 
 #error TODO: Fix this exercise. Run "clings hint" for help.
 
 #error TODO: Fix this exercise. Run "clings hint" for help.
 
-	return 0;
+    return 0;
 }

@@ -8,5 +8,5 @@ int main(void) {
     s[1] = 'b';
     *(s + 2) = 0;
 
-    return buf[0] - 'a' + buf[1];   /* 0 + 'b' = 98 */
+    return buf[0] - 'a' + buf[1]; /* 0 + 'b' = 98 */
 }

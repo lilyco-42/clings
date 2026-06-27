@@ -17,27 +17,25 @@
 
 #include <stdio.h>
 
-#define M1	0x55555555
-#define M2	0x33333333
-#define M3	0x0F0F0F0F
-#define M4	0x00FF00FF
-#define M5	0x0000FFFF
+#define M1 0x55555555
+#define M2 0x33333333
+#define M3 0x0F0F0F0F
+#define M4 0x00FF00FF
+#define M5 0x0000FFFF
 
-int count_bits(int num)
-{
-	int sum = num;
+int count_bits(int num) {
+    int sum = num;
 
 #error TODO: Implement 5-layer divide-and-conquer popcount with masks M1-M5. Run "clings hint" for help.
 
-	return sum;
+    return sum;
 }
 
-int main(void)
-{
-	int num;
+int main(void) {
+    int num;
 
-	scanf("%d", &num);
-	printf("%d\n", count_bits(num));
+    scanf("%d", &num);
+    printf("%d\n", count_bits(num));
 
-	return 0;
+    return 0;
 }

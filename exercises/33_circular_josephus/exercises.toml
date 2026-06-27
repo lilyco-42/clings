@@ -1,0 +1,67 @@
+[[exercises]]
+name = "33_circular_josephus"
+title = "循环链表与约瑟夫环问题"
+unit = "unit2"
+lesson = 33
+order = 81
+mode = "stdout"
+source = "33_circular_josephus.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_circular_josephus"
+hint = '''
+循环链表的特殊之处: 尾节点指向头，形成环。
+
+    struct node *clist_insert(struct node *cur, int val) {
+        struct node *item = make_node(val);
+        if (cur == NULL) {
+            item->next = item;     /* 第一个节点: 自环 */
+            return item;
+        }
+        item->next = cur->next;    /* 新节点指向 cur 的后继 */
+        cur->next = item;          /* cur 指向新节点 */
+        return item;               /* 返回新节点作为新的 cursor */
+    }
+
+循环链表删除:
+
+    struct node *clist_delete(struct node *item) {
+        if (item->next == item) {  /* 唯一节点 */
+            free(item);
+            return NULL;
+        }
+        /* 找前驱: 从 item 出发，找到 next 指向 item 的节点 */
+        struct node *prev = item;
+        while (prev->next != item)
+            prev = prev->next;
+        prev->next = item->next;   /* 跳过 item */
+        struct node *next = item->next;
+        free(item);
+        return next;               /* 返回后继 */
+    }
+约瑟夫环算法:
+1. 构建循环链表（插入时 cursor 指向最后插入的节点）
+2. cursor 移到第一个数据节点
+3. 每轮走 K-1 步（因为起点也算 1 步），到达被淘汰者
+4. 打印并删除，cursor 指向下一个
+5. 重复直到 cursor 为 NULL
+
+插入思考:
+- 第一个节点怎么初始化？(自环: item->next = item)
+- 后续节点插在哪里？(cur 之后)
+- 插入后返回谁作为新 cursor？(新节点)
+
+删除思考:
+- 唯一节点怎么删？(free 后返回 NULL)
+- 一般情况怎么找前驱？(从 item 出发遍历到 prev->next == item)
+- 删除后返回谁？(被删节点的后继)
+
+约瑟夫环: 每轮走 K-1 步到达被淘汰者，打印并删除。
+参考: 本课 README 中的算法步骤。
+'''
+
+[[exercises.cases]]
+stdin = "10 3\n"
+stdout = "3 6 9 2 7 1 8 5 10 4\n"
+
+[[exercises.cases]]
+stdin = "5 2\n"
+stdout = "2 4 1 5 3\n"

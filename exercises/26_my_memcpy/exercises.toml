@@ -1,0 +1,42 @@
+[[exercises]]
+name = "26_my_memcpy"
+title = "实现 my_memcpy — 标准内存拷贝"
+unit = "unit2"
+lesson = 26
+order = 74
+mode = "stdout"
+source = "26_my_memcpy.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/26_my_memcpy"
+hint = '''
+memcpy 的核心: void* 不能直接做算术运算，需要转换。
+
+关键点:
+1. void* 不能做算术运算，必须强转为 char*（或 unsigned char*）
+2. src 声明为 const void*，强转后也要保持 const
+3. size_t 是无符号整型，在 <stddef.h> 或 <string.h> 中定义
+4. 返回 dest 而非 d，保持原始指针语义（与标准 memcpy 一致）
+
+为什么是 char* 而不是 int* 或 long*？
+因为 char 恰好是 1 字节，逐字节拷贝是 memcpy 的定义。
+使用 unsigned char* 更严谨（避免有符号溢出），但 char* 通常也够用。
+
+思考:
+- void* 要转成什么类型才能逐字节操作？(提示: 1 字节的类型)
+- src 声明为 const void*，转换后要不要保留 const？
+- size_t 是什么类型？为什么用 size_t 而不是 int？
+- 返回值应该返回 dest 还是转换后的指针？
+
+参考: man memcpy 的函数原型。
+'''
+
+[[exercises.cases]]
+stdin = "hello\n"
+stdout = "hello\n"
+
+[[exercises.cases]]
+stdin = "abc\n"
+stdout = "abc\n"
+
+[[exercises.cases]]
+stdin = "\n"
+stdout = "\n"

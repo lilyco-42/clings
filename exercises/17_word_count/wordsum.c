@@ -18,35 +18,34 @@
 
 #include <stdio.h>
 
-int get_input_type(char c)
-{
-	if (c >= 'a' && c <= 'z')
-		return 1;
+int get_input_type(char c) {
+    if (c >= 'a' && c <= 'z') return 1;
 
-	if (c >= 'A' && c <= 'Z')
-		return 1;
+    if (c >= 'A' && c <= 'Z') return 1;
 
-	return 0;
+    return 0;
 }
 
-int main(void)
-{
-	char buf[512];
-	int state = 0;
-	int i = 0;
-	int words = 0;
-	char *p = NULL;
-	int counter = 0;
+int main(void) {
+    char buf[512];
+    int state = 0;
+    int i = 0;
+    int words = 0;
+    char *p = NULL;
+    int counter = 0;
 
-	fgets(buf, sizeof(buf), stdin);
-	/* 去掉换行 */
-	for (i = 0; buf[i]; i++)
-		if (buf[i] == '\n') { buf[i] = '\0'; break; }
+    fgets(buf, sizeof(buf), stdin);
+    /* 去掉换行 */
+    for (i = 0; buf[i]; i++)
+        if (buf[i] == '\n') {
+            buf[i] = '\0';
+            break;
+        }
 
-	i = 0;
+    i = 0;
 
 #error TODO: Implement state machine loop with 4 branches for word counting. Run "clings hint" for help.
 
-	printf("there is %d words found!\n", words);
-	return 0;
+    printf("there is %d words found!\n", words);
+    return 0;
 }

@@ -14,17 +14,15 @@
  * 验证：clings 检查返回值是否为 1 (x86/ARM 均为小端)
  */
 
-union endian_test
-{
-	unsigned char c[4];
-	int i;
+union endian_test {
+    unsigned char c[4];
+    int i;
 };
 
-int main(void)
-{
-	union endian_test u;
+int main(void) {
+    union endian_test u;
 
 #error TODO: Fix this exercise. Run "clings hint" for help.
 
-	return 0;
+    return 0;
 }

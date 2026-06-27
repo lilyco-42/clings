@@ -28,10 +28,10 @@ int x86_macos = 1;
 int x86_macos = 0;
 #endif
 
-static const char *sym_prefix;      /* "_" or ""  */
-static const char *lp;              /* local label prefix: "L" or ".L" */
-static const char *rodata_section;  /* string literal section */
-static const char *str_directive;   /* .asciz / .string */
+static const char *sym_prefix;     /* "_" or ""  */
+static const char *lp;             /* local label prefix: "L" or ".L" */
+static const char *rodata_section; /* string literal section */
+static const char *str_directive;  /* .asciz / .string */
 
 static int label_count = 0;
 static const char *cur_fn_name;
@@ -50,17 +50,18 @@ static int loop_depth = 0;
 
 /* string literal storage */
 #define MAX_STRINGS 256
-static struct { int id; char *val; } x86_strings[MAX_STRINGS];
+static struct {
+    int id;
+    char *val;
+} x86_strings[MAX_STRINGS];
 static int x86_nstrings = 0;
 
-static void push(void)
-{
+static void push(void) {
     printf("    pushq %%rax\n");
     depth++;
 }
 
-static void pop(const char *reg)
-{
+static void pop(const char *reg) {
     printf("    popq %s\n", reg);
     depth--;
 }
@@ -73,10 +74,8 @@ static void gen_stmt_x86(Node *node);
  * Width comes from the TYPE, not from guessing: char→1 byte
  * (sign-extended), int→4 bytes, pointer→8 bytes on LP64.
  * Arrays and structs are used by address, so no load happens. */
-static void load(Type *ty)
-{
-    if (ty && (ty->kind == TY_ARRAY || ty->kind == TY_STRUCT))
-        return; /* address IS the value */
+static void load(Type *ty) {
+    if (ty && (ty->kind == TY_ARRAY || ty->kind == TY_STRUCT)) return; /* address IS the value */
     int sz = ty ? ty->size : 4;
     if (sz == 1)
         printf("    movsbl (%%rax), %%eax\n");
@@ -87,8 +86,7 @@ static void load(Type *ty)
 }
 
 /* Store the value in %rax (of type ty) to the address in %rcx. */
-static void store(Type *ty)
-{
+static void store(Type *ty) {
     int sz = ty ? ty->size : 4;
     if (sz == 1)
         printf("    movb %%al, (%%rcx)\n");
@@ -99,8 +97,7 @@ static void store(Type *ty)
 }
 
 /* generate address of lvalue into %rax */
-static void gen_addr_x86(Node *node)
-{
+static void gen_addr_x86(Node *node) {
     if (node->kind == ND_VAR) {
         if (node->var->is_global)
             printf("    leaq %s%s(%%rip), %%rax\n", sym_prefix, node->var->name);
@@ -116,16 +113,14 @@ static void gen_addr_x86(Node *node)
      * Covers s.x, p->x and nested combinations as assignment targets. */
     if (node->kind == ND_MEMBER) {
         gen_addr_x86(node->lhs);
-        if (node->member && node->member->offset)
-            printf("    addq $%d, %%rax\n", node->member->offset);
+        if (node->member && node->member->offset) printf("    addq $%d, %%rax\n", node->member->offset);
         return;
     }
     fprintf(stderr, "x86 codegen: not an lvalue (kind=%d)\n", node->kind);
     exit(1);
 }
 
-static void gen_expr_x86(Node *node)
-{
+static void gen_expr_x86(Node *node) {
     if (!node) return;
 
     if (node->kind == ND_NUM) {
@@ -185,8 +180,7 @@ static void gen_expr_x86(Node *node)
         push();
         gen_expr_x86(node->rhs);
         pop("%rcx");
-        store(node->lhs->ty ? node->lhs->ty
-                            : (node->lhs->var ? node->lhs->var->ty : NULL));
+        store(node->lhs->ty ? node->lhs->ty : (node->lhs->var ? node->lhs->var->ty : NULL));
         return;
     }
 
@@ -221,20 +215,19 @@ static void gen_expr_x86(Node *node)
     /* type cast */
     if (node->kind == ND_CAST) {
         gen_expr_x86(node->lhs);
-        if (node->ty && node->ty->kind == TY_CHAR)
-            printf("    movsbl %%al, %%eax\n");
+        if (node->ty && node->ty->kind == TY_CHAR) printf("    movsbl %%al, %%eax\n");
         return;
     }
 
     /* function call (SysV: up to 6 integer register args) */
     if (node->kind == ND_CALL) {
         int nargs = 0;
-        for (Node *arg = node->args; arg; arg = arg->next)
-            nargs++;
+        for (Node *arg = node->args; arg; arg = arg->next) nargs++;
         if (nargs > 6) {
             fprintf(stderr,
                     "x86 codegen: call to '%s' with %d args — more than 6 "
-                    "arguments are not supported\n", node->name, nargs);
+                    "arguments are not supported\n",
+                    node->name, nargs);
             exit(1);
         }
         for (Node *arg = node->args; arg; arg = arg->next) {
@@ -242,9 +235,8 @@ static void gen_expr_x86(Node *node)
             push();
         }
         /* pop args into parameter registers (reverse order) */
-        static const char *areg[] = {"%rdi","%rsi","%rdx","%rcx","%r8","%r9"};
-        for (int i = nargs - 1; i >= 0; i--)
-            pop(areg[i]);
+        static const char *areg[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+        for (int i = nargs - 1; i >= 0; i--) pop(areg[i]);
         /* SysV alignment: pad 8 bytes when an odd number of pushes is live */
         int pad = depth % 2;
         if (pad) printf("    subq $8, %%rsp\n");
@@ -319,211 +311,223 @@ static void gen_expr_x86(Node *node)
     int r_ptr = node->rhs && node->rhs->ty && is_pointer_like(node->rhs->ty);
 
     switch (node->kind) {
-    case ND_ADD:
-        if (l_ptr || r_ptr) {
-            /* ptr + scaled-int: sign-extend the int side, 64-bit add */
-            printf("    movslq %%ecx, %%rcx\n");
-            printf("    addq %%rcx, %%rax\n");
-        } else {
-            printf("    addl %%ecx, %%eax\n");
+        case ND_ADD:
+            if (l_ptr || r_ptr) {
+                /* ptr + scaled-int: sign-extend the int side, 64-bit add */
+                printf("    movslq %%ecx, %%rcx\n");
+                printf("    addq %%rcx, %%rax\n");
+            } else {
+                printf("    addl %%ecx, %%eax\n");
+            }
+            break;
+        case ND_SUB:
+            if (l_ptr && r_ptr) {
+                /* ptr - ptr: full 64-bit difference (parser divides by size) */
+                printf("    subq %%rcx, %%rax\n");
+            } else if (l_ptr) {
+                printf("    movslq %%ecx, %%rcx\n");
+                printf("    subq %%rcx, %%rax\n");
+            } else {
+                printf("    subl %%ecx, %%eax\n");
+            }
+            break;
+        case ND_MUL:
+            printf("    imull %%ecx, %%eax\n");
+            break;
+        case ND_DIV:
+            printf("    cltd\n");
+            printf("    idivl %%ecx\n");
+            break;
+        case ND_MOD:
+            printf("    cltd\n");
+            printf("    idivl %%ecx\n");
+            printf("    movl %%edx, %%eax\n");
+            break;
+        case ND_BITAND:
+            printf("    andl %%ecx, %%eax\n");
+            break;
+        case ND_BITOR:
+            printf("    orl %%ecx, %%eax\n");
+            break;
+        case ND_BITXOR:
+            printf("    xorl %%ecx, %%eax\n");
+            break;
+        case ND_SHL:
+            printf("    shll %%cl, %%eax\n");
+            break;
+        case ND_SHR:
+            printf("    sarl %%cl, %%eax\n");
+            break;
+        case ND_EQ:
+        case ND_NE:
+        case ND_LT:
+        case ND_LE:
+        case ND_GT:
+        case ND_GE: {
+            if (l_ptr || r_ptr)
+                printf("    cmpq %%rcx, %%rax\n");
+            else
+                printf("    cmpl %%ecx, %%eax\n");
+            const char *cc = node->kind == ND_EQ   ? "sete"
+                             : node->kind == ND_NE ? "setne"
+                             : node->kind == ND_LT ? "setl"
+                             : node->kind == ND_LE ? "setle"
+                             : node->kind == ND_GT ? "setg"
+                                                   : "setge";
+            printf("    %s %%al\n", cc);
+            printf("    movzbl %%al, %%eax\n");
+            break;
         }
-        break;
-    case ND_SUB:
-        if (l_ptr && r_ptr) {
-            /* ptr - ptr: full 64-bit difference (parser divides by size) */
-            printf("    subq %%rcx, %%rax\n");
-        } else if (l_ptr) {
-            printf("    movslq %%ecx, %%rcx\n");
-            printf("    subq %%rcx, %%rax\n");
-        } else {
-            printf("    subl %%ecx, %%eax\n");
-        }
-        break;
-    case ND_MUL: printf("    imull %%ecx, %%eax\n"); break;
-    case ND_DIV:
-        printf("    cltd\n");
-        printf("    idivl %%ecx\n");
-        break;
-    case ND_MOD:
-        printf("    cltd\n");
-        printf("    idivl %%ecx\n");
-        printf("    movl %%edx, %%eax\n");
-        break;
-    case ND_BITAND: printf("    andl %%ecx, %%eax\n"); break;
-    case ND_BITOR:  printf("    orl %%ecx, %%eax\n"); break;
-    case ND_BITXOR: printf("    xorl %%ecx, %%eax\n"); break;
-    case ND_SHL: printf("    shll %%cl, %%eax\n"); break;
-    case ND_SHR: printf("    sarl %%cl, %%eax\n"); break;
-    case ND_EQ: case ND_NE: case ND_LT: case ND_LE: case ND_GT: case ND_GE: {
-        if (l_ptr || r_ptr)
-            printf("    cmpq %%rcx, %%rax\n");
-        else
-            printf("    cmpl %%ecx, %%eax\n");
-        const char *cc =
-            node->kind == ND_EQ ? "sete"  :
-            node->kind == ND_NE ? "setne" :
-            node->kind == ND_LT ? "setl"  :
-            node->kind == ND_LE ? "setle" :
-            node->kind == ND_GT ? "setg"  : "setge";
-        printf("    %s %%al\n", cc);
-        printf("    movzbl %%al, %%eax\n");
-        break;
-    }
-    default:
-        fprintf(stderr, "x86 codegen: unexpected binary op %d\n", node->kind);
-        exit(1);
+        default:
+            fprintf(stderr, "x86 codegen: unexpected binary op %d\n", node->kind);
+            exit(1);
     }
 }
 
-static void gen_stmt_x86(Node *node)
-{
+static void gen_stmt_x86(Node *node) {
     if (!node) return;
 
     switch (node->kind) {
-    case ND_RETURN:
-        if (node->lhs) gen_expr_x86(node->lhs);
-        printf("    jmp %sX_return_%s\n", lp, cur_fn_name);
-        return;
+        case ND_RETURN:
+            if (node->lhs) gen_expr_x86(node->lhs);
+            printf("    jmp %sX_return_%s\n", lp, cur_fn_name);
+            return;
 
-    case ND_IF: {
-        int lbl = label_count++;
-        gen_expr_x86(node->cond);
-        printf("    testl %%eax, %%eax\n");
-        printf("    je %sX_else_%d\n", lp, lbl);
-        gen_stmt_x86(node->then);
-        printf("    jmp %sX_endif_%d\n", lp, lbl);
-        printf("%sX_else_%d:\n", lp, lbl);
-        if (node->els) gen_stmt_x86(node->els);
-        printf("%sX_endif_%d:\n", lp, lbl);
-        return;
-    }
-
-    case ND_WHILE: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = lbl;
-        loop_depth++;
-        printf("%sX_while_%d:\n", lp, lbl);
-        printf("%sX_cont_%d:\n", lp, lbl);
-        gen_expr_x86(node->cond);
-        printf("    testl %%eax, %%eax\n");
-        printf("    je %sX_wend_%d\n", lp, lbl);
-        gen_stmt_x86(node->body);
-        printf("    jmp %sX_while_%d\n", lp, lbl);
-        printf("%sX_wend_%d:\n", lp, lbl);
-        printf("%sX_brk_%d:\n", lp, lbl);
-        loop_depth--;
-        return;
-    }
-
-    case ND_FOR: {
-        int lbl = label_count++;
-        int cont_lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = cont_lbl;
-        loop_depth++;
-        if (node->init) gen_stmt_x86(node->init);
-        printf("%sX_for_%d:\n", lp, lbl);
-        if (node->cond) {
+        case ND_IF: {
+            int lbl = label_count++;
             gen_expr_x86(node->cond);
             printf("    testl %%eax, %%eax\n");
-            printf("    je %sX_fend_%d\n", lp, lbl);
+            printf("    je %sX_else_%d\n", lp, lbl);
+            gen_stmt_x86(node->then);
+            printf("    jmp %sX_endif_%d\n", lp, lbl);
+            printf("%sX_else_%d:\n", lp, lbl);
+            if (node->els) gen_stmt_x86(node->els);
+            printf("%sX_endif_%d:\n", lp, lbl);
+            return;
         }
-        gen_stmt_x86(node->body);
-        printf("%sX_cont_%d:\n", lp, cont_lbl);
-        if (node->inc) gen_expr_x86(node->inc);
-        printf("    jmp %sX_for_%d\n", lp, lbl);
-        printf("%sX_fend_%d:\n", lp, lbl);
-        printf("%sX_brk_%d:\n", lp, lbl);
-        loop_depth--;
-        return;
-    }
 
-    case ND_DOWHILE: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = lbl;
-        loop_depth++;
-        printf("%sX_do_%d:\n", lp, lbl);
-        printf("%sX_cont_%d:\n", lp, lbl);
-        gen_stmt_x86(node->body);
-        gen_expr_x86(node->cond);
-        printf("    testl %%eax, %%eax\n");
-        printf("    jne %sX_do_%d\n", lp, lbl);
-        printf("%sX_brk_%d:\n", lp, lbl);
-        loop_depth--;
-        return;
-    }
+        case ND_WHILE: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = lbl;
+            loop_depth++;
+            printf("%sX_while_%d:\n", lp, lbl);
+            printf("%sX_cont_%d:\n", lp, lbl);
+            gen_expr_x86(node->cond);
+            printf("    testl %%eax, %%eax\n");
+            printf("    je %sX_wend_%d\n", lp, lbl);
+            gen_stmt_x86(node->body);
+            printf("    jmp %sX_while_%d\n", lp, lbl);
+            printf("%sX_wend_%d:\n", lp, lbl);
+            printf("%sX_brk_%d:\n", lp, lbl);
+            loop_depth--;
+            return;
+        }
 
-    case ND_SWITCH: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_depth++;
-        gen_expr_x86(node->cond);
-        int case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++) {
-            if (c->kind == ND_CASE) {
-                printf("    cmpl $%d, %%eax\n", c->case_val);
-                printf("    je %sX_case_%d_%d\n", lp, lbl, case_num);
+        case ND_FOR: {
+            int lbl = label_count++;
+            int cont_lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = cont_lbl;
+            loop_depth++;
+            if (node->init) gen_stmt_x86(node->init);
+            printf("%sX_for_%d:\n", lp, lbl);
+            if (node->cond) {
+                gen_expr_x86(node->cond);
+                printf("    testl %%eax, %%eax\n");
+                printf("    je %sX_fend_%d\n", lp, lbl);
             }
+            gen_stmt_x86(node->body);
+            printf("%sX_cont_%d:\n", lp, cont_lbl);
+            if (node->inc) gen_expr_x86(node->inc);
+            printf("    jmp %sX_for_%d\n", lp, lbl);
+            printf("%sX_fend_%d:\n", lp, lbl);
+            printf("%sX_brk_%d:\n", lp, lbl);
+            loop_depth--;
+            return;
         }
-        int def_num = -1;
-        case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++)
-            if (c->kind == ND_DEFAULT) def_num = case_num;
-        if (def_num >= 0)
-            printf("    jmp %sX_case_%d_%d\n", lp, lbl, def_num);
-        else
-            printf("    jmp %sX_brk_%d\n", lp, lbl);
-        /* generate case bodies (each body is a statement LIST) */
-        case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++) {
-            printf("%sX_case_%d_%d:\n", lp, lbl, case_num);
-            for (Node *s = c->body; s; s = s->next)
-                gen_stmt_x86(s);
+
+        case ND_DOWHILE: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = lbl;
+            loop_depth++;
+            printf("%sX_do_%d:\n", lp, lbl);
+            printf("%sX_cont_%d:\n", lp, lbl);
+            gen_stmt_x86(node->body);
+            gen_expr_x86(node->cond);
+            printf("    testl %%eax, %%eax\n");
+            printf("    jne %sX_do_%d\n", lp, lbl);
+            printf("%sX_brk_%d:\n", lp, lbl);
+            loop_depth--;
+            return;
         }
-        printf("%sX_brk_%d:\n", lp, lbl);
-        loop_depth--;
-        return;
-    }
 
-    case ND_BREAK:
-        if (loop_depth > 0)
-            printf("    jmp %sX_brk_%d\n", lp, loop_break_labels[loop_depth - 1]);
-        return;
+        case ND_SWITCH: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_depth++;
+            gen_expr_x86(node->cond);
+            int case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++) {
+                if (c->kind == ND_CASE) {
+                    printf("    cmpl $%d, %%eax\n", c->case_val);
+                    printf("    je %sX_case_%d_%d\n", lp, lbl, case_num);
+                }
+            }
+            int def_num = -1;
+            case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++)
+                if (c->kind == ND_DEFAULT) def_num = case_num;
+            if (def_num >= 0)
+                printf("    jmp %sX_case_%d_%d\n", lp, lbl, def_num);
+            else
+                printf("    jmp %sX_brk_%d\n", lp, lbl);
+            /* generate case bodies (each body is a statement LIST) */
+            case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++) {
+                printf("%sX_case_%d_%d:\n", lp, lbl, case_num);
+                for (Node *s = c->body; s; s = s->next) gen_stmt_x86(s);
+            }
+            printf("%sX_brk_%d:\n", lp, lbl);
+            loop_depth--;
+            return;
+        }
 
-    case ND_CONTINUE:
-        if (loop_depth > 0)
-            printf("    jmp %sX_cont_%d\n", lp, loop_cont_labels[loop_depth - 1]);
-        return;
+        case ND_BREAK:
+            if (loop_depth > 0) printf("    jmp %sX_brk_%d\n", lp, loop_break_labels[loop_depth - 1]);
+            return;
 
-    case ND_BLOCK:
-        for (Node *s = node->body; s; s = s->next)
-            gen_stmt_x86(s);
-        return;
+        case ND_CONTINUE:
+            if (loop_depth > 0) printf("    jmp %sX_cont_%d\n", lp, loop_cont_labels[loop_depth - 1]);
+            return;
 
-    case ND_EXPR_STMT:
-        gen_expr_x86(node->lhs);
-        return;
+        case ND_BLOCK:
+            for (Node *s = node->body; s; s = s->next) gen_stmt_x86(s);
+            return;
 
-    case ND_VAR_DECL:
-        gen_expr_x86(node);
-        return;
+        case ND_EXPR_STMT:
+            gen_expr_x86(node->lhs);
+            return;
 
-    default:
-        fprintf(stderr, "x86 codegen: unexpected stmt %d\n", node->kind);
-        exit(1);
+        case ND_VAR_DECL:
+            gen_expr_x86(node);
+            return;
+
+        default:
+            fprintf(stderr, "x86 codegen: unexpected stmt %d\n", node->kind);
+            exit(1);
     }
 }
 
-static void gen_function_x86(Node *fn)
-{
+static void gen_function_x86(Node *fn) {
     if (fn->kind != ND_FUNC) return;
 
     if (fn->nparams > 6) {
         fprintf(stderr,
                 "x86 codegen: function '%s' has %d parameters — more than 6 "
-                "are not supported\n", fn->name, fn->nparams);
+                "are not supported\n",
+                fn->name, fn->nparams);
         exit(1);
     }
 
@@ -543,9 +547,9 @@ static void gen_function_x86(Node *fn)
 
     /* spill register parameters to their stack slots (width-aware:
      * a pointer parameter must be stored with all 64 bits) */
-    static const char *preg64[] = {"%rdi","%rsi","%rdx","%rcx","%r8","%r9"};
-    static const char *preg32[] = {"%edi","%esi","%edx","%ecx","%r8d","%r9d"};
-    static const char *preg8[]  = {"%dil","%sil","%dl","%cl","%r8b","%r9b"};
+    static const char *preg64[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+    static const char *preg32[] = {"%edi", "%esi", "%edx", "%ecx", "%r8d", "%r9d"};
+    static const char *preg8[] = {"%dil", "%sil", "%dl", "%cl", "%r8b", "%r9b"};
     int i = 0;
     for (Node *p = fn->params; p && i < 6; p = p->next, i++) {
         if (!p->var) continue;
@@ -567,21 +571,22 @@ static void gen_function_x86(Node *fn)
     printf("    ret\n");
 }
 
-void codegen_x86(Node *prog)
-{
+void codegen_x86(Node *prog) {
     /* resolve platform syntax (overridable via -target=x86-mac/x86-linux) */
-    sym_prefix     = x86_macos ? "_" : "";
-    lp             = x86_macos ? "L" : ".L";
-    rodata_section = x86_macos ? ".section __TEXT,__cstring,cstring_literals"
-                               : ".section .rodata";
-    str_directive  = x86_macos ? ".asciz" : ".string";
+    sym_prefix = x86_macos ? "_" : "";
+    lp = x86_macos ? "L" : ".L";
+    rodata_section = x86_macos ? ".section __TEXT,__cstring,cstring_literals" : ".section .rodata";
+    str_directive = x86_macos ? ".asciz" : ".string";
 
     x86_nstrings = 0;
 
     /* .data section for global variables */
     int has_data = 0;
     for (Var *v = globals; v; v = v->next) {
-        if (!has_data) { printf(".data\n"); has_data = 1; }
+        if (!has_data) {
+            printf(".data\n");
+            has_data = 1;
+        }
         int al = (v->ty && v->ty->align) ? v->ty->align : 4;
         printf(".globl %s%s\n", sym_prefix, v->name);
         printf(".balign %d\n", al);
@@ -589,15 +594,14 @@ void codegen_x86(Node *prog)
         if (v->ty && v->ty->kind == TY_ARRAY)
             printf("    .space %d\n", v->ty->size);
         else if (v->ty && v->ty->kind == TY_PTR)
-            printf("    .quad %d\n", v->init_val);   /* LP64 pointer slot */
+            printf("    .quad %d\n", v->init_val); /* LP64 pointer slot */
         else
             printf("    .long %d\n", v->init_val);
     }
 
     /* .text section */
     printf("\n.text\n");
-    for (Node *fn = prog->body; fn; fn = fn->next)
-        gen_function_x86(fn);
+    for (Node *fn = prog->body; fn; fn = fn->next) gen_function_x86(fn);
 
     /* string literal section */
     if (x86_nstrings > 0) {
@@ -611,6 +615,5 @@ void codegen_x86(Node *prog)
     }
 
     /* ELF only: mark the stack non-executable */
-    if (!x86_macos)
-        printf("\n.section .note.GNU-stack,\"\",@progbits\n");
+    if (!x86_macos) printf("\n.section .note.GNU-stack,\"\",@progbits\n");
 }

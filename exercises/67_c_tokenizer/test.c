@@ -4,6 +4,4 @@ int fact(int n) {
     return n * fact(n - 1);
 }
 
-int main(void) {
-    return fact(5);
-}
+int main(void) { return fact(5); }

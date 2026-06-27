@@ -1,0 +1,54 @@
+[[exercises]]
+name = "40_binary_search"
+title = "二分查找与边界变体"
+unit = "unit2"
+lesson = 40
+order = 88
+mode = "stdout"
+source = "40_binary_search.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/40_binary_search"
+hint = '''
+二分查找: 每次把搜索范围缩小一半。
+迭代二分查找:
+
+    int binary_search(int arr[], int n, int target) {
+        int lo = 0, hi = n - 1;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;   /* 防溢出: 不用 (lo+hi)/2 */
+            if (arr[mid] == target) return mid;
+            if (arr[mid] < target) lo = mid + 1;
+            else hi = mid - 1;
+        }
+        return -1;
+    }
+
+关键陷阱:
+1. mid = lo + (hi-lo)/2 不是 (lo+hi)/2 → 避免 lo+hi 溢出
+2. 循环条件 lo <= hi 有等号 → 否则漏掉单元素情况
+3. lo/hi 更新是 mid±1 → 不是 mid，防止死循环
+
+思考:
+- 循环条件是 lo <= hi 还是 lo < hi？(有等号，否则漏单元素)
+- mid 怎么算？为什么不用 (lo+hi)/2？(会溢出！用 lo+(hi-lo)/2)
+- 找到了返回什么？(mid)
+- 没找到时 lo 和 hi 怎么更新？(mid+1 / mid-1，不是 mid！)
+
+常见错误:
+- 循环条件漏等号 → 漏掉解
+- mid 计算溢出 → 大数组时出错
+- 更新用 mid 而非 mid±1 → 死循环
+
+参考: 本课 README 中的防溢出说明。
+'''
+
+[[exercises.cases]]
+stdin = "1 3 5 7 9 11\n5\n"
+stdout = "2\n"
+
+[[exercises.cases]]
+stdin = "1 3 5 7 9 11\n6\n"
+stdout = "-1\n"
+
+[[exercises.cases]]
+stdin = "1\n1\n"
+stdout = "0\n"

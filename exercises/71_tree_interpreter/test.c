@@ -8,6 +8,4 @@ int fib(int n) {
     return fib(n - 1) + fib(n - 2);
 }
 
-int main() {
-    return fact(5);
-}
+int main() { return fact(5); }

@@ -15,48 +15,44 @@
  *       → "[1] http://a.com\n[2] http://b.com\n"
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 
 #define MAX_URL 1024
 
-static const char *find_istr(const char *text, const char *pattern)
-{
-	int plen = strlen(pattern);
-	while (*text) {
-		int match = 1;
-		for (int i = 0; i < plen && text[i]; i++) {
-			if (tolower(text[i]) != tolower(pattern[i])) {
-				match = 0;
-				break;
-			}
-		}
-		if (match) return text;
-		text++;
-	}
-	return NULL;
+static const char *find_istr(const char *text, const char *pattern) {
+    int plen = strlen(pattern);
+    while (*text) {
+        int match = 1;
+        for (int i = 0; i < plen && text[i]; i++) {
+            if (tolower(text[i]) != tolower(pattern[i])) {
+                match = 0;
+                break;
+            }
+        }
+        if (match) return text;
+        text++;
+    }
+    return NULL;
 }
 
-static int extract_links(const char *html)
-{
+static int extract_links(const char *html) {
 #error TODO: Extract URLs from href= attributes in HTML. Run "clings hint" for help.
 }
 
-int main(void)
-{
-	char html[4096];
-	int total = 0;
+int main(void) {
+    char html[4096];
+    int total = 0;
 
-	/* 读取全部 stdin 到 html */
-	int len = 0;
-	int n;
-	while ((n = fread(html + len, 1, sizeof(html) - len - 1, stdin)) > 0)
-		len += n;
-	html[len] = '\0';
+    /* 读取全部 stdin 到 html */
+    int len = 0;
+    int n;
+    while ((n = fread(html + len, 1, sizeof(html) - len - 1, stdin)) > 0) len += n;
+    html[len] = '\0';
 
-	total = extract_links(html);
-	printf("\nTotal: %d links found.\n", total);
+    total = extract_links(html);
+    printf("\nTotal: %d links found.\n", total);
 
-	return 0;
+    return 0;
 }

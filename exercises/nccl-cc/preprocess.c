@@ -9,7 +9,7 @@
 #include "nccl_cc.h"
 
 #define MAX_MACROS 256
-#define MAX_INPUT  (1024*1024)  /* 1MB max source */
+#define MAX_INPUT (1024 * 1024) /* 1MB max source */
 
 struct Macro {
     char name[64];
@@ -24,33 +24,28 @@ static int nmacros = 0;
 static struct Macro predefines[MAX_PREDEFINES];
 static int npredefines = 0;
 
-static void add_macro(const char *name, const char *value)
-{
+static void add_macro(const char *name, const char *value) {
     strncpy(macros[nmacros].name, name, 63);
     strncpy(macros[nmacros].value, value, 255);
     nmacros++;
 }
 
 /* Called from main.c to register -D NAME=VALUE before preprocessing */
-void preprocess_add_define(const char *name, const char *value)
-{
+void preprocess_add_define(const char *name, const char *value) {
     if (npredefines >= MAX_PREDEFINES) return;
     strncpy(predefines[npredefines].name, name, 63);
     strncpy(predefines[npredefines].value, value ? value : "1", 255);
     npredefines++;
 }
 
-static const char *find_macro(const char *name)
-{
+static const char *find_macro(const char *name) {
     for (int i = 0; i < nmacros; i++)
-        if (strcmp(macros[i].name, name) == 0)
-            return macros[i].value;
+        if (strcmp(macros[i].name, name) == 0) return macros[i].value;
     return NULL;
 }
 
 /* Read a line from input, advance pointer. Returns NULL at end. */
-static char *read_line(char **pp)
-{
+static char *read_line(char **pp) {
     char *p = *pp;
     if (*p == '\0') return NULL;
     char *start = p;
@@ -68,8 +63,7 @@ static char *read_line(char **pp)
 /* Expand macros in a line (simple word replacement).
  * Words inside string literals, character literals and // comments
  * must NOT be replaced — #define n 3 would otherwise corrupt "n=%d". */
-static void expand_macros(char *line, char *out, int outsize)
-{
+static void expand_macros(char *line, char *out, int outsize) {
     char *p = line;
     char *o = out;
     char *end = out + outsize - 1;
@@ -82,8 +76,7 @@ static void expand_macros(char *line, char *out, int outsize)
                 if (o < end) *o++ = *p++;
                 continue;
             }
-            if (*p == in_str)
-                in_str = 0;
+            if (*p == in_str) in_str = 0;
             *o++ = *p++;
             continue;
         }
@@ -93,15 +86,13 @@ static void expand_macros(char *line, char *out, int outsize)
             continue;
         }
         if (*p == '/' && p[1] == '/') { /* rest of line is a comment */
-            while (*p && o < end)
-                *o++ = *p++;
+            while (*p && o < end) *o++ = *p++;
             break;
         }
         if (isalpha(*p) || *p == '_') {
             char word[64];
             int wlen = 0;
-            while ((isalnum(*p) || *p == '_') && wlen < 63)
-                word[wlen++] = *p++;
+            while ((isalnum(*p) || *p == '_') && wlen < 63) word[wlen++] = *p++;
             word[wlen] = '\0';
 
             const char *val = find_macro(word);
@@ -127,8 +118,7 @@ static void expand_macros(char *line, char *out, int outsize)
 /* Skip lines of a conditional block until the matching #else (when
  * stop_at_else is set, at nesting level 1) or the matching #endif.
  * Returns 1 when stopped at #else, 0 otherwise. */
-static int skip_cond_block(char **pp, int stop_at_else)
-{
+static int skip_cond_block(char **pp, int stop_at_else) {
     int depth = 1;
     char *line;
     while ((line = read_line(pp)) != NULL) {
@@ -141,7 +131,10 @@ static int skip_cond_block(char **pp, int stop_at_else)
             return 1;
         } else if (strncmp(sl, "#endif", 6) == 0) {
             depth--;
-            if (depth == 0) { free(line); return 0; }
+            if (depth == 0) {
+                free(line);
+                return 0;
+            }
         }
         free(line);
     }
@@ -152,8 +145,7 @@ static int skip_cond_block(char **pp, int stop_at_else)
  * matching #else shows up, its alternative branch must be skipped */
 static int cond_depth = 0;
 
-char *preprocess(char *input)
-{
+char *preprocess(char *input) {
     char *output = malloc(MAX_INPUT);
     char *out = output;
     char *remaining = MAX_INPUT - 1 + output;
@@ -165,12 +157,11 @@ char *preprocess(char *input)
     cond_depth = 0;
 
     /* predefined macros */
-    add_macro("__LINE__", "0"); /* will be updated per-line */
+    add_macro("__LINE__", "0");           /* will be updated per-line */
     add_macro("__FILE__", "\"<stdin>\""); /* a proper string literal */
 
     /* inject command-line -D macros */
-    for (int i = 0; i < npredefines; i++)
-        add_macro(predefines[i].name, predefines[i].value);
+    for (int i = 0; i < npredefines; i++) add_macro(predefines[i].name, predefines[i].value);
 
     while ((line = read_line(&p)) != NULL) {
         /* skip leading whitespace */
@@ -183,15 +174,13 @@ char *preprocess(char *input)
             while (*dp == ' ' || *dp == '\t') dp++;
             char name[64];
             int nlen = 0;
-            while ((isalnum(*dp) || *dp == '_') && nlen < 63)
-                name[nlen++] = *dp++;
+            while ((isalnum(*dp) || *dp == '_') && nlen < 63) name[nlen++] = *dp++;
             name[nlen] = '\0';
             while (*dp == ' ' || *dp == '\t') dp++;
             /* value is rest of line (trim newline) */
             char value[256];
             int vlen = 0;
-            while (*dp && *dp != '\n' && *dp != '\r' && vlen < 255)
-                value[vlen++] = *dp++;
+            while (*dp && *dp != '\n' && *dp != '\r' && vlen < 255) value[vlen++] = *dp++;
             value[vlen] = '\0';
             add_macro(name, value);
             free(line);
@@ -229,8 +218,7 @@ char *preprocess(char *input)
             snprintf(lbuf, 15, "%d", line_num);
             /* update __LINE__ in macro table */
             for (int i = 0; i < nmacros; i++)
-                if (strcmp(macros[i].name, "__LINE__") == 0)
-                    strncpy(macros[i].value, lbuf, 255);
+                if (strcmp(macros[i].name, "__LINE__") == 0) strncpy(macros[i].value, lbuf, 255);
         }
 
         /* #ifdef / #ifndef / #else / #endif — conditional compilation.
@@ -243,8 +231,7 @@ char *preprocess(char *input)
             while (*dp == ' ' || *dp == '\t') dp++;
             char cname[64];
             int cn = 0;
-            while ((isalnum(*dp) || *dp == '_') && cn < 63)
-                cname[cn++] = *dp++;
+            while ((isalnum(*dp) || *dp == '_') && cn < 63) cname[cn++] = *dp++;
             cname[cn] = '\0';
             int defined = (find_macro(cname) != NULL);
             free(line);
@@ -260,8 +247,7 @@ char *preprocess(char *input)
             while (*dp == ' ' || *dp == '\t') dp++;
             char cname[64];
             int cn = 0;
-            while ((isalnum(*dp) || *dp == '_') && cn < 63)
-                cname[cn++] = *dp++;
+            while ((isalnum(*dp) || *dp == '_') && cn < 63) cname[cn++] = *dp++;
             cname[cn] = '\0';
             int defined = (find_macro(cname) != NULL);
             free(line);
@@ -283,8 +269,7 @@ char *preprocess(char *input)
         }
 
         if (strncmp(l, "#endif", 6) == 0) {
-            if (cond_depth > 0)
-                cond_depth--;
+            if (cond_depth > 0) cond_depth--;
             free(line);
             continue;
         }
@@ -295,8 +280,7 @@ char *preprocess(char *input)
             while (*dp == ' ' || *dp == '\t') dp++;
             char uname[64];
             int un = 0;
-            while ((isalnum(*dp) || *dp == '_') && un < 63)
-                uname[un++] = *dp++;
+            while ((isalnum(*dp) || *dp == '_') && un < 63) uname[un++] = *dp++;
             uname[un] = '\0';
             /* remove from macro list */
             for (int i = 0; i < nmacros; i++) {

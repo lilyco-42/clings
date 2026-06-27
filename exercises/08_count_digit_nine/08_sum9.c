@@ -24,24 +24,21 @@
  *
  * Return value:  how many digit in this num
  */
-int find(int num, int digit)
-{
+int find(int num, int digit) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
-int main(void)
-{
-	int begin = 1;
-	int end = 100;
-	int i = 0;
-	int sum = 0;
+int main(void) {
+    int begin = 1;
+    int end = 100;
+    int i = 0;
+    int sum = 0;
 
-	for (i = begin; i <= end; i++)
-	{
-		sum += find(i, 9);
-	}
+    for (i = begin; i <= end; i++) {
+        sum += find(i, 9);
+    }
 
-	printf("sum = %d\n", sum);
+    printf("sum = %d\n", sum);
 
-	return 0;
+    return 0;
 }

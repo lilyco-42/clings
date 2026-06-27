@@ -9,7 +9,7 @@ int main(void) {
     if (sizeof(int) == 4) ok = ok + 1;
     if (sizeof(char) == 1) ok = ok + 2;
     if (sizeof(x) == 4) ok = ok + 4;
-    if (sizeof(a) == 24) ok = ok + 8;              /* arrays: full size */
+    if (sizeof(a) == 24) ok = ok + 8; /* arrays: full size */
     if (sizeof(int *) == sizeof(char *)) ok = ok + 6;
-    return ok;   /* 1 + 2 + 4 + 8 + 6 = 21 */
+    return ok; /* 1 + 2 + 4 + 8 + 6 = 21 */
 }

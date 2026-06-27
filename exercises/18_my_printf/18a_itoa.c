@@ -14,22 +14,20 @@
 
 #include <stdio.h>
 
-void itoa(int num, char *buf, int base)
-{
-	char *hex = "0123456789ABCDEF";
+void itoa(int num, char *buf, int base) {
+    char *hex = "0123456789ABCDEF";
 
 #error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
-int main(void)
-{
-	int num, base;
-	char buf[64];
+int main(void) {
+    int num, base;
+    char buf[64];
 
-	scanf("%d %d", &num, &base);
+    scanf("%d %d", &num, &base);
 
-	itoa(num, buf, base);
-	printf("%s\n", buf);
+    itoa(num, buf, base);
+    printf("%s\n", buf);
 
-	return 0;
+    return 0;
 }

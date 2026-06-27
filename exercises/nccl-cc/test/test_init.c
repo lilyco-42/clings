@@ -15,8 +15,7 @@ int main(void) {
 
     /* sum of array */
     int sum = 0;
-    for (int i = 0; i < 3; i = i + 1)
-        sum = sum + a[i];
+    for (int i = 0; i < 3; i = i + 1) sum = sum + a[i];
     if (sum != 60) return 7;
 
     return 0;

@@ -1,0 +1,66 @@
+[[exercises]]
+name = "46_sscanf"
+title = "sscanf 高级格式化解析"
+unit = "unit2"
+lesson = 46
+order = 94
+mode = "stdout"
+source = "46_sscanf.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/46_sscanf"
+hint = '''
+sscanf 的高级格式 %[^:] 是关键。
+
+parse_addr 实现:
+
+    int parse_addr(const char *input, char *host, int *port) {
+        /* 一行 sscanf 解析 host:port */
+        int n = sscanf(input, "%[^:]:%d", host, port);
+        return (n == 2) ? 1 : 0;
+    }
+
+核心: %[^:] 匹配除冒号外的所有字符 → 读到冒号停止
+
+sscanf 返回值 = 成功匹配的字段数
+- 返回 2 → host 和 port 都匹配成功
+- 返回 < 2 → 格式不对
+
+为什么不用正则？
+- sscanf 零依赖，C 标准库自带
+- 简单字段提取场景完全够用
+- 网络编程/配置文件解析中可平替复杂字符遍历
+
+其他高级格式:
+- %[^,],%[^,]  解析 CSV
+- %[^=]=%s     解析 key=value
+- %[0-9.]      只匹配数字和小数点
+
+思考:
+- %[^:] 是什么意思？(匹配除冒号外的所有字符，读到冒号停止)
+- sscanf 的返回值代表什么？(成功匹配的字段数)
+- 返回 2 说明什么？(两个字段都匹配了)
+- 返回 < 2 说明什么？(格式不对)
+
+一行解析 "192.168.1.100:8080":
+- 用 %[^:] 读 host(到冒号停)
+- 用 : 匹配字面冒号
+- 用 %d 读 port
+
+为什么不用正则？sscanf 零依赖，简单场景足够。
+参考: man sscanf。
+'''
+
+[[exercises.cases]]
+stdin = "192.168.1.100:8080\n"
+stdout = """host: 192.168.1.100
+port: 8080
+"""
+
+[[exercises.cases]]
+stdin = "localhost:3000\n"
+stdout = """host: localhost
+port: 3000
+"""
+
+[[exercises.cases]]
+stdin = "invalid\n"
+stdout = "parse error\n"

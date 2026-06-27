@@ -1,0 +1,50 @@
+[[exercises]]
+name = "39_heap_base_topk"
+title = "堆与Top-K问题"
+unit = "unit2"
+lesson = 39
+order = 87
+mode = "stdout"
+source = "39_heap_base_topk.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/39_heap_base_topk"
+hint = '''
+Top-K 用小顶堆维护 K 个最大值。
+小顶堆 + Top-K 算法:
+
+heapify — 让节点 i 下沉（小顶堆: 父 < 子）:
+    void heapify(int arr[], int n, int i) {
+        int smallest = i, left = 2*i+1, right = 2*i+2;
+        if (left < n && arr[left] < arr[smallest]) smallest = left;
+        if (right < n && arr[right] < arr[smallest]) smallest = right;
+        if (smallest != i) { swap(&arr[i], &arr[smallest]); heapify(arr, n, smallest); }
+    }
+
+build_heap — 自底向上:
+    for (int i = n/2-1; i >= 0; i--) heapify(arr, n, i);
+
+Top-K — 用小顶堆维护 K 个最大值:
+1. 用前 K 个元素建大小为 K 的小顶堆（堆顶=门槛）
+2. 遍历剩余元素，若 > 堆顶则替换并调整
+3. 最后堆中就是 K 个最大值（但堆序不是降序，需额外输出）
+为简化输出: 直接收集堆元素并从大到小打印。
+
+思考:
+- 为什么用小顶堆而不是大顶堆？(堆顶是 K 个中最小的=门槛)
+- 遍历元素时，比堆顶大还是小才替换？(大)
+- 替换后要做什么？(向下调整恢复堆性质)
+
+heapify(向下调整)思考:
+- 比较节点 i 和左右孩子，找最小的
+- 如果孩子更小，交换并继续下沉
+
+build_heap: 从哪个位置开始？(最后一个非叶节点 n/2-1) 往哪个方向？(往前)
+参考: 本课 README 中的算法要点。
+'''
+
+[[exercises.cases]]
+stdin = "5 3 8 1 9 2\n3\n"
+stdout = "9 8 5\n"
+
+[[exercises.cases]]
+stdin = "5 3 8 1 9 2\n1\n"
+stdout = "9\n"

@@ -13,32 +13,27 @@
  * 验证："a = 100, b = 0xC8\nc = A, s = helloworld\n"
  */
 
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 
-void itoa(int num, char *buf, int base)
-{
-	char *hex = "0123456789ABCDEF";
+void itoa(int num, char *buf, int base) {
+    char *hex = "0123456789ABCDEF";
 
 #error TODO: Implement itoa (same as 18a). Run "clings hint" for help.
 }
 
-void myputs(char *buf)
-{
-	while (*buf)
-		putchar(*buf++);
+void myputs(char *buf) {
+    while (*buf) putchar(*buf++);
 }
 
-int myprintf(const char *format, ...)
-{
+int myprintf(const char *format, ...) {
 #error TODO: Implement myprintf with va_list (same as 18b). Run "clings hint" for help.
-	return 0;
+    return 0;
 }
 
-int main(void)
-{
-	myprintf("a = %d, b = 0x%x\n", 100, 200);
-	myprintf("c = %c, s = %s\n", 'A', "helloworld");
+int main(void) {
+    myprintf("a = %d, b = 0x%x\n", 100, 200);
+    myprintf("c = %c, s = %s\n", 'A', "helloworld");
 
-	return 0;
+    return 0;
 }

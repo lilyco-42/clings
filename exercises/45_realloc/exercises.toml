@@ -1,0 +1,57 @@
+[[exercises]]
+name = "45_realloc"
+title = "realloc 动态扩容实验"
+unit = "unit2"
+lesson = 45
+order = 93
+mode = "stdout"
+source = "45_realloc.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/45_realloc"
+hint = '''
+realloc 的安全用法是重点。
+
+realloc 安全扩容:
+
+    if (size >= capacity) {
+        int old_cap = capacity;
+        capacity *= 2;
+
+        /* 保存旧地址的数值（用 uintptr_t 避免 use-after-free 警告） */
+        uintptr_t old_addr = (uintptr_t)arr;
+        int *tmp = realloc(arr, capacity * sizeof(int));
+        if (tmp) {
+            int moved = ((uintptr_t)tmp != old_addr);
+            printf("realloc: 0x%lx -> 0x%lx (cap %d -> %d) %s\n",
+                   (unsigned long)old_addr, (unsigned long)(uintptr_t)tmp,
+                   old_cap, capacity, moved ? "[moved]" : "[in-place]");
+            arr = tmp;
+        } else {
+            free(arr);
+            return 1;
+        }
+        expansions++;
+    }
+
+致命错误: arr = realloc(arr, new_size);
+→ 若 realloc 失败返回 NULL → arr = NULL → 原内存泄漏！
+
+原地扩容 [in-place]: 当前内存后有足够空间 → 返回原指针
+异地搬迁 [moved]: 空间不足 → 新内存+拷贝+释放旧内存
+
+技巧: 用 uintptr_t 保存地址数值，避免 GCC -Wuse-after-free 警告。
+
+思考:
+- 为什么不能写 arr = realloc(arr, new_size)？(失败时返回 NULL，arr 丢失，内存泄漏！)
+- 正确写法是什么？(用临时变量 tmp 接收，成功才赋值)
+- 怎么判断是原地扩容还是异地搬迁？(比较返回值和原指针)
+- 想打印地址用什么格式符？(%p)
+
+扩容策略: capacity *= 2（加倍），为什么不用 +1？(均摊 O(1))
+
+提示: 打印地址前先用 uintptr_t 保存旧地址数值，避免编译器警告。
+参考: man realloc。
+'''
+
+[[exercises.cases]]
+stdin = "1 2 3 4 5\n"
+stdout = "expansions: 2"

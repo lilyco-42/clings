@@ -1,0 +1,58 @@
+[[exercises]]
+name = "35_queue_base"
+title = "环形队列基础实现"
+unit = "unit2"
+lesson = 35
+order = 83
+mode = "stdout"
+source = "35_queue_base.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/35_queue_base"
+hint = '''
+环形队列用 front/rear 两个指针 + 取模实现环绕。
+
+    void enqueue(int val) {
+        queue[rear] = val;
+        rear = (rear + 1) % MAX;
+    }
+
+    int dequeue(void) {
+        int val = queue[front];
+        front = (front + 1) % MAX;
+        return val;
+    }
+
+关键点:
+1. 初始: front = rear = 0
+2. enqueue: 在 rear 位置放值，rear 前移（取模）
+3. dequeue: 从 front 位置取值，front 前移（取模）
+4. 队空: front == rear
+5. 环形: (ptr + 1) % MAX 实现环绕，所以叫"环形队列"
+
+为什么取模？
+不取模的话，front 和 rear 一直增长，队列只能用在数组范围内。
+取模后指针可以循环使用数组空间，实现"环形缓冲区"。
+
+注意: 本题不检查队满（假设输入不会超 MAX），如需队满检测：
+    int is_full(void) { return (rear + 1) % MAX == front; }
+
+思考:
+- 入队: 在哪个位置放值？(rear) 然后 rear 怎么移动？(取模前进)
+- 出队: 从哪个位置取值？(front) 然后 front 怎么移动？(取模前进)
+- 队空怎么判断？(front == rear)
+- 为什么用 (ptr+1) % MAX 而不是 ptr+1？(环绕回数组开头)
+
+对比: 不取模的线性队列有什么问题？(空间用完就没了)
+参考: 本课 README 中的环形缓冲区说明。
+'''
+
+[[exercises.cases]]
+stdin = "10 20 30\n"
+stdout = "10 20 30\n"
+
+[[exercises.cases]]
+stdin = "1 2\n"
+stdout = "1 2\n"
+
+[[exercises.cases]]
+stdin = "5\n"
+stdout = "5\n"
