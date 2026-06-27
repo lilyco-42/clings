@@ -1,0 +1,47 @@
+[[exercises]]
+name = "28_permutations"
+title = "全排列问题 — 回溯算法入门"
+unit = "unit2"
+lesson = 28
+order = 76
+mode = "stdout"
+source = "28_permutations.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/28_permutations"
+hint = '''
+全排列的回溯模板: 选择 → 递归 → 撤销。
+
+回溯三步曲:
+1. 做选择（swap）— 将当前位置与候选位置交换
+2. 递归 — 解决规模更小的子问题
+3. 撤销选择（swap back）— 恢复现场，让后续循环尝试其他可能
+
+回溯 vs 暴力枚举:
+回溯在递归调用前做选择，在调用后撤销，保证"进入下一层时状态正确，
+回到当前层时状态也正确"。这是所有回溯算法的核心思想。
+
+为什么需要 swap 回来？
+如果不恢复，下一轮 for 循环的 swap 就会在已被打乱的字符串上操作，
+导致结果错乱。
+
+思考:
+- 固定位置 l 后，哪些字符可以放到这个位置？(i 从 l 到 r)
+- 怎么把候选字符换到位置 l？(swap)
+- 递归处理什么？(位置 l+1 到 r 的子问题)
+- 递归返回后为什么要再 swap 一次？(这叫"回溯"，恢复现场)
+- 什么时候算找到一个完整排列？(l == r，所有位置都确定了)
+
+如果不做"撤销"那一步，结果会怎样？试试看。
+参考: 本课 README 中的排列树图。
+'''
+
+[[exercises.cases]]
+stdin = "ABC\n"
+stdout = "ABC\nACB\nBAC\nBCA\nCBA\nCAB\n"
+
+[[exercises.cases]]
+stdin = "AB\n"
+stdout = "AB\nBA\n"
+
+[[exercises.cases]]
+stdin = "A\n"
+stdout = "A\n"

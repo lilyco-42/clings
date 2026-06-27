@@ -1,0 +1,45 @@
+[[exercises]]
+name = "25_my_strstr"
+title = "实现 my_strstr — 暴力字符串匹配"
+unit = "unit2"
+lesson = 25
+order = 73
+mode = "stdout"
+source = "25_my_strstr.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/25_my_strstr"
+hint = '''
+暴力匹配的核心思路: 双重循环滑动窗口。
+
+关键点:
+1. 外层循环终止条件: i <= n - m（等号不能丢，否则漏掉末尾匹配）
+2. 内层比较 haystack[i+j] 与 needle[j]，不匹配立即 break
+3. j == m 说明内层完整走完，全部匹配成功
+4. 空 needle 直接返回 haystack（与标准 strstr 行为一致）
+
+思考:
+- 外层循环 i 从哪里开始，到哪里结束？(提示: 最后一个可能的起点是 n-m)
+- 内层循环 j 做什么？逐字符比较 haystack[i+j] 和 needle[j]
+- 什么情况下说明全部匹配成功？(内层循环没有 break，j 走到了 m)
+- 如果 needle 是空字符串，标准 strstr 怎么处理？查阅 man strstr
+
+注意边界: 外层循环的终止条件有没有等号？漏掉等号会怎样？
+时间复杂度: O(n*m)，最坏: haystack="AAAA...A", needle="AAB"
+
+参考: 本课 README 中的算法步骤说明。
+'''
+
+[[exercises.cases]]
+stdin = "hello world\nworld\n"
+stdout = "found: world\n"
+
+[[exercises.cases]]
+stdin = "hello world\nxyz\n"
+stdout = "not found\n"
+
+[[exercises.cases]]
+stdin = "aaaa\naa\n"
+stdout = "found: aaaa\n"
+
+[[exercises.cases]]
+stdin = "hello\n\n"
+stdout = "found: hello\n"

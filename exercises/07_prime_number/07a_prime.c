@@ -16,18 +16,17 @@
  * 验证：stdout 精确匹配 "max prime is 97\n"
  */
 
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
-int main(void)
-{
-	int num;
-	int i;
-	int max = 0;
+int main(void) {
+    int num;
+    int i;
+    int max = 0;
 
 #error TODO: Fix this exercise. Run "clings hint" for help.
 
-	printf("max prime is %d\n", max);
+    printf("max prime is %d\n", max);
 
-	return 0;
+    return 0;
 }

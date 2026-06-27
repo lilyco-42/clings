@@ -1,4 +1,0 @@
-Hello, this is a test file for mycp.
-It has multiple lines.
-Line 3 with special chars: !@#$%
-End of file.

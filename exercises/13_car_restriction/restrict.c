@@ -17,59 +17,55 @@
 
 #include <stdio.h>
 
-enum day
-{
-	MONDAY = 1,
-	TUESDAY,
-	WEDNESDAY,
-	THURSDAY,
-	FRIDAY,
-	SATURDAY,
-	SUNDAY
-};
+enum day { MONDAY = 1, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY };
 
-char get_last_char(char str[])
-{
-	char c = 0;
-	int i = 0;
+char get_last_char(char str[]) {
+    char c = 0;
+    int i = 0;
 
-	while (str[i])
-	{
-		c = str[i];
-		i++;
-	}
-	return c;
+    while (str[i]) {
+        c = str[i];
+        i++;
+    }
+    return c;
 }
 
-int is_restricted(int tail_num, enum day today)
-{
-	int ret = 0;
+int is_restricted(int tail_num, enum day today) {
+    int ret = 0;
 
-	switch (tail_num)
-	{
-		case 0: case 5:
-			ret = (today == MONDAY) ? 1 : 0; break;
-		case 1: case 6:
-			ret = (today == TUESDAY) ? 1 : 0; break;
-		case 2: case 7:
-			ret = (today == WEDNESDAY) ? 1 : 0; break;
-		case 3: case 8:
-			ret = (today == THURSDAY) ? 1 : 0; break;
-		case 4: case 9:
-			ret = (today == FRIDAY) ? 1 : 0; break;
-		default:
-			ret = 0; break;
-	}
-	return ret;
+    switch (tail_num) {
+        case 0:
+        case 5:
+            ret = (today == MONDAY) ? 1 : 0;
+            break;
+        case 1:
+        case 6:
+            ret = (today == TUESDAY) ? 1 : 0;
+            break;
+        case 2:
+        case 7:
+            ret = (today == WEDNESDAY) ? 1 : 0;
+            break;
+        case 3:
+        case 8:
+            ret = (today == THURSDAY) ? 1 : 0;
+            break;
+        case 4:
+        case 9:
+            ret = (today == FRIDAY) ? 1 : 0;
+            break;
+        default:
+            ret = 0;
+            break;
+    }
+    return ret;
 }
 
-enum day get_week_day(int year, int month, int day)
-{
+enum day get_week_day(int year, int month, int day) {
 #error TODO: Compute weekday from date using cumulative days + modulo. Run "clings hint" for help.
 }
 
-int main(void)
-{
+int main(void) {
 #error TODO: Read input, call get_last_char + get_week_day + is_restricted. Run "clings hint" for help.
-	return 0;
+    return 0;
 }

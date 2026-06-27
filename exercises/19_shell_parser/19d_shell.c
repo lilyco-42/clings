@@ -22,69 +22,57 @@ char opchar;
 int add(int a, int b) { return a + b; }
 int sub(int a, int b) { return a - b; }
 int mul(int a, int b) { return a * b; }
-int mydiv(int a, int b) { if (b != 0) return a / b; return 0; }
-
-int power(int a, int b)
-{
-	int result = 1;
-	int i;
-	for (i = 0; i < b; i++)
-		result *= a;
-	return result;
+int mydiv(int a, int b) {
+    if (b != 0) return a / b;
+    return 0;
 }
 
-int math_main(int argc, char *argv[])
-{
-	int a, b;
-	int result;
-
-	if (argc < 3)
-		return -1;
-
-	a = atoi(argv[1]);
-	b = atoi(argv[2]);
-	result = pf(a, b);
-
-	printf("result: %s %c %s = %d\n", argv[1], opchar, argv[2], result);
-
-	return 0;
+int power(int a, int b) {
+    int result = 1;
+    int i;
+    for (i = 0; i < b; i++) result *= a;
+    return result;
 }
 
-struct operation
-{
-	char name[8];
-	int (*pf)(int, int);
-	char opchar;
-} op[] =
-{
-	{ "add", add, '+' },
-	{ "sub", sub, '-' },
-	{ "mul", mul, 'x' },
-	{ "div", mydiv, '/' },
-	{ "p", power, '^' }
-};
+int math_main(int argc, char *argv[]) {
+    int a, b;
+    int result;
 
-int shell_parse(char *buf, char *argv[])
-{
+    if (argc < 3) return -1;
+
+    a = atoi(argv[1]);
+    b = atoi(argv[2]);
+    result = pf(a, b);
+
+    printf("result: %s %c %s = %d\n", argv[1], opchar, argv[2], result);
+
+    return 0;
+}
+
+struct operation {
+    char name[8];
+    int (*pf)(int, int);
+    char opchar;
+} op[] = {{"add", add, '+'}, {"sub", sub, '-'}, {"mul", mul, 'x'}, {"div", mydiv, '/'}, {"p", power, '^'}};
+
+int shell_parse(char *buf, char *argv[]) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
-	return 0;
+    return 0;
 }
 
-int command_do(int argc, char *argv[])
-{
+int command_do(int argc, char *argv[]) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
-	return 0;
+    return 0;
 }
 
-int main(void)
-{
-	char buf[256];
-	int argc;
-	char *argv[10];
+int main(void) {
+    char buf[256];
+    int argc;
+    char *argv[10];
 
-	fgets(buf, sizeof(buf), stdin);
-	argc = shell_parse(buf, argv);
-	command_do(argc, argv);
+    fgets(buf, sizeof(buf), stdin);
+    argc = shell_parse(buf, argv);
+    command_do(argc, argv);
 
-	return 0;
+    return 0;
 }

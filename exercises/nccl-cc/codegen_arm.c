@@ -34,22 +34,22 @@ static int loop_depth = 0;
 
 /* string literal storage for .rodata emission */
 #define MAX_STRINGS 256
-static struct { int id; char *val; } arm_strings[MAX_STRINGS];
+static struct {
+    int id;
+    char *val;
+} arm_strings[MAX_STRINGS];
 static int arm_nstrings = 0;
 
 /* Load a 32-bit constant: movw sets the low half (zeroing the top),
  * movt fills the high half only when needed. */
-static void load_imm(const char *reg, int val)
-{
+static void load_imm(const char *reg, int val) {
     unsigned u = (unsigned)val;
     printf("    movw %s, #%u\n", reg, u & 0xffff);
-    if (u >> 16)
-        printf("    movt %s, #%u\n", reg, u >> 16);
+    if (u >> 16) printf("    movt %s, #%u\n", reg, u >> 16);
 }
 
 /* Load the address of a symbol (global variable / string literal). */
-static void load_sym_addr(const char *reg, const char *sym)
-{
+static void load_sym_addr(const char *reg, const char *sym) {
     printf("    movw %s, #:lower16:%s\n", reg, sym);
     printf("    movt %s, #:upper16:%s\n", reg, sym);
 }
@@ -57,12 +57,10 @@ static void load_sym_addr(const char *reg, const char *sym)
 /* Can v be encoded as an ARM data-processing immediate? Those are an
  * 8-bit value rotated right by an even amount - sub/add/cmp all use
  * this format, NOT the +-4095 of ldr/str. */
-static int arm_imm_ok(unsigned v)
-{
+static int arm_imm_ok(unsigned v) {
     for (int rot = 0; rot < 32; rot += 2) {
         unsigned rotated = (rot == 0) ? v : ((v << rot) | (v >> (32 - rot)));
-        if (rotated <= 0xff)
-            return 1;
+        if (rotated <= 0xff) return 1;
     }
     return 0;
 }
@@ -70,8 +68,7 @@ static int arm_imm_ok(unsigned v)
 /* Materialize `fp - offset` into reg. Offsets that don't fit the
  * rotated-immediate format go through ip (r12), the AAPCS scratch
  * register that survives nothing and clobbers nobody. */
-static void addr_of_local(const char *reg, int offset)
-{
+static void addr_of_local(const char *reg, int offset) {
     if (arm_imm_ok((unsigned)offset)) {
         printf("    sub %s, fp, #%d\n", reg, offset);
     } else {
@@ -82,8 +79,7 @@ static void addr_of_local(const char *reg, int offset)
 
 /* Store reg (width-aware) into the local at fp-offset. ldr/str
  * immediates are 12-bit (+-4095) - a DIFFERENT limit than sub's. */
-static void store_local(const char *reg, int offset, int size)
-{
+static void store_local(const char *reg, int offset, int size) {
     const char *op = (size == 1) ? "strb" : "str";
     if (offset <= 4095) {
         printf("    %s %s, [fp, #-%d]\n", op, reg, offset);
@@ -93,14 +89,12 @@ static void store_local(const char *reg, int offset, int size)
     }
 }
 
-static void push_arm(void)
-{
+static void push_arm(void) {
     printf("    sub sp, sp, #4\n");
     printf("    str r0, [sp]\n");
 }
 
-static void pop_arm(const char *reg)
-{
+static void pop_arm(const char *reg) {
     printf("    ldr %s, [sp]\n", reg);
     printf("    add sp, sp, #4\n");
 }
@@ -110,10 +104,8 @@ static void gen_stmt_arm(Node *node);
 
 /* Load a value of type ty from the address in r0 (char→ldrsb sign-
  * extended, int/pointer→4 bytes on ARM32). Arrays/structs: address only. */
-static void load_val(Type *ty)
-{
-    if (ty && (ty->kind == TY_ARRAY || ty->kind == TY_STRUCT))
-        return;
+static void load_val(Type *ty) {
+    if (ty && (ty->kind == TY_ARRAY || ty->kind == TY_STRUCT)) return;
     if (ty && ty->size == 1)
         printf("    ldrsb r0, [r0]\n");
     else
@@ -121,16 +113,14 @@ static void load_val(Type *ty)
 }
 
 /* Store the value in r0 (of type ty) to the address in r1. */
-static void store_val(Type *ty)
-{
+static void store_val(Type *ty) {
     if (ty && ty->size == 1)
         printf("    strb r0, [r1]\n");
     else
         printf("    str r0, [r1]\n");
 }
 
-static void gen_addr_arm(Node *node)
-{
+static void gen_addr_arm(Node *node) {
     if (node->kind == ND_VAR) {
         if (node->var->is_global)
             load_sym_addr("r0", node->var->name);
@@ -145,16 +135,14 @@ static void gen_addr_arm(Node *node)
     /* struct member as lvalue: base address + member offset */
     if (node->kind == ND_MEMBER) {
         gen_addr_arm(node->lhs);
-        if (node->member && node->member->offset)
-            printf("    add r0, r0, #%d\n", node->member->offset);
+        if (node->member && node->member->offset) printf("    add r0, r0, #%d\n", node->member->offset);
         return;
     }
     fprintf(stderr, "arm codegen: not an lvalue\n");
     exit(1);
 }
 
-static void gen_expr_arm(Node *node)
-{
+static void gen_expr_arm(Node *node) {
     if (!node) return;
 
     if (node->kind == ND_NUM) {
@@ -216,8 +204,7 @@ static void gen_expr_arm(Node *node)
         push_arm();
         gen_expr_arm(node->rhs);
         pop_arm("r1");
-        store_val(node->lhs->ty ? node->lhs->ty
-                                : (node->lhs->var ? node->lhs->var->ty : NULL));
+        store_val(node->lhs->ty ? node->lhs->ty : (node->lhs->var ? node->lhs->var->ty : NULL));
         return;
     }
 
@@ -225,8 +212,7 @@ static void gen_expr_arm(Node *node)
     if (node->kind == ND_VAR_DECL) {
         if (node->lhs) {
             gen_expr_arm(node->lhs);
-            store_local("r0", node->var->offset,
-                        (node->var && node->var->ty) ? node->var->ty->size : 4);
+            store_local("r0", node->var->offset, (node->var && node->var->ty) ? node->var->ty->size : 4);
         }
         return;
     }
@@ -247,8 +233,7 @@ static void gen_expr_arm(Node *node)
     /* type cast: (char)x sign-extends, matching ldrsb semantics */
     if (node->kind == ND_CAST) {
         gen_expr_arm(node->lhs);
-        if (node->ty && node->ty->kind == TY_CHAR)
-            printf("    sxtb r0, r0\n");
+        if (node->ty && node->ty->kind == TY_CHAR) printf("    sxtb r0, r0\n");
         return;
     }
 
@@ -260,10 +245,12 @@ static void gen_expr_arm(Node *node)
             push_arm();
             nargs++;
         }
-        static const char *areg[] = {"r0","r1","r2","r3"};
+        static const char *areg[] = {"r0", "r1", "r2", "r3"};
         for (int i = nargs - 1; i >= 0; i--) {
-            if (i < 4) pop_arm(areg[i]);
-            else pop_arm("r4");
+            if (i < 4)
+                pop_arm(areg[i]);
+            else
+                pop_arm("r4");
         }
         printf("    bl %s\n", node->name);
         return;
@@ -327,205 +314,217 @@ static void gen_expr_arm(Node *node)
     pop_arm("r1");
 
     switch (node->kind) {
-    case ND_ADD: printf("    add r0, r0, r1\n"); break;
-    case ND_SUB: printf("    sub r0, r0, r1\n"); break;
-    case ND_MUL: printf("    mul r0, r0, r1\n"); break;
-    case ND_DIV: printf("    sdiv r0, r0, r1\n"); break;
-    case ND_MOD:
-        printf("    sdiv r2, r0, r1\n");
-        printf("    mls r0, r2, r1, r0\n");
-        break;
-    case ND_BITAND: printf("    and r0, r0, r1\n"); break;
-    case ND_BITOR:  printf("    orr r0, r0, r1\n"); break;
-    case ND_BITXOR: printf("    eor r0, r0, r1\n"); break;
-    case ND_SHL: printf("    lsl r0, r0, r1\n"); break;
-    case ND_SHR: printf("    asr r0, r0, r1\n"); break;
-    case ND_EQ:
-        printf("    cmp r0, r1\n");
-        printf("    moveq r0, #1\n");
-        printf("    movne r0, #0\n");
-        break;
-    case ND_NE:
-        printf("    cmp r0, r1\n");
-        printf("    movne r0, #1\n");
-        printf("    moveq r0, #0\n");
-        break;
-    case ND_LT:
-        printf("    cmp r0, r1\n");
-        printf("    movlt r0, #1\n");
-        printf("    movge r0, #0\n");
-        break;
-    case ND_LE:
-        printf("    cmp r0, r1\n");
-        printf("    movle r0, #1\n");
-        printf("    movgt r0, #0\n");
-        break;
-    case ND_GT:
-        printf("    cmp r0, r1\n");
-        printf("    movgt r0, #1\n");
-        printf("    movle r0, #0\n");
-        break;
-    case ND_GE:
-        printf("    cmp r0, r1\n");
-        printf("    movge r0, #1\n");
-        printf("    movlt r0, #0\n");
-        break;
-    default:
-        fprintf(stderr, "arm codegen: unexpected binary op %d\n", node->kind);
-        exit(1);
+        case ND_ADD:
+            printf("    add r0, r0, r1\n");
+            break;
+        case ND_SUB:
+            printf("    sub r0, r0, r1\n");
+            break;
+        case ND_MUL:
+            printf("    mul r0, r0, r1\n");
+            break;
+        case ND_DIV:
+            printf("    sdiv r0, r0, r1\n");
+            break;
+        case ND_MOD:
+            printf("    sdiv r2, r0, r1\n");
+            printf("    mls r0, r2, r1, r0\n");
+            break;
+        case ND_BITAND:
+            printf("    and r0, r0, r1\n");
+            break;
+        case ND_BITOR:
+            printf("    orr r0, r0, r1\n");
+            break;
+        case ND_BITXOR:
+            printf("    eor r0, r0, r1\n");
+            break;
+        case ND_SHL:
+            printf("    lsl r0, r0, r1\n");
+            break;
+        case ND_SHR:
+            printf("    asr r0, r0, r1\n");
+            break;
+        case ND_EQ:
+            printf("    cmp r0, r1\n");
+            printf("    moveq r0, #1\n");
+            printf("    movne r0, #0\n");
+            break;
+        case ND_NE:
+            printf("    cmp r0, r1\n");
+            printf("    movne r0, #1\n");
+            printf("    moveq r0, #0\n");
+            break;
+        case ND_LT:
+            printf("    cmp r0, r1\n");
+            printf("    movlt r0, #1\n");
+            printf("    movge r0, #0\n");
+            break;
+        case ND_LE:
+            printf("    cmp r0, r1\n");
+            printf("    movle r0, #1\n");
+            printf("    movgt r0, #0\n");
+            break;
+        case ND_GT:
+            printf("    cmp r0, r1\n");
+            printf("    movgt r0, #1\n");
+            printf("    movle r0, #0\n");
+            break;
+        case ND_GE:
+            printf("    cmp r0, r1\n");
+            printf("    movge r0, #1\n");
+            printf("    movlt r0, #0\n");
+            break;
+        default:
+            fprintf(stderr, "arm codegen: unexpected binary op %d\n", node->kind);
+            exit(1);
     }
 }
 
-static void gen_stmt_arm(Node *node)
-{
+static void gen_stmt_arm(Node *node) {
     if (!node) return;
 
     switch (node->kind) {
-    case ND_RETURN:
-        if (node->lhs) gen_expr_arm(node->lhs);
-        printf("    b .LA_return_%s\n", cur_fn_name);
-        return;
+        case ND_RETURN:
+            if (node->lhs) gen_expr_arm(node->lhs);
+            printf("    b .LA_return_%s\n", cur_fn_name);
+            return;
 
-    case ND_IF: {
-        int lbl = label_count++;
-        gen_expr_arm(node->cond);
-        printf("    cmp r0, #0\n");
-        printf("    beq .LA_else_%d\n", lbl);
-        gen_stmt_arm(node->then);
-        printf("    b .LA_endif_%d\n", lbl);
-        printf(".LA_else_%d:\n", lbl);
-        if (node->els) gen_stmt_arm(node->els);
-        printf(".LA_endif_%d:\n", lbl);
-        return;
-    }
-
-    /* while — with break/continue support */
-    case ND_WHILE: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = lbl;
-        loop_depth++;
-        printf(".LA_while_%d:\n", lbl);
-        printf(".LA_cont_%d:\n", lbl);
-        gen_expr_arm(node->cond);
-        printf("    cmp r0, #0\n");
-        printf("    beq .LA_wend_%d\n", lbl);
-        gen_stmt_arm(node->body);
-        printf("    b .LA_while_%d\n", lbl);
-        printf(".LA_wend_%d:\n", lbl);
-        printf(".LA_brk_%d:\n", lbl);
-        loop_depth--;
-        return;
-    }
-
-    /* for — with break/continue support */
-    case ND_FOR: {
-        int lbl = label_count++;
-        int cont_lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = cont_lbl;
-        loop_depth++;
-        if (node->init) gen_stmt_arm(node->init);
-        printf(".LA_for_%d:\n", lbl);
-        if (node->cond) {
+        case ND_IF: {
+            int lbl = label_count++;
             gen_expr_arm(node->cond);
             printf("    cmp r0, #0\n");
-            printf("    beq .LA_fend_%d\n", lbl);
+            printf("    beq .LA_else_%d\n", lbl);
+            gen_stmt_arm(node->then);
+            printf("    b .LA_endif_%d\n", lbl);
+            printf(".LA_else_%d:\n", lbl);
+            if (node->els) gen_stmt_arm(node->els);
+            printf(".LA_endif_%d:\n", lbl);
+            return;
         }
-        gen_stmt_arm(node->body);
-        printf(".LA_cont_%d:\n", cont_lbl);
-        if (node->inc) gen_expr_arm(node->inc);
-        printf("    b .LA_for_%d\n", lbl);
-        printf(".LA_fend_%d:\n", lbl);
-        printf(".LA_brk_%d:\n", lbl);
-        loop_depth--;
-        return;
-    }
 
-    /* do-while — with break/continue support */
-    case ND_DOWHILE: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = lbl;
-        loop_depth++;
-        printf(".LA_do_%d:\n", lbl);
-        printf(".LA_cont_%d:\n", lbl);
-        gen_stmt_arm(node->body);
-        gen_expr_arm(node->cond);
-        printf("    cmp r0, #0\n");
-        printf("    bne .LA_do_%d\n", lbl);
-        printf(".LA_brk_%d:\n", lbl);
-        loop_depth--;
-        return;
-    }
+        /* while — with break/continue support */
+        case ND_WHILE: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = lbl;
+            loop_depth++;
+            printf(".LA_while_%d:\n", lbl);
+            printf(".LA_cont_%d:\n", lbl);
+            gen_expr_arm(node->cond);
+            printf("    cmp r0, #0\n");
+            printf("    beq .LA_wend_%d\n", lbl);
+            gen_stmt_arm(node->body);
+            printf("    b .LA_while_%d\n", lbl);
+            printf(".LA_wend_%d:\n", lbl);
+            printf(".LA_brk_%d:\n", lbl);
+            loop_depth--;
+            return;
+        }
 
-    /* switch/case: compare-and-branch for each case */
-    case ND_SWITCH: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_depth++;
-        gen_expr_arm(node->cond);
-        /* generate comparison jumps for each case */
-        int case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++) {
-            if (c->kind == ND_CASE) {
-                load_imm("r1", c->case_val);
-                printf("    cmp r0, r1\n");
-                printf("    beq .LA_case_%d_%d\n", lbl, case_num);
+        /* for — with break/continue support */
+        case ND_FOR: {
+            int lbl = label_count++;
+            int cont_lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = cont_lbl;
+            loop_depth++;
+            if (node->init) gen_stmt_arm(node->init);
+            printf(".LA_for_%d:\n", lbl);
+            if (node->cond) {
+                gen_expr_arm(node->cond);
+                printf("    cmp r0, #0\n");
+                printf("    beq .LA_fend_%d\n", lbl);
             }
+            gen_stmt_arm(node->body);
+            printf(".LA_cont_%d:\n", cont_lbl);
+            if (node->inc) gen_expr_arm(node->inc);
+            printf("    b .LA_for_%d\n", lbl);
+            printf(".LA_fend_%d:\n", lbl);
+            printf(".LA_brk_%d:\n", lbl);
+            loop_depth--;
+            return;
         }
-        /* jump to default or end */
-        int def_num = -1;
-        case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++)
-            if (c->kind == ND_DEFAULT) def_num = case_num;
-        if (def_num >= 0)
-            printf("    b .LA_case_%d_%d\n", lbl, def_num);
-        else
-            printf("    b .LA_brk_%d\n", lbl);
-        /* generate case bodies (each body is a statement LIST) */
-        case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++) {
-            printf(".LA_case_%d_%d:\n", lbl, case_num);
-            for (Node *s = c->body; s; s = s->next)
-                gen_stmt_arm(s);
+
+        /* do-while — with break/continue support */
+        case ND_DOWHILE: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = lbl;
+            loop_depth++;
+            printf(".LA_do_%d:\n", lbl);
+            printf(".LA_cont_%d:\n", lbl);
+            gen_stmt_arm(node->body);
+            gen_expr_arm(node->cond);
+            printf("    cmp r0, #0\n");
+            printf("    bne .LA_do_%d\n", lbl);
+            printf(".LA_brk_%d:\n", lbl);
+            loop_depth--;
+            return;
         }
-        printf(".LA_brk_%d:\n", lbl);
-        loop_depth--;
-        return;
-    }
 
-    case ND_BREAK:
-        if (loop_depth > 0)
-            printf("    b .LA_brk_%d\n", loop_break_labels[loop_depth - 1]);
-        return;
+        /* switch/case: compare-and-branch for each case */
+        case ND_SWITCH: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_depth++;
+            gen_expr_arm(node->cond);
+            /* generate comparison jumps for each case */
+            int case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++) {
+                if (c->kind == ND_CASE) {
+                    load_imm("r1", c->case_val);
+                    printf("    cmp r0, r1\n");
+                    printf("    beq .LA_case_%d_%d\n", lbl, case_num);
+                }
+            }
+            /* jump to default or end */
+            int def_num = -1;
+            case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++)
+                if (c->kind == ND_DEFAULT) def_num = case_num;
+            if (def_num >= 0)
+                printf("    b .LA_case_%d_%d\n", lbl, def_num);
+            else
+                printf("    b .LA_brk_%d\n", lbl);
+            /* generate case bodies (each body is a statement LIST) */
+            case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++) {
+                printf(".LA_case_%d_%d:\n", lbl, case_num);
+                for (Node *s = c->body; s; s = s->next) gen_stmt_arm(s);
+            }
+            printf(".LA_brk_%d:\n", lbl);
+            loop_depth--;
+            return;
+        }
 
-    case ND_CONTINUE:
-        if (loop_depth > 0)
-            printf("    b .LA_cont_%d\n", loop_cont_labels[loop_depth - 1]);
-        return;
+        case ND_BREAK:
+            if (loop_depth > 0) printf("    b .LA_brk_%d\n", loop_break_labels[loop_depth - 1]);
+            return;
 
-    case ND_BLOCK:
-        for (Node *s = node->body; s; s = s->next)
-            gen_stmt_arm(s);
-        return;
+        case ND_CONTINUE:
+            if (loop_depth > 0) printf("    b .LA_cont_%d\n", loop_cont_labels[loop_depth - 1]);
+            return;
 
-    case ND_EXPR_STMT:
-        gen_expr_arm(node->lhs);
-        return;
+        case ND_BLOCK:
+            for (Node *s = node->body; s; s = s->next) gen_stmt_arm(s);
+            return;
 
-    case ND_VAR_DECL:
-        gen_expr_arm(node);
-        return;
+        case ND_EXPR_STMT:
+            gen_expr_arm(node->lhs);
+            return;
 
-    default:
-        fprintf(stderr, "arm codegen: unexpected stmt %d\n", node->kind);
-        exit(1);
+        case ND_VAR_DECL:
+            gen_expr_arm(node);
+            return;
+
+        default:
+            fprintf(stderr, "arm codegen: unexpected stmt %d\n", node->kind);
+            exit(1);
     }
 }
 
-static void gen_function_arm(Node *fn)
-{
+static void gen_function_arm(Node *fn) {
     if (fn->kind != ND_FUNC) return;
 
     cur_fn_name = fn->name;
@@ -549,8 +548,7 @@ static void gen_function_arm(Node *fn)
         if (!p->var) continue;
         char reg[4];
         snprintf(reg, sizeof(reg), "r%d", i);
-        store_local(reg, p->var->offset,
-                    (p->var->ty) ? p->var->ty->size : 4);
+        store_local(reg, p->var->offset, (p->var->ty) ? p->var->ty->size : 4);
     }
 
     gen_stmt_arm(fn->body);
@@ -561,14 +559,16 @@ static void gen_function_arm(Node *fn)
     printf("    pop {fp, pc}\n");
 }
 
-void codegen_arm(Node *prog)
-{
+void codegen_arm(Node *prog) {
     arm_nstrings = 0;
 
     /* .data section for global variables */
     int has_data = 0;
     for (Var *v = globals; v; v = v->next) {
-        if (!has_data) { printf(".data\n"); has_data = 1; }
+        if (!has_data) {
+            printf(".data\n");
+            has_data = 1;
+        }
         printf(".globl %s\n", v->name);
         printf("%s:\n", v->name);
         if (v->ty && v->ty->kind == TY_ARRAY)
@@ -583,8 +583,7 @@ void codegen_arm(Node *prog)
     printf("\n.text\n");
     printf(".syntax unified\n");
     printf(".arch armv7ve\n");
-    for (Node *fn = prog->body; fn; fn = fn->next)
-        gen_function_arm(fn);
+    for (Node *fn = prog->body; fn; fn = fn->next) gen_function_arm(fn);
 
     /* .rodata section for string literals */
     if (arm_nstrings > 0) {

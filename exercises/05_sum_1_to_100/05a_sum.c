@@ -16,9 +16,8 @@
 
 #include <stdio.h>
 
-int main(void)
-{
+int main(void) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
 
-	return 0;
+    return 0;
 }

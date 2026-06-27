@@ -3,22 +3,20 @@
  *
  * Lesson 73: Recognizes int, main, void, return, numbers, (), {}, ;
  */
-#include "nccl_cc.h"
 #include <stdarg.h>
 
-static int cur_line = 1;
-static char *src_start;  /* beginning of source (for error reporting) */
+#include "nccl_cc.h"
 
-static void error_at(char *loc, const char *fmt, ...)
-{
+static int cur_line = 1;
+static char *src_start; /* beginning of source (for error reporting) */
+
+static void error_at(char *loc, const char *fmt, ...) {
     /* find line start */
     char *line_start = loc;
-    while (line_start > src_start && line_start[-1] != '\n')
-        line_start--;
+    while (line_start > src_start && line_start[-1] != '\n') line_start--;
     /* find line end */
     char *line_end = loc;
-    while (*line_end && *line_end != '\n')
-        line_end++;
+    while (*line_end && *line_end != '\n') line_end++;
     /* print line */
     int line_len = line_end - line_start;
     fprintf(stderr, "L%d: ", cur_line);
@@ -34,8 +32,7 @@ static void error_at(char *loc, const char *fmt, ...)
     exit(1);
 }
 
-static Token *new_token(int kind, char *loc, int len)
-{
+static Token *new_token(int kind, char *loc, int len) {
     Token *tok = calloc(1, sizeof(Token));
     tok->kind = kind;
     tok->loc = loc;
@@ -44,70 +41,82 @@ static Token *new_token(int kind, char *loc, int len)
     return tok;
 }
 
-static int starts_with(const char *p, const char *q)
-{
-    return strncmp(p, q, strlen(q)) == 0;
-}
+static int starts_with(const char *p, const char *q) { return strncmp(p, q, strlen(q)) == 0; }
 
-static int is_keyword(const char *s, int len)
-{
-    static const char *kw[] = {"int", "char", "void", "return", "if", "else",
-                               "while", "for", "do", "break", "continue",
-                               "struct", "sizeof", "switch", "case", "default",
-                               "enum", NULL};
+static int is_keyword(const char *s, int len) {
+    static const char *kw[] = {"int",   "char",     "void",   "return", "if",     "else", "while",   "for",  "do",
+                               "break", "continue", "struct", "sizeof", "switch", "case", "default", "enum", NULL};
     for (int i = 0; kw[i]; i++)
-        if ((int)strlen(kw[i]) == len && strncmp(kw[i], s, len) == 0)
-            return 1;
+        if ((int)strlen(kw[i]) == len && strncmp(kw[i], s, len) == 0) return 1;
     return 0;
 }
 
 /* Process escape character */
-static int read_escaped_char(char **pp)
-{
+static int read_escaped_char(char **pp) {
     char *p = *pp;
     int c;
     switch (*p) {
-    case 'a': c = '\a'; break;
-    case 'b': c = '\b'; break;
-    case 't': c = '\t'; break;
-    case 'n': c = '\n'; break;
-    case 'v': c = '\v'; break;
-    case 'f': c = '\f'; break;
-    case 'r': c = '\r'; break;
-    case '0': c = '\0'; break;
-    case '\\': c = '\\'; break;
-    case '\'': c = '\''; break;
-    case '"': c = '"'; break;
-    case 'x': {
-        /* hex escape \xNN */
-        p++;
-        c = 0;
-        while (isxdigit(*p)) {
-            c = c * 16 + (isdigit(*p) ? *p - '0' : tolower(*p) - 'a' + 10);
+        case 'a':
+            c = '\a';
+            break;
+        case 'b':
+            c = '\b';
+            break;
+        case 't':
+            c = '\t';
+            break;
+        case 'n':
+            c = '\n';
+            break;
+        case 'v':
+            c = '\v';
+            break;
+        case 'f':
+            c = '\f';
+            break;
+        case 'r':
+            c = '\r';
+            break;
+        case '0':
+            c = '\0';
+            break;
+        case '\\':
+            c = '\\';
+            break;
+        case '\'':
+            c = '\'';
+            break;
+        case '"':
+            c = '"';
+            break;
+        case 'x': {
+            /* hex escape \xNN */
             p++;
-        }
-        *pp = p;
-        return c;
-    }
-    default:
-        /* octal escape \NNN */
-        if (*p >= '0' && *p <= '7') {
             c = 0;
-            for (int i = 0; i < 3 && *p >= '0' && *p <= '7'; i++)
-                c = c * 8 + (*p++ - '0');
+            while (isxdigit(*p)) {
+                c = c * 16 + (isdigit(*p) ? *p - '0' : tolower(*p) - 'a' + 10);
+                p++;
+            }
             *pp = p;
             return c;
         }
-        c = *p;
-        break;
+        default:
+            /* octal escape \NNN */
+            if (*p >= '0' && *p <= '7') {
+                c = 0;
+                for (int i = 0; i < 3 && *p >= '0' && *p <= '7'; i++) c = c * 8 + (*p++ - '0');
+                *pp = p;
+                return c;
+            }
+            c = *p;
+            break;
     }
     p++;
     *pp = p;
     return c;
 }
 
-Token *tokenize(char *input)
-{
+Token *tokenize(char *input) {
     char *p = input;
     src_start = input;
     cur_line = 1;
@@ -115,8 +124,15 @@ Token *tokenize(char *input)
     Token *cur = &head;
 
     while (*p) {
-        if (*p == '\n') { cur_line++; p++; continue; }
-        if (isspace(*p)) { p++; continue; }
+        if (*p == '\n') {
+            cur_line++;
+            p++;
+            continue;
+        }
+        if (isspace(*p)) {
+            p++;
+            continue;
+        }
 
         /* skip comments */
         if (starts_with(p, "//")) {
@@ -125,8 +141,12 @@ Token *tokenize(char *input)
         }
         if (starts_with(p, "/*")) {
             char *q = strstr(p + 2, "*/");
-            if (!q) { fprintf(stderr, "L%d: unclosed comment\n", cur_line); exit(1); }
-            for (char *r = p; r < q + 2; r++) if (*r == '\n') cur_line++;
+            if (!q) {
+                fprintf(stderr, "L%d: unclosed comment\n", cur_line);
+                exit(1);
+            }
+            for (char *r = p; r < q + 2; r++)
+                if (*r == '\n') cur_line++;
             p = q + 2;
             continue;
         }
@@ -207,8 +227,8 @@ Token *tokenize(char *input)
         }
         if (found) continue;
 
-        static const char *mc2[] = {"==","!=","<=",">=","&&","||","+=","-=","*=","/=","%=",
-                                    "&=","|=","^=","<<",">>","++","--","->",NULL};
+        static const char *mc2[] = {"==", "!=", "<=", ">=", "&&", "||", "+=", "-=", "*=", "/=",
+                                    "%=", "&=", "|=", "^=", "<<", ">>", "++", "--", "->", NULL};
         for (int i = 0; mc2[i]; i++) {
             if (starts_with(p, mc2[i])) {
                 cur->next = new_token(TK_PUNCT, p, 2);
@@ -258,21 +278,30 @@ Token *tokenize(char *input)
  * re-escaping every byte GNU as cannot take raw. Counterpart of the
  * tokenizer's escape decoding: decode once at lex time, encode once
  * at emit time — no stage in between ever parses backslashes again. */
-void emit_escaped_string(const char *s)
-{
+void emit_escaped_string(const char *s) {
     putchar('"');
     for (const unsigned char *p = (const unsigned char *)s; *p; p++) {
         switch (*p) {
-        case '\n': printf("\\n"); break;
-        case '\t': printf("\\t"); break;
-        case '\r': printf("\\r"); break;
-        case '"':  printf("\\\""); break;
-        case '\\': printf("\\\\"); break;
-        default:
-            if (*p < 32 || *p >= 127)
-                printf("\\%03o", *p); /* octal escape for raw bytes */
-            else
-                putchar(*p);
+            case '\n':
+                printf("\\n");
+                break;
+            case '\t':
+                printf("\\t");
+                break;
+            case '\r':
+                printf("\\r");
+                break;
+            case '"':
+                printf("\\\"");
+                break;
+            case '\\':
+                printf("\\\\");
+                break;
+            default:
+                if (*p < 32 || *p >= 127)
+                    printf("\\%03o", *p); /* octal escape for raw bytes */
+                else
+                    putchar(*p);
         }
     }
     putchar('"');

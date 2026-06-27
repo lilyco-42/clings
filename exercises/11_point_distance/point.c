@@ -13,22 +13,21 @@
  * 验证：输入 "0 0 3 4" → "5.00\n"; 输入 "1 1 4 5" → "5.00\n"
  */
 
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
 #error TODO: Define struct point {float x; float y;} with typedef. Run "clings hint" for help.
 
 #error TODO: Implement float calculate(point_t p1, point_t p2) for distance. Run "clings hint" for help.
 
-int main(void)
-{
-	point_t p1, p2;
-	float distance;
+int main(void) {
+    point_t p1, p2;
+    float distance;
 
-	scanf("%f %f %f %f", &p1.x, &p1.y, &p2.x, &p2.y);
+    scanf("%f %f %f %f", &p1.x, &p1.y, &p2.x, &p2.y);
 
-	distance = calculate(p1, p2);
-	printf("%.2f\n", distance);
+    distance = calculate(p1, p2);
+    printf("%.2f\n", distance);
 
-	return 0;
+    return 0;
 }

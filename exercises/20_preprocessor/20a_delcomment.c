@@ -26,38 +26,29 @@
 
 #include <stdio.h>
 
-int get_input_type(char c)
-{
-	if (c == '/')
-		return 1;
-	if (c == '*')
-		return 2;
-	if (c == '\n')
-		return 3;
-	if (c == '\'')
-		return 4;
-	if (c == '\\')
-		return 5;
-	return 0;
+int get_input_type(char c) {
+    if (c == '/') return 1;
+    if (c == '*') return 2;
+    if (c == '\n') return 3;
+    if (c == '\'') return 4;
+    if (c == '\\') return 5;
+    return 0;
 }
 
-int main(void)
-{
-	int state = 0;
+int main(void) {
+    int state = 0;
 
-	while (1)
-	{
-		char c;
-		int input;
+    while (1) {
+        char c;
+        int input;
 
-		c = getchar();
-		if (c == EOF)
-			break;
+        c = getchar();
+        if (c == EOF) break;
 
-		input = get_input_type(c);
+        input = get_input_type(c);
 
 #error TODO: Fix this exercise. Run "clings hint" for help.
-	}
+    }
 
-	return 0;
+    return 0;
 }

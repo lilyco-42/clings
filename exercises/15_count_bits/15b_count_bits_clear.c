@@ -16,20 +16,18 @@
 
 #include <stdio.h>
 
-int count_bits(int num)
-{
-	int sum = 0;
+int count_bits(int num) {
+    int sum = 0;
 
 #error TODO: while (num != 0) { num &= (num - 1); sum++; }
-	return sum;
+    return sum;
 }
 
-int main(void)
-{
-	int num;
+int main(void) {
+    int num;
 
-	scanf("%d", &num);
-	printf("%d\n", count_bits(num));
+    scanf("%d", &num);
+    printf("%d\n", count_bits(num));
 
-	return 0;
+    return 0;
 }

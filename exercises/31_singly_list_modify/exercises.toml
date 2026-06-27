@@ -1,0 +1,55 @@
+[[exercises]]
+name = "31_singly_list_modify"
+title = "单链表查找与删除"
+unit = "unit2"
+lesson = 31
+order = 79
+mode = "stdout"
+source = "31_singly_list_modify.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/31_singly_list_modify"
+hint = '''
+查找很简单，删除是难点——要维护前驱指针。
+
+边界要点:
+- 删头节点: prev == NULL，直接更新 head
+- 删唯一节点: head 变成 NULL
+- 删尾节点: prev->next = NULL
+- 未找到: 不做任何修改
+
+查找思考:
+- 按值: 遍历比较 data，找到返回节点，找不到返回 NULL
+- 按索引: 遍历计数，到达索引返回，越界返回 NULL
+
+删除思考:
+- 为什么要维护 prev 指针？(要跳过被删节点: prev->next = cur->next)
+- 删头节点时 prev 是什么？(NULL，这时要更新 head)
+- 删尾节点时？(prev->next = NULL)
+- 删唯一节点时？(head 变成 NULL)
+- free 的顺序？(先 free 还是先改指针？)
+
+参考: 本课 README 中的三种边界情况表。
+'''
+
+[[exercises.cases]]
+stdin = "1 2 3 4\nfind 3\n"
+stdout = "found: 3\n"
+
+[[exercises.cases]]
+stdin = "1 2 3 4\nfind 5\n"
+stdout = "not found\n"
+
+[[exercises.cases]]
+stdin = "1 2 3 4\nindex 2\n"
+stdout = "at 2: 3\n"
+
+[[exercises.cases]]
+stdin = "1 2 3\nindex 5\n"
+stdout = "out of range\n"
+
+[[exercises.cases]]
+stdin = "1 2 3\ndelete 2\n"
+stdout = "1 3\n"
+
+[[exercises.cases]]
+stdin = "1\ndelete 1\n"
+stdout = "(empty)\n"

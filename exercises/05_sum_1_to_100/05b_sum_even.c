@@ -15,18 +15,15 @@
 
 #include <stdio.h>
 
-int main(void)
-{
-	int i = 0;
-	int sum = 0;
+int main(void) {
+    int i = 0;
+    int sum = 0;
 
-	for (i = 0; i <= 100; i++)
-	{
+    for (i = 0; i <= 100; i++) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
+    }
 
-	}
+    printf("sum = %d\n", sum);
 
-	printf("sum = %d\n", sum);
-
-	return 0;
+    return 0;
 }

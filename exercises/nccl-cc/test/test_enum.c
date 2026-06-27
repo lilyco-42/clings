@@ -7,11 +7,11 @@ int main(void) {
     enum Op { NEG = -2, ZERO = 0, ONE };
     int s = 0;
     switch (GREEN) {
-    case GREEN:
-        s = BLUE;          /* 6 */
-        break;
-    default:
-        s = RED;
+        case GREEN:
+            s = BLUE; /* 6 */
+            break;
+        default:
+            s = RED;
     }
     /* 6 + 1 + (-2) + 2 + 0 + 2 = 9 */
     return s + ONE + NEG + 2 + RED + 2 * (BLUE == 6);

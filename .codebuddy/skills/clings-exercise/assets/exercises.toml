@@ -1,0 +1,24 @@
+[[exercises]]
+name = "<NN>_<name>"
+title = "<CHINESE_TITLE>"
+unit = "unit2"
+lesson = <NN>
+order = <ORDER>
+mode = "stdout"
+source = "<NN>_<name>.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/<NN>_<name>"
+hint = '''
+<ALGORITHM_PSEUDOCODE_AND_KEY_PITFALLS>
+'''
+
+[[exercises.cases]]
+stdin = "<input1_line1>\n<input1_line2>\n"
+stdout = "<expected_output1>\n"
+
+[[exercises.cases]]
+stdin = "<input2_line1>\n<input2_line2>\n"
+stdout = "<expected_output2>\n"
+
+[[exercises.cases]]
+stdin = "<input3_line1>\n<input3_line2>\n"
+stdout = "<expected_output3>\n"

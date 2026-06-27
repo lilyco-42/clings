@@ -13,7 +13,7 @@ int main(void) {
     p.y = 20;
 
     q = &p;
-    q->y = q->y + 5;     /* p.y = 25 */
+    q->y = q->y + 5; /* p.y = 25 */
 
-    return p.x + q->y;   /* 10 + 25 = 35 */
+    return p.x + q->y; /* 10 + 25 = 35 */
 }

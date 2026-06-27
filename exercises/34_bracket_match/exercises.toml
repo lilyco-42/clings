@@ -1,0 +1,55 @@
+[[exercises]]
+name = "34_bracket_match"
+title = "栈实现括号匹配"
+unit = "unit2"
+lesson = 34
+order = 82
+mode = "stdout"
+source = "34_bracket_match.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/34_bracket_match"
+hint = '''
+括号匹配是栈的经典应用。
+
+    int check_brackets(const char *s) {
+        char stack[MAX];
+        int top = -1;
+        while (*s) {
+            if (*s == '(' || *s == '[' || *s == '{') {
+                push(stack, &top, *s);
+            } else if (*s == ')' || *s == ']' || *s == '}') {
+                if (is_empty(top)) return 0;          /* 栈空但遇到右括号 */
+                char open = pop(stack, &top);
+                if (!is_match(open, *s)) return 0;    /* 不配对 */
+            }
+            s++;
+        }
+        return is_empty(top);  /* 栈空才算全部匹配 */
+    }
+
+
+思考:
+- 遇到左括号做什么？(入栈)
+- 遇到右括号做什么？(栈空则失败；否则弹栈顶检查是否配对)
+- 遍历结束后还要检查什么？(栈是否为空)
+- 什么是"配对"？( ( 和 ), [ 和 ], { 和 } )
+
+is_match 和栈基本操作(push/pop/is_empty)已提供。
+你只需要实现 check_brackets 的遍历逻辑。
+参考: 本课 README。
+'''
+
+[[exercises.cases]]
+stdin = "()\n"
+stdout = "yes\n"
+
+[[exercises.cases]]
+stdin = "()[]{}\n"
+stdout = "yes\n"
+
+[[exercises.cases]]
+stdin = "([)]\n"
+stdout = "no\n"
+
+[[exercises.cases]]
+stdin = "(\n"
+stdout = "no\n"

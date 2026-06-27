@@ -8,14 +8,15 @@
  * Lesson 77: local variables, variable declarations
  * Lesson 78: assignment expressions, expression statements, blocks
  */
-#include "nccl_cc.h"
 #include <stdarg.h>
 
+#include "nccl_cc.h"
+
 static Token *tok;
-static Var *cur_locals;   /* local vars of current function */
-Var *globals = NULL;      /* L85: global variable list */
-int str_count = 0;        /* L86: string literal counter */
-static int parse_errors = 0;  /* error counter for recovery mode */
+static Var *cur_locals;      /* local vars of current function */
+Var *globals = NULL;         /* L85: global variable list */
+int str_count = 0;           /* L86: string literal counter */
+static int parse_errors = 0; /* error counter for recovery mode */
 
 /* forward declarations */
 static Node *new_node(int kind);
@@ -24,16 +25,12 @@ static Node *new_num(int val);
 static Var *find_var(const char *name, int len);
 static int consume(const char *s);
 
-static int equal(const char *s)
-{
-    return tok->len == (int)strlen(s) && strncmp(tok->loc, s, tok->len) == 0;
-}
+static int equal(const char *s) { return tok->len == (int)strlen(s) && strncmp(tok->loc, s, tok->len) == 0; }
 
 /* Print a parse error with context (token location and expected info).
  * A hard cap bounds error cascades: after enough noise the rest of
  * the diagnostics would be garbage anyway, so give up cleanly. */
-static void error_token(Token *t, const char *fmt, ...)
-{
+static void error_token(Token *t, const char *fmt, ...) {
     fprintf(stderr, "\033[1;31merror\033[0m at L%d: ", t->line);
     va_list ap;
     va_start(ap, fmt);
@@ -51,18 +48,19 @@ static void error_token(Token *t, const char *fmt, ...)
 }
 
 /* Skip tokens until we find ';' or '}' (error recovery point) */
-static void skip_to_recovery(void)
-{
+static void skip_to_recovery(void) {
     while (tok->kind != TK_EOF) {
-        if (equal(";")) { tok = tok->next; return; }
+        if (equal(";")) {
+            tok = tok->next;
+            return;
+        }
         if (equal("}")) return; /* don't consume '}' */
         tok = tok->next;
     }
 }
 
 /* Non-fatal error: report and recover to next statement */
-static Node *error_recover(const char *msg)
-{
+static Node *error_recover(const char *msg) {
     error_token(tok, "%s", msg);
     skip_to_recovery();
     return new_node(ND_BLOCK); /* return empty node */
@@ -74,21 +72,17 @@ static Node *error_recover(const char *msg)
  * we stay put and let the caller's grammar continue from here (the
  * global error cap in error_token bounds the cascade, and every
  * list-parsing loop is EOF-guarded via until()). */
-static void skip(const char *s)
-{
-    if (consume(s))
-        return;
+static void skip(const char *s) {
+    if (consume(s)) return;
     error_token(tok, "expected '%s'", s);
-    if (strcmp(s, ";") == 0)
-        skip_to_recovery();
+    if (strcmp(s, ";") == 0) skip_to_recovery();
 }
 
 /* Loop guard for list parsing: keep going while the closing token has
  * not arrived, but STOP (with a diagnostic) at end of file. Every
  * `while (!equal("}"))`-style loop must use this so that an unclosed
  * brace can never hang the compiler. */
-static int until(const char *end)
-{
+static int until(const char *end) {
     if (tok->kind == TK_EOF) {
         error_token(tok, "unexpected end of file: missing '%s'", end);
         return 0;
@@ -96,50 +90,45 @@ static int until(const char *end)
     return !equal(end);
 }
 
-static int consume(const char *s)
-{
-    if (equal(s)) { tok = tok->next; return 1; }
+static int consume(const char *s) {
+    if (equal(s)) {
+        tok = tok->next;
+        return 1;
+    }
     return 0;
 }
 
-static Node *new_node(int kind)
-{
+static Node *new_node(int kind) {
     Node *n = calloc(1, sizeof(Node));
     n->kind = kind;
     return n;
 }
 
-static Node *new_binary(int kind, Node *lhs, Node *rhs)
-{
+static Node *new_binary(int kind, Node *lhs, Node *rhs) {
     Node *n = new_node(kind);
     n->lhs = lhs;
     n->rhs = rhs;
     return n;
 }
 
-static Node *new_num(int val)
-{
+static Node *new_num(int val) {
     Node *n = new_node(ND_NUM);
     n->val = val;
     return n;
 }
 
 /* Find variable by name in current scope */
-static Var *find_var(const char *name, int len)
-{
+static Var *find_var(const char *name, int len) {
     for (Var *v = cur_locals; v; v = v->next)
-        if ((int)strlen(v->name) == len && strncmp(v->name, name, len) == 0)
-            return v;
+        if ((int)strlen(v->name) == len && strncmp(v->name, name, len) == 0) return v;
     /* L85: also search globals */
     for (Var *v = globals; v; v = v->next)
-        if ((int)strlen(v->name) == len && strncmp(v->name, name, len) == 0)
-            return v;
+        if ((int)strlen(v->name) == len && strncmp(v->name, name, len) == 0) return v;
     return NULL;
 }
 
 /* Create a new local variable */
-static Var *new_lvar(const char *name, int len, Type *ty)
-{
+static Var *new_lvar(const char *name, int len, Type *ty) {
     Var *v = calloc(1, sizeof(Var));
     snprintf(v->name, 63, "%.*s", len, name);
     v->ty = ty;
@@ -150,7 +139,10 @@ static Var *new_lvar(const char *name, int len, Type *ty)
 
 /*===== Struct type registry =====*/
 #define MAX_STRUCTS 32
-static struct { char name[64]; Type *ty; } struct_defs[MAX_STRUCTS];
+static struct {
+    char name[64];
+    Type *ty;
+} struct_defs[MAX_STRUCTS];
 static int nstruct_defs = 0;
 
 /*===== Enum constant registry =====
@@ -159,14 +151,15 @@ static int nstruct_defs = 0;
  * them as stack variables whose initializer was never emitted — reads
  * returned uninitialized memory.) */
 #define MAX_ENUM_CONSTS 128
-static struct { char name[64]; int val; } enum_consts[MAX_ENUM_CONSTS];
+static struct {
+    char name[64];
+    int val;
+} enum_consts[MAX_ENUM_CONSTS];
 static int nenum_consts = 0;
 
-static int find_enum_const(const char *name, int len, int *out)
-{
+static int find_enum_const(const char *name, int len, int *out) {
     for (int i = 0; i < nenum_consts; i++)
-        if ((int)strlen(enum_consts[i].name) == len &&
-            strncmp(enum_consts[i].name, name, len) == 0) {
+        if ((int)strlen(enum_consts[i].name) == len && strncmp(enum_consts[i].name, name, len) == 0) {
             *out = enum_consts[i].val;
             return 1;
         }
@@ -175,10 +168,8 @@ static int find_enum_const(const char *name, int len, int *out)
 
 /* Parse 'enum [Name] { A [= n], B, ... };' and register the constants.
  * Used both inside functions and at the top level. */
-static Node *parse_enum_decl(void)
-{
-    if (tok->kind == TK_IDENT)
-        tok = tok->next; /* skip optional enum tag */
+static Node *parse_enum_decl(void) {
+    if (tok->kind == TK_IDENT) tok = tok->next; /* skip optional enum tag */
     skip("{");
     int enum_val = 0;
     while (until("}")) {
@@ -203,18 +194,15 @@ static Node *parse_enum_decl(void)
     return new_node(ND_BLOCK); /* declarations emit no code */
 }
 
-static Type *find_struct(const char *name, int len)
-{
+static Type *find_struct(const char *name, int len) {
     for (int i = 0; i < nstruct_defs; i++)
-        if ((int)strlen(struct_defs[i].name) == len &&
-            strncmp(struct_defs[i].name, name, len) == 0)
+        if ((int)strlen(struct_defs[i].name) == len && strncmp(struct_defs[i].name, name, len) == 0)
             return struct_defs[i].ty;
     return NULL;
 }
 
 /* Parse struct definition: struct Name { int x; int y; }; */
-static Type *parse_struct_type(void)
-{
+static Type *parse_struct_type(void) {
     char *sname = tok->loc;
     int slen = tok->len;
     tok = tok->next;
@@ -240,11 +228,17 @@ static Type *parse_struct_type(void)
 
     while (until("}")) {
         Type *mty;
-        if (equal("int"))      { mty = ty_int(); tok = tok->next; }
-        else if (equal("char")) { mty = ty_char(); tok = tok->next; }
-        else { fprintf(stderr, "L%d: expected member type\n", tok->line); exit(1); }
-        while (consume("*"))
-            mty = ptr_to(mty);
+        if (equal("int")) {
+            mty = ty_int();
+            tok = tok->next;
+        } else if (equal("char")) {
+            mty = ty_char();
+            tok = tok->next;
+        } else {
+            fprintf(stderr, "L%d: expected member type\n", tok->line);
+            exit(1);
+        }
+        while (consume("*")) mty = ptr_to(mty);
 
         Member *m = calloc(1, sizeof(Member));
         m->ty = mty;
@@ -256,8 +250,7 @@ static Type *parse_struct_type(void)
         offset = align_to(offset, mty->align);
         m->offset = offset;
         offset += mty->size;
-        if (sty->align < mty->align)
-            sty->align = mty->align;
+        if (sty->align < mty->align) sty->align = mty->align;
         mcur->next = m;
         mcur = m;
     }
@@ -273,8 +266,7 @@ static Type *parse_struct_type(void)
 }
 
 /* Parse a type specifier: int, char, void, struct Name */
-static Type *parse_type_spec(void)
-{
+static Type *parse_type_spec(void) {
     if (consume("int")) return ty_int();
     if (consume("char")) return ty_char();
     if (consume("void")) return ty_int(); /* treat void as int */
@@ -283,20 +275,15 @@ static Type *parse_type_spec(void)
 }
 
 /* Parse full type with pointer decorations */
-static Type *parse_full_type(void)
-{
+static Type *parse_full_type(void) {
     Type *ty = parse_type_spec();
     if (!ty) return NULL;
-    while (consume("*"))
-        ty = ptr_to(ty);
+    while (consume("*")) ty = ptr_to(ty);
     return ty;
 }
 
 /* Check if current token starts a type */
-static int at_type(void)
-{
-    return equal("int") || equal("char") || equal("void") || equal("struct");
-}
+static int at_type(void) { return equal("int") || equal("char") || equal("void") || equal("struct"); }
 
 /*===== Expression parsing (precedence climbing) =====*/
 static Node *parse_expr(void);
@@ -330,8 +317,7 @@ static Node *new_sub(Node *lhs, Node *rhs);
  * never collide with a user variable. Prefix and postfix ++/-- are
  * built on the same helper. */
 
-static Node *new_var_ref(Var *v)
-{
+static Node *new_var_ref(Var *v) {
     Node *n = new_node(ND_VAR);
     n->var = v;
     strcpy(n->name, v->name);
@@ -339,16 +325,14 @@ static Node *new_var_ref(Var *v)
     return n;
 }
 
-static Node *new_deref(Node *base)
-{
+static Node *new_deref(Node *base) {
     Node *n = new_node(ND_DEREF);
     n->lhs = base;
     add_type(n);
     return n;
 }
 
-static Node *compound_assign(Node *lhs, int op, Node *rhs)
-{
+static Node *compound_assign(Node *lhs, int op, Node *rhs) {
     add_type(lhs);
     Var *tmp = new_lvar("", 0, ptr_to(lhs->ty));
 
@@ -377,51 +361,35 @@ static Node *compound_assign(Node *lhs, int op, Node *rhs)
 }
 
 /* Top-level expression: comma operator (lowest precedence) */
-static Node *parse_expr(void)
-{
+static Node *parse_expr(void) {
     Node *n = parse_assign();
-    while (consume(","))
-        n = new_binary(ND_COMMA, n, parse_assign());
+    while (consume(",")) n = new_binary(ND_COMMA, n, parse_assign());
     return n;
 }
 
 /* Assignment (right-associative) + compound assignment.
  * Compound forms go through compound_assign so the lvalue is
  * evaluated exactly once (see the desugaring note above). */
-static Node *parse_assign(void)
-{
+static Node *parse_assign(void) {
     Node *n = parse_ternary();
-    if (consume("="))
-        return new_binary(ND_ASSIGN, n, parse_assign());
-    if (consume("+="))
-        return compound_assign(n, ND_ADD, parse_assign());
-    if (consume("-="))
-        return compound_assign(n, ND_SUB, parse_assign());
-    if (consume("*="))
-        return compound_assign(n, ND_MUL, parse_assign());
-    if (consume("/="))
-        return compound_assign(n, ND_DIV, parse_assign());
-    if (consume("%="))
-        return compound_assign(n, ND_MOD, parse_assign());
-    if (consume("&="))
-        return compound_assign(n, ND_BITAND, parse_assign());
-    if (consume("|="))
-        return compound_assign(n, ND_BITOR, parse_assign());
-    if (consume("^="))
-        return compound_assign(n, ND_BITXOR, parse_assign());
-    if (consume("<<="))
-        return compound_assign(n, ND_SHL, parse_assign());
-    if (consume(">>="))
-        return compound_assign(n, ND_SHR, parse_assign());
+    if (consume("=")) return new_binary(ND_ASSIGN, n, parse_assign());
+    if (consume("+=")) return compound_assign(n, ND_ADD, parse_assign());
+    if (consume("-=")) return compound_assign(n, ND_SUB, parse_assign());
+    if (consume("*=")) return compound_assign(n, ND_MUL, parse_assign());
+    if (consume("/=")) return compound_assign(n, ND_DIV, parse_assign());
+    if (consume("%=")) return compound_assign(n, ND_MOD, parse_assign());
+    if (consume("&=")) return compound_assign(n, ND_BITAND, parse_assign());
+    if (consume("|=")) return compound_assign(n, ND_BITOR, parse_assign());
+    if (consume("^=")) return compound_assign(n, ND_BITXOR, parse_assign());
+    if (consume("<<=")) return compound_assign(n, ND_SHL, parse_assign());
+    if (consume(">>=")) return compound_assign(n, ND_SHR, parse_assign());
     return n;
 }
 
 /* Ternary conditional: cond ? true_expr : false_expr */
-static Node *parse_ternary(void)
-{
+static Node *parse_ternary(void) {
     Node *cond = parse_logic_or();
-    if (!consume("?"))
-        return cond;
+    if (!consume("?")) return cond;
     Node *n = new_node(ND_COND);
     n->cond = cond;
     n->cond_true = parse_expr();
@@ -430,78 +398,89 @@ static Node *parse_ternary(void)
     return n;
 }
 
-static Node *parse_logic_or(void)
-{
+static Node *parse_logic_or(void) {
     Node *n = parse_logic_and();
-    while (consume("||"))
-        n = new_binary(ND_OR, n, parse_logic_and());
+    while (consume("||")) n = new_binary(ND_OR, n, parse_logic_and());
     return n;
 }
 
-static Node *parse_logic_and(void)
-{
+static Node *parse_logic_and(void) {
     Node *n = parse_bit_or();
-    while (consume("&&"))
-        n = new_binary(ND_AND, n, parse_bit_or());
+    while (consume("&&")) n = new_binary(ND_AND, n, parse_bit_or());
     return n;
 }
 
-static Node *parse_bit_or(void)
-{
+static Node *parse_bit_or(void) {
     Node *n = parse_bit_xor();
-    while (consume("|"))
-        n = new_binary(ND_BITOR, n, parse_bit_xor());
+    while (consume("|")) n = new_binary(ND_BITOR, n, parse_bit_xor());
     return n;
 }
 
-static Node *parse_bit_xor(void)
-{
+static Node *parse_bit_xor(void) {
     Node *n = parse_bit_and();
-    while (consume("^"))
-        n = new_binary(ND_BITXOR, n, parse_bit_and());
+    while (consume("^")) n = new_binary(ND_BITXOR, n, parse_bit_and());
     return n;
 }
 
-static Node *parse_bit_and(void)
-{
+static Node *parse_bit_and(void) {
     Node *n = parse_equality();
     /* Note: '&' as bitwise AND must not be confused with unary '&' (address-of)
      * Here we only see '&' as binary if it appears after an expression. */
-    while (consume("&"))
-        n = new_binary(ND_BITAND, n, parse_equality());
+    while (consume("&")) n = new_binary(ND_BITAND, n, parse_equality());
     return n;
 }
 
-static Node *parse_equality(void)
-{
+static Node *parse_equality(void) {
     Node *n = parse_relational();
     while (1) {
-        if (consume("==")) { n = new_binary(ND_EQ, n, parse_relational()); continue; }
-        if (consume("!=")) { n = new_binary(ND_NE, n, parse_relational()); continue; }
+        if (consume("==")) {
+            n = new_binary(ND_EQ, n, parse_relational());
+            continue;
+        }
+        if (consume("!=")) {
+            n = new_binary(ND_NE, n, parse_relational());
+            continue;
+        }
         break;
     }
     return n;
 }
 
-static Node *parse_relational(void)
-{
+static Node *parse_relational(void) {
     Node *n = parse_shift();
     while (1) {
-        if (consume("<=")) { n = new_binary(ND_LE, n, parse_shift()); continue; }
-        if (consume(">=")) { n = new_binary(ND_GE, n, parse_shift()); continue; }
-        if (consume("<"))  { n = new_binary(ND_LT, n, parse_shift()); continue; }
-        if (consume(">"))  { n = new_binary(ND_GT, n, parse_shift()); continue; }
+        if (consume("<=")) {
+            n = new_binary(ND_LE, n, parse_shift());
+            continue;
+        }
+        if (consume(">=")) {
+            n = new_binary(ND_GE, n, parse_shift());
+            continue;
+        }
+        if (consume("<")) {
+            n = new_binary(ND_LT, n, parse_shift());
+            continue;
+        }
+        if (consume(">")) {
+            n = new_binary(ND_GT, n, parse_shift());
+            continue;
+        }
         break;
     }
     return n;
 }
 
-static Node *parse_shift(void)
-{
+static Node *parse_shift(void) {
     Node *n = parse_additive();
     while (1) {
-        if (consume("<<")) { n = new_binary(ND_SHL, n, parse_additive()); continue; }
-        if (consume(">>")) { n = new_binary(ND_SHR, n, parse_additive()); continue; }
+        if (consume("<<")) {
+            n = new_binary(ND_SHL, n, parse_additive());
+            continue;
+        }
+        if (consume(">>")) {
+            n = new_binary(ND_SHR, n, parse_additive());
+            continue;
+        }
         break;
     }
     return n;
@@ -511,8 +490,7 @@ static Node *parse_shift(void)
  * scale the integer side when the other side is a pointer/array.
  * Works for ANY subexpression — (p+1)+1, f()+i, a[i]+j — not just
  * direct variable references. */
-static Node *new_add(Node *lhs, Node *rhs)
-{
+static Node *new_add(Node *lhs, Node *rhs) {
     add_type(lhs);
     add_type(rhs);
     Type *lt = decay_array(lhs->ty);
@@ -520,15 +498,18 @@ static Node *new_add(Node *lhs, Node *rhs)
 
     /* int + ptr → canonicalize to ptr + int */
     if (!is_pointer_like(lt) && is_pointer_like(rt)) {
-        Node *tn = lhs; lhs = rhs; rhs = tn;
-        Type *tt = lt; lt = rt; rt = tt;
+        Node *tn = lhs;
+        lhs = rhs;
+        rhs = tn;
+        Type *tt = lt;
+        lt = rt;
+        rt = tt;
     }
 
     /* ptr + int: scale the integer by element size */
     if (is_pointer_like(lt) && !is_pointer_like(rt)) {
         int esz = (lt->base) ? lt->base->size : 1;
-        if (esz > 1)
-            rhs = new_binary(ND_MUL, rhs, new_num(esz));
+        if (esz > 1) rhs = new_binary(ND_MUL, rhs, new_num(esz));
     }
 
     Node *n = new_binary(ND_ADD, lhs, rhs);
@@ -537,8 +518,7 @@ static Node *new_add(Node *lhs, Node *rhs)
 }
 
 /* Type-aware sub: ptr - int scales, ptr - ptr yields element count */
-static Node *new_sub(Node *lhs, Node *rhs)
-{
+static Node *new_sub(Node *lhs, Node *rhs) {
     add_type(lhs);
     add_type(rhs);
     Type *lt = decay_array(lhs->ty);
@@ -559,8 +539,7 @@ static Node *new_sub(Node *lhs, Node *rhs)
     /* ptr - int: scale the integer by element size */
     if (is_pointer_like(lt)) {
         int esz = (lt->base) ? lt->base->size : 1;
-        if (esz > 1)
-            rhs = new_binary(ND_MUL, rhs, new_num(esz));
+        if (esz > 1) rhs = new_binary(ND_MUL, rhs, new_num(esz));
     }
 
     Node *n = new_binary(ND_SUB, lhs, rhs);
@@ -568,24 +547,37 @@ static Node *new_sub(Node *lhs, Node *rhs)
     return n;
 }
 
-static Node *parse_additive(void)
-{
+static Node *parse_additive(void) {
     Node *n = parse_multiplicative();
     while (1) {
-        if (consume("+")) { n = new_add(n, parse_multiplicative()); continue; }
-        if (consume("-")) { n = new_sub(n, parse_multiplicative()); continue; }
+        if (consume("+")) {
+            n = new_add(n, parse_multiplicative());
+            continue;
+        }
+        if (consume("-")) {
+            n = new_sub(n, parse_multiplicative());
+            continue;
+        }
         break;
     }
     return n;
 }
 
-static Node *parse_multiplicative(void)
-{
+static Node *parse_multiplicative(void) {
     Node *n = parse_unary();
     while (1) {
-        if (consume("*")) { n = new_binary(ND_MUL, n, parse_unary()); continue; }
-        if (consume("/")) { n = new_binary(ND_DIV, n, parse_unary()); continue; }
-        if (consume("%")) { n = new_binary(ND_MOD, n, parse_unary()); continue; }
+        if (consume("*")) {
+            n = new_binary(ND_MUL, n, parse_unary());
+            continue;
+        }
+        if (consume("/")) {
+            n = new_binary(ND_DIV, n, parse_unary());
+            continue;
+        }
+        if (consume("%")) {
+            n = new_binary(ND_MOD, n, parse_unary());
+            continue;
+        }
         break;
     }
     return n;
@@ -594,29 +586,33 @@ static Node *parse_multiplicative(void)
 static Node *parse_postfix(void);
 
 /* Check if current position is '(' followed by a type keyword — indicates cast */
-static int is_cast(void)
-{
+static int is_cast(void) {
     if (!equal("(")) return 0;
     Token *t = tok->next;
     if (!t) return 0;
     int tlen = t->len;
     char *tloc = t->loc;
-    if ((tlen == 3 && strncmp(tloc, "int", 3) == 0) ||
-        (tlen == 4 && strncmp(tloc, "char", 4) == 0) ||
-        (tlen == 4 && strncmp(tloc, "void", 4) == 0) ||
-        (tlen == 6 && strncmp(tloc, "struct", 6) == 0))
+    if ((tlen == 3 && strncmp(tloc, "int", 3) == 0) || (tlen == 4 && strncmp(tloc, "char", 4) == 0) ||
+        (tlen == 4 && strncmp(tloc, "void", 4) == 0) || (tlen == 6 && strncmp(tloc, "struct", 6) == 0))
         return 1;
     return 0;
 }
 
-static Node *parse_unary(void)
-{
+static Node *parse_unary(void) {
     if (consume("-")) return new_binary(ND_NEG, parse_unary(), NULL);
     if (consume("!")) return new_binary(ND_NOT, parse_unary(), NULL);
     if (consume("~")) return new_binary(ND_BITNOT, parse_unary(), NULL);
     /* L88: address-of and dereference */
-    if (consume("&")) { Node *n = new_node(ND_ADDR); n->lhs = parse_unary(); return n; }
-    if (consume("*")) { Node *n = new_node(ND_DEREF); n->lhs = parse_unary(); return n; }
+    if (consume("&")) {
+        Node *n = new_node(ND_ADDR);
+        n->lhs = parse_unary();
+        return n;
+    }
+    if (consume("*")) {
+        Node *n = new_node(ND_DEREF);
+        n->lhs = parse_unary();
+        return n;
+    }
     /* prefix ++/-- : value is the NEW value; lvalue evaluated once */
     if (consume("++")) {
         Node *operand = parse_unary();
@@ -658,8 +654,7 @@ static Node *parse_unary(void)
 }
 
 /* Postfix operators: a[i], a.x, a++, a-- */
-static Node *parse_postfix(void)
-{
+static Node *parse_postfix(void) {
     Node *n = parse_primary();
     while (1) {
         /* array subscript a[i] -> *(a + i), scaling handled by new_add */
@@ -713,8 +708,7 @@ static Node *parse_postfix(void)
     return n;
 }
 
-static Node *parse_primary(void)
-{
+static Node *parse_primary(void) {
     if (consume("(")) {
         Node *n = parse_expr();
         skip(")");
@@ -772,15 +766,13 @@ static Node *parse_primary(void)
 
         /* enum constant: fold to a literal at parse time */
         int ev;
-        if (find_enum_const(name, len, &ev))
-            return new_num(ev);
+        if (find_enum_const(name, len, &ev)) return new_num(ev);
 
         /* L77: variable reference */
         Var *v = find_var(name, len);
         if (!v) {
             /* try forward-reference: create implicit int variable */
-            fprintf(stderr, "\033[1;33mwarn\033[0m at L%d: implicit declaration of '%.*s'\n",
-                    tok->line, len, name);
+            fprintf(stderr, "\033[1;33mwarn\033[0m at L%d: implicit declaration of '%.*s'\n", tok->line, len, name);
             v = new_lvar(name, len, ty_int());
         }
         Node *n = new_node(ND_VAR);
@@ -796,13 +788,11 @@ static Node *parse_primary(void)
 }
 
 /*===== Statement parsing =====*/
-static Node *parse_stmt(void)
-{
+static Node *parse_stmt(void) {
     /* return statement */
     if (consume("return")) {
         Node *n = new_node(ND_RETURN);
-        if (!equal(";"))
-            n->lhs = parse_expr();
+        if (!equal(";")) n->lhs = parse_expr();
         skip(";");
         return n;
     }
@@ -814,8 +804,7 @@ static Node *parse_stmt(void)
         n->cond = parse_expr();
         skip(")");
         n->then = parse_stmt();
-        if (consume("else"))
-            n->els = parse_stmt();
+        if (consume("else")) n->els = parse_stmt();
         return n;
     }
 
@@ -843,8 +832,7 @@ static Node *parse_stmt(void)
             Node *decl = new_node(ND_VAR_DECL);
             decl->var = v;
             snprintf(decl->name, 63, "%.*s", vlen, vname);
-            if (consume("="))
-                decl->lhs = parse_expr();
+            if (consume("=")) decl->lhs = parse_expr();
             skip(";");
             n->init = decl;
         } else {
@@ -857,11 +845,9 @@ static Node *parse_stmt(void)
             }
             skip(";");
         }
-        if (!equal(";"))
-            n->cond = parse_expr();
+        if (!equal(";")) n->cond = parse_expr();
         skip(";");
-        if (!equal(")"))
-            n->inc = parse_expr();
+        if (!equal(")")) n->inc = parse_expr();
         skip(")");
         n->body = parse_stmt();
         return n;
@@ -920,8 +906,7 @@ static Node *parse_stmt(void)
                 /* parse statements until next case/default/} */
                 Node stmt_head = {0};
                 Node *stmt_cur = &stmt_head;
-                while (tok->kind != TK_EOF && !equal("case") &&
-                       !equal("default") && !equal("}")) {
+                while (tok->kind != TK_EOF && !equal("case") && !equal("default") && !equal("}")) {
                     stmt_cur->next = parse_stmt();
                     stmt_cur = stmt_cur->next;
                 }
@@ -950,12 +935,10 @@ static Node *parse_stmt(void)
     }
 
     /* enum declaration: registers compile-time constants */
-    if (consume("enum"))
-        return parse_enum_decl();
+    if (consume("enum")) return parse_enum_decl();
 
     /* L77: compound statement (block) */
-    if (equal("{"))
-        return parse_compound();
+    if (equal("{")) return parse_compound();
 
     /* L77/L86/L87/L88/L91: variable declaration */
     if (at_type()) {
@@ -1051,8 +1034,7 @@ static Node *parse_stmt(void)
         Node *decl = new_node(ND_VAR_DECL);
         decl->var = v;
         snprintf(decl->name, 63, "%.*s", len, name);
-        if (consume("="))
-            decl->lhs = parse_assign();
+        if (consume("=")) decl->lhs = parse_assign();
         body_cur->next = decl;
         body_cur = body_cur->next;
 
@@ -1074,16 +1056,14 @@ static Node *parse_stmt(void)
             Node *nd = new_node(ND_VAR_DECL);
             nd->var = nv;
             snprintf(nd->name, 63, "%.*s", vlen, vname);
-            if (consume("="))
-                nd->lhs = parse_assign();
+            if (consume("=")) nd->lhs = parse_assign();
             body_cur->next = nd;
             body_cur = body_cur->next;
         }
         skip(";");
 
         /* if only one declarator, return it directly (no block wrapper) */
-        if (body_head.next && !body_head.next->next)
-            return body_head.next;
+        if (body_head.next && !body_head.next->next) return body_head.next;
         block->body = body_head.next;
         return block;
     }
@@ -1096,8 +1076,7 @@ static Node *parse_stmt(void)
 }
 
 /* L77: compound statement { stmt* } */
-static Node *parse_compound(void)
-{
+static Node *parse_compound(void) {
     skip("{");
     Node *block = new_node(ND_BLOCK);
     Node head = {0};
@@ -1112,8 +1091,7 @@ static Node *parse_compound(void)
 }
 
 /* L85: parse global variable: type name [= val]; or type name[N]; */
-static Node *parse_global_var(const char *name, int len, Type *ty)
-{
+static Node *parse_global_var(const char *name, int len, Type *ty) {
     Var *v = calloc(1, sizeof(Var));
     snprintf(v->name, 63, "%.*s", len, name);
     v->is_global = 1;
@@ -1146,8 +1124,7 @@ static Node *parse_global_var(const char *name, int len, Type *ty)
     return n;
 }
 
-Node *parse(Token *tokens)
-{
+Node *parse(Token *tokens) {
     tok = tokens;
     globals = NULL;
     str_count = 0;
@@ -1175,8 +1152,7 @@ Node *parse(Token *tokens)
         }
 
         /* bare struct definition at top level: struct Name { ... }; */
-        if (consume(";"))
-            continue;
+        if (consume(";")) continue;
 
         char *name = tok->loc;
         int len = tok->len;
@@ -1240,8 +1216,7 @@ Node *parse(Token *tokens)
     /* error recovery lets us report multiple errors, but a program that
      * failed to parse must never reach codegen (or exit with status 0) */
     if (parse_errors > 0) {
-        fprintf(stderr, "%d error%s generated\n",
-                parse_errors, parse_errors > 1 ? "s" : "");
+        fprintf(stderr, "%d error%s generated\n", parse_errors, parse_errors > 1 ? "s" : "");
         exit(1);
     }
 

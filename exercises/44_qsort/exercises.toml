@@ -1,0 +1,53 @@
+[[exercises]]
+name = "44_qsort"
+title = "qsort 泛型排序：int 与字符串数组"
+unit = "unit2"
+lesson = 44
+order = 92
+mode = "stdout"
+source = "44_qsort.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/44_qsort"
+hint = '''
+qsort 的核心是 comparator 函数。
+
+整数排序:
+    qsort(arr, n, sizeof(int), cmp_int);
+
+字符串排序 — 重点！:
+    int cmp_str(const void *a, const void *b) {
+        return strcmp(*(const char **)a, *(const char **)b);
+    }
+    qsort(strs, n, sizeof(char *), cmp_str);
+
+为什么 cmp_str 需要 **(const char **)** ？
+- 字符串数组 char *strs[] 的元素类型是 char*
+- qsort 传给 cmp 的是 元素的地址 → &strs[i] → 类型是 char**
+- void* 强转为 char** 再解引用 *(const char **)a → 得到 char*（字符串）
+
+常见错误: 写成 (const char *)a
+→ 拿到的是 char** 的低字节，不是完整指针 → 段错误/乱序
+
+记忆口诀: qsort 总是传"元素地址"，元素是什么类型就解引用几次
+  - int 数组: 元素=int → 元素地址=int* → *(int*)a
+  - char* 数组: 元素=char* → 元素地址=char** → *(char**)a
+
+整数排序思考:
+- cmp 收到的是元素的地址，int 数组的元素地址是什么类型？(int*)
+- 怎么取值比较？(*(const int*)a - *(const int*)b)
+
+字符串排序思考(重点！):
+- char *names[] 的元素类型是什么？(char*)
+- qsort 传给 cmp 的是元素的地址，那地址的类型是？(char**！)
+- 所以 cmp 里要怎么解引用？(*(const char**)a)
+- 常见错误: 写成 (const char*)a 会怎样？(拿到半个指针，段错误)
+
+参考: man qsort。
+'''
+
+[[exercises.cases]]
+stdin = "int 5 3 8 1 4\n"
+stdout = "ints: 1 3 4 5 8\n"
+
+[[exercises.cases]]
+stdin = "str cherry apple banana\n"
+stdout = "strings: apple banana cherry\n"

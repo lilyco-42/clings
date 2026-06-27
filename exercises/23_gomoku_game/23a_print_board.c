@@ -19,20 +19,17 @@
 
 static char board[SIZE][SIZE];
 
-void init_board(void)
-{
+void init_board(void) {
 #error TODO: Initialize board with memset. Run "clings hint" for help.
 }
 
-void print_board(void)
-{
+void print_board(void) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
 }
 
-int main(void)
-{
-	init_board();
-	print_board();
+int main(void) {
+    init_board();
+    print_board();
 
-	return 0;
+    return 0;
 }

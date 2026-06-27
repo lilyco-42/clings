@@ -15,23 +15,21 @@
 
 #include <stdio.h>
 
-char *itoa_hex(int num, char *buf)
-{
-	char *hex = "0123456789ABCDEF";
+char *itoa_hex(int num, char *buf) {
+    char *hex = "0123456789ABCDEF";
 
 #error TODO: Fix this exercise. Run "clings hint" for help.
-	return buf;
+    return buf;
 }
 
-int main(void)
-{
-	int num;
-	char buf[64];
+int main(void) {
+    int num;
+    char buf[64];
 
-	scanf("%d", &num);
+    scanf("%d", &num);
 
-	itoa_hex(num, buf);
-	printf("%s\n", buf);
+    itoa_hex(num, buf);
+    printf("%s\n", buf);
 
-	return 0;
+    return 0;
 }

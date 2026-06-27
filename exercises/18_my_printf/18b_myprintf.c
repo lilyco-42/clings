@@ -17,48 +17,41 @@
  * 验证："a = 100, b = 0xC8\nc = A, s = helloworld\n"
  */
 
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 
-void itoa(int num, char *buf, int base)
-{
-	char *hex = "0123456789ABCDEF";
-	int i = 0;
-	int j;
+void itoa(int num, char *buf, int base) {
+    char *hex = "0123456789ABCDEF";
+    int i = 0;
+    int j;
 
-	do
-	{
-		int rest = num % base;
-		buf[i++] = hex[rest];
-		num /= base;
-	} while (num != 0);
+    do {
+        int rest = num % base;
+        buf[i++] = hex[rest];
+        num /= base;
+    } while (num != 0);
 
-	buf[i] = '\0';
+    buf[i] = '\0';
 
-	for (j = 0; j < i / 2; j++)
-	{
-		char tmp = buf[j];
-		buf[j] = buf[i - 1 - j];
-		buf[i - 1 - j] = tmp;
-	}
+    for (j = 0; j < i / 2; j++) {
+        char tmp = buf[j];
+        buf[j] = buf[i - 1 - j];
+        buf[i - 1 - j] = tmp;
+    }
 }
 
-void myputs(char *buf)
-{
-	while (*buf)
-		putchar(*buf++);
+void myputs(char *buf) {
+    while (*buf) putchar(*buf++);
 }
 
-int myprintf(const char *format, ...)
-{
+int myprintf(const char *format, ...) {
 #error TODO: Fix this exercise. Run "clings hint" for help.
-	return 0;
+    return 0;
 }
 
-int main(void)
-{
-	myprintf("a = %d, b = 0x%x\n", 100, 200);
-	myprintf("c = %c, s = %s\n", 'A', "helloworld");
+int main(void) {
+    myprintf("a = %d, b = 0x%x\n", 100, 200);
+    myprintf("c = %c, s = %s\n", 'A', "helloworld");
 
-	return 0;
+    return 0;
 }

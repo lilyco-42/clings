@@ -41,14 +41,16 @@ static int loop_depth = 0;
 
 /* string literal storage */
 #define MAX_STRINGS 256
-static struct { int id; char *val; } strings[MAX_STRINGS];
+static struct {
+    int id;
+    char *val;
+} strings[MAX_STRINGS];
 static int nstrings = 0;
 
 /* Load a 32-bit constant into a register. mov handles the encodable
  * range (movz/movn aliases cover [-65536, 65535]); anything wider is
  * built from a movz/movk pair. `reg` is a w register name. */
-static void load_imm(const char *reg, int val)
-{
+static void load_imm(const char *reg, int val) {
     if (val >= -65536 && val <= 65535) {
         printf("    mov %s, #%d\n", reg, val);
     } else {
@@ -59,8 +61,7 @@ static void load_imm(const char *reg, int val)
 
 /* Materialize `x29 - offset` into register xreg (an x register name).
  * sub's immediate field is 12 bits; larger frames go through x9. */
-static void addr_of_local(const char *xreg, int offset)
-{
+static void addr_of_local(const char *xreg, int offset) {
     if (offset <= 4095) {
         printf("    sub %s, x29, #%d\n", xreg, offset);
     } else {
@@ -73,32 +74,21 @@ static void addr_of_local(const char *xreg, int offset)
  * AArch64 (hardware check), so each push claims a full 16-byte slot.
  * We always push/pop the full x register - for int values the upper
  * 32 bits are already zero (w-register writes clear them). */
-static void push(void)
-{
-    printf("    str x0, [sp, #-16]!\n");
-}
+static void push(void) { printf("    str x0, [sp, #-16]!\n"); }
 
-static void pop(const char *xreg)
-{
-    printf("    ldr %s, [sp], #16\n", xreg);
-}
+static void pop(const char *xreg) { printf("    ldr %s, [sp], #16\n", xreg); }
 
 /* forward declarations */
 static void gen_expr(Node *node);
 static void gen_stmt(Node *node);
 
-static int is_ptr_node(Node *n)
-{
-    return n && n->ty && is_pointer_like(n->ty);
-}
+static int is_ptr_node(Node *n) { return n && n->ty && is_pointer_like(n->ty); }
 
 /* Load a value of type ty from the address in x0.
  * char -> ldrsb (sign-extend), int -> 4 bytes, pointer -> 8 bytes.
  * Arrays and structs are used by address - no load. */
-static void load_val(Type *ty)
-{
-    if (ty && (ty->kind == TY_ARRAY || ty->kind == TY_STRUCT))
-        return;
+static void load_val(Type *ty) {
+    if (ty && (ty->kind == TY_ARRAY || ty->kind == TY_STRUCT)) return;
     if (ty && ty->size == 1)
         printf("    ldrsb w0, [x0]\n");
     else if (ty && ty->size == 8)
@@ -108,8 +98,7 @@ static void load_val(Type *ty)
 }
 
 /* Store the value in x0/w0 (of type ty) to the address in x1. */
-static void store_val(Type *ty)
-{
+static void store_val(Type *ty) {
     if (ty && ty->size == 1)
         printf("    strb w0, [x1]\n");
     else if (ty && ty->size == 8)
@@ -119,8 +108,7 @@ static void store_val(Type *ty)
 }
 
 /* Generate the address of an lvalue into x0. */
-static void gen_addr(Node *node)
-{
+static void gen_addr(Node *node) {
     if (node->kind == ND_VAR) {
         if (node->var->is_global) {
             printf("    adrp x0, %s\n", node->var->name);
@@ -136,16 +124,14 @@ static void gen_addr(Node *node)
     }
     if (node->kind == ND_MEMBER) {
         gen_addr(node->lhs);
-        if (node->member && node->member->offset)
-            printf("    add x0, x0, #%d\n", node->member->offset);
+        if (node->member && node->member->offset) printf("    add x0, x0, #%d\n", node->member->offset);
         return;
     }
     fprintf(stderr, "a64 codegen: not an lvalue (kind=%d)\n", node->kind);
     exit(1);
 }
 
-static void gen_expr(Node *node)
-{
+static void gen_expr(Node *node) {
     if (!node) return;
 
     if (node->kind == ND_NUM) {
@@ -205,8 +191,7 @@ static void gen_expr(Node *node)
         push();
         gen_expr(node->rhs);
         pop("x1");
-        store_val(node->lhs->ty ? node->lhs->ty
-                                : (node->lhs->var ? node->lhs->var->ty : NULL));
+        store_val(node->lhs->ty ? node->lhs->ty : (node->lhs->var ? node->lhs->var->ty : NULL));
         return;
     }
 
@@ -242,8 +227,7 @@ static void gen_expr(Node *node)
      * semantics); int/pointer casts need no code in this subset */
     if (node->kind == ND_CAST) {
         gen_expr(node->lhs);
-        if (node->ty && node->ty->kind == TY_CHAR)
-            printf("    sxtb w0, w0\n");
+        if (node->ty && node->ty->kind == TY_CHAR) printf("    sxtb w0, w0\n");
         return;
     }
 
@@ -266,9 +250,8 @@ static void gen_expr(Node *node)
             push();
             nargs++;
         }
-        static const char *areg[] = {"x0","x1","x2","x3","x4","x5","x6","x7"};
-        for (int i = nargs - 1; i >= 0; i--)
-            pop(areg[i]);
+        static const char *areg[] = {"x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7"};
+        for (int i = nargs - 1; i >= 0; i--) pop(areg[i]);
         printf("    bl %s\n", node->name);
         return;
     }
@@ -331,204 +314,212 @@ static void gen_expr(Node *node)
     int r_ptr = is_ptr_node(node->rhs);
 
     switch (node->kind) {
-    case ND_ADD:
-        if (l_ptr || r_ptr) {
-            /* ptr + scaled-int: sign-extend the 32-bit index so a
-             * NEGATIVE offset doesn't become a 4GB-positive one
-             * (the parser canonicalizes int+ptr to ptr+int) */
-            printf("    add x0, x0, w1, sxtw\n");
-        } else {
-            printf("    add w0, w0, w1\n");
+        case ND_ADD:
+            if (l_ptr || r_ptr) {
+                /* ptr + scaled-int: sign-extend the 32-bit index so a
+                 * NEGATIVE offset doesn't become a 4GB-positive one
+                 * (the parser canonicalizes int+ptr to ptr+int) */
+                printf("    add x0, x0, w1, sxtw\n");
+            } else {
+                printf("    add w0, w0, w1\n");
+            }
+            break;
+        case ND_SUB:
+            if (l_ptr && r_ptr) {
+                /* ptr - ptr: 64-bit difference (parser divides by size) */
+                printf("    sub x0, x0, x1\n");
+            } else if (l_ptr) {
+                printf("    sub x0, x0, w1, sxtw\n");
+            } else {
+                printf("    sub w0, w0, w1\n");
+            }
+            break;
+        case ND_MUL:
+            printf("    mul w0, w0, w1\n");
+            break;
+        case ND_DIV:
+            printf("    sdiv w0, w0, w1\n");
+            break;
+        case ND_MOD:
+            /* w9 = w0 / w1; w0 = w0 - w9 * w1 */
+            printf("    sdiv w9, w0, w1\n");
+            printf("    msub w0, w9, w1, w0\n");
+            break;
+        case ND_BITAND:
+            printf("    and w0, w0, w1\n");
+            break;
+        case ND_BITOR:
+            printf("    orr w0, w0, w1\n");
+            break;
+        case ND_BITXOR:
+            printf("    eor w0, w0, w1\n");
+            break;
+        case ND_SHL:
+            printf("    lsl w0, w0, w1\n");
+            break;
+        case ND_SHR:
+            printf("    asr w0, w0, w1\n");
+            break;
+        case ND_EQ:
+        case ND_NE:
+        case ND_LT:
+        case ND_LE:
+        case ND_GT:
+        case ND_GE: {
+            /* pointer comparisons must use the full 64-bit width */
+            if (l_ptr || r_ptr)
+                printf("    cmp x0, x1\n");
+            else
+                printf("    cmp w0, w1\n");
+            const char *cond = node->kind == ND_EQ   ? "eq"
+                               : node->kind == ND_NE ? "ne"
+                               : node->kind == ND_LT ? "lt"
+                               : node->kind == ND_LE ? "le"
+                               : node->kind == ND_GT ? "gt"
+                                                     : "ge";
+            printf("    cset w0, %s\n", cond);
+            break;
         }
-        break;
-    case ND_SUB:
-        if (l_ptr && r_ptr) {
-            /* ptr - ptr: 64-bit difference (parser divides by size) */
-            printf("    sub x0, x0, x1\n");
-        } else if (l_ptr) {
-            printf("    sub x0, x0, w1, sxtw\n");
-        } else {
-            printf("    sub w0, w0, w1\n");
-        }
-        break;
-    case ND_MUL: printf("    mul w0, w0, w1\n"); break;
-    case ND_DIV: printf("    sdiv w0, w0, w1\n"); break;
-    case ND_MOD:
-        /* w9 = w0 / w1; w0 = w0 - w9 * w1 */
-        printf("    sdiv w9, w0, w1\n");
-        printf("    msub w0, w9, w1, w0\n");
-        break;
-    case ND_BITAND: printf("    and w0, w0, w1\n"); break;
-    case ND_BITOR:  printf("    orr w0, w0, w1\n"); break;
-    case ND_BITXOR: printf("    eor w0, w0, w1\n"); break;
-    case ND_SHL: printf("    lsl w0, w0, w1\n"); break;
-    case ND_SHR: printf("    asr w0, w0, w1\n"); break;
-    case ND_EQ:
-    case ND_NE:
-    case ND_LT:
-    case ND_LE:
-    case ND_GT:
-    case ND_GE: {
-        /* pointer comparisons must use the full 64-bit width */
-        if (l_ptr || r_ptr)
-            printf("    cmp x0, x1\n");
-        else
-            printf("    cmp w0, w1\n");
-        const char *cond =
-            node->kind == ND_EQ ? "eq" :
-            node->kind == ND_NE ? "ne" :
-            node->kind == ND_LT ? "lt" :
-            node->kind == ND_LE ? "le" :
-            node->kind == ND_GT ? "gt" : "ge";
-        printf("    cset w0, %s\n", cond);
-        break;
-    }
-    default:
-        fprintf(stderr, "a64 codegen: unexpected binary op %d\n", node->kind);
-        exit(1);
+        default:
+            fprintf(stderr, "a64 codegen: unexpected binary op %d\n", node->kind);
+            exit(1);
     }
 }
 
-static void gen_stmt(Node *node)
-{
+static void gen_stmt(Node *node) {
     if (!node) return;
 
     switch (node->kind) {
-    case ND_RETURN:
-        if (node->lhs) gen_expr(node->lhs);
-        printf("    b .L64_return_%s\n", cur_fn_name);
-        return;
+        case ND_RETURN:
+            if (node->lhs) gen_expr(node->lhs);
+            printf("    b .L64_return_%s\n", cur_fn_name);
+            return;
 
-    case ND_IF: {
-        int lbl = label_count++;
-        gen_expr(node->cond);
-        printf("    cbz w0, .L64_else_%d\n", lbl);
-        gen_stmt(node->then);
-        printf("    b .L64_endif_%d\n", lbl);
-        printf(".L64_else_%d:\n", lbl);
-        if (node->els) gen_stmt(node->els);
-        printf(".L64_endif_%d:\n", lbl);
-        return;
-    }
-
-    case ND_WHILE: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = lbl;
-        loop_depth++;
-        printf(".L64_while_%d:\n", lbl);
-        printf(".L64_cont_%d:\n", lbl);
-        gen_expr(node->cond);
-        printf("    cbz w0, .L64_wend_%d\n", lbl);
-        gen_stmt(node->body);
-        printf("    b .L64_while_%d\n", lbl);
-        printf(".L64_wend_%d:\n", lbl);
-        printf(".L64_brk_%d:\n", lbl);
-        loop_depth--;
-        return;
-    }
-
-    case ND_FOR: {
-        int lbl = label_count++;
-        int cont_lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = cont_lbl;
-        loop_depth++;
-        if (node->init) gen_stmt(node->init);
-        printf(".L64_for_%d:\n", lbl);
-        if (node->cond) {
+        case ND_IF: {
+            int lbl = label_count++;
             gen_expr(node->cond);
-            printf("    cbz w0, .L64_fend_%d\n", lbl);
+            printf("    cbz w0, .L64_else_%d\n", lbl);
+            gen_stmt(node->then);
+            printf("    b .L64_endif_%d\n", lbl);
+            printf(".L64_else_%d:\n", lbl);
+            if (node->els) gen_stmt(node->els);
+            printf(".L64_endif_%d:\n", lbl);
+            return;
         }
-        gen_stmt(node->body);
-        printf(".L64_cont_%d:\n", cont_lbl);
-        if (node->inc) gen_expr(node->inc);
-        printf("    b .L64_for_%d\n", lbl);
-        printf(".L64_fend_%d:\n", lbl);
-        printf(".L64_brk_%d:\n", lbl);
-        loop_depth--;
-        return;
-    }
 
-    case ND_DOWHILE: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl;
-        loop_cont_labels[loop_depth] = lbl;
-        loop_depth++;
-        printf(".L64_do_%d:\n", lbl);
-        printf(".L64_cont_%d:\n", lbl);
-        gen_stmt(node->body);
-        gen_expr(node->cond);
-        printf("    cbnz w0, .L64_do_%d\n", lbl);
-        printf(".L64_brk_%d:\n", lbl);
-        loop_depth--;
-        return;
-    }
+        case ND_WHILE: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = lbl;
+            loop_depth++;
+            printf(".L64_while_%d:\n", lbl);
+            printf(".L64_cont_%d:\n", lbl);
+            gen_expr(node->cond);
+            printf("    cbz w0, .L64_wend_%d\n", lbl);
+            gen_stmt(node->body);
+            printf("    b .L64_while_%d\n", lbl);
+            printf(".L64_wend_%d:\n", lbl);
+            printf(".L64_brk_%d:\n", lbl);
+            loop_depth--;
+            return;
+        }
 
-    case ND_SWITCH: {
-        int lbl = label_count++;
-        loop_break_labels[loop_depth] = lbl; /* break exits switch */
-        loop_depth++;
-        gen_expr(node->cond);
-        int case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++) {
-            if (c->kind == ND_CASE) {
-                load_imm("w9", c->case_val);
-                printf("    cmp w0, w9\n");
-                printf("    b.eq .L64_case_%d_%d\n", lbl, case_num);
+        case ND_FOR: {
+            int lbl = label_count++;
+            int cont_lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = cont_lbl;
+            loop_depth++;
+            if (node->init) gen_stmt(node->init);
+            printf(".L64_for_%d:\n", lbl);
+            if (node->cond) {
+                gen_expr(node->cond);
+                printf("    cbz w0, .L64_fend_%d\n", lbl);
             }
+            gen_stmt(node->body);
+            printf(".L64_cont_%d:\n", cont_lbl);
+            if (node->inc) gen_expr(node->inc);
+            printf("    b .L64_for_%d\n", lbl);
+            printf(".L64_fend_%d:\n", lbl);
+            printf(".L64_brk_%d:\n", lbl);
+            loop_depth--;
+            return;
         }
-        int def_num = -1;
-        case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++)
-            if (c->kind == ND_DEFAULT) def_num = case_num;
-        if (def_num >= 0)
-            printf("    b .L64_case_%d_%d\n", lbl, def_num);
-        else
-            printf("    b .L64_brk_%d\n", lbl);
-        /* generate case bodies (each body is a statement LIST) */
-        case_num = 0;
-        for (Node *c = node->cases; c; c = c->next, case_num++) {
-            printf(".L64_case_%d_%d:\n", lbl, case_num);
-            for (Node *s = c->body; s; s = s->next)
-                gen_stmt(s);
+
+        case ND_DOWHILE: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl;
+            loop_cont_labels[loop_depth] = lbl;
+            loop_depth++;
+            printf(".L64_do_%d:\n", lbl);
+            printf(".L64_cont_%d:\n", lbl);
+            gen_stmt(node->body);
+            gen_expr(node->cond);
+            printf("    cbnz w0, .L64_do_%d\n", lbl);
+            printf(".L64_brk_%d:\n", lbl);
+            loop_depth--;
+            return;
         }
-        printf(".L64_brk_%d:\n", lbl);
-        loop_depth--;
-        return;
-    }
 
-    case ND_BREAK:
-        if (loop_depth > 0)
-            printf("    b .L64_brk_%d\n", loop_break_labels[loop_depth - 1]);
-        return;
+        case ND_SWITCH: {
+            int lbl = label_count++;
+            loop_break_labels[loop_depth] = lbl; /* break exits switch */
+            loop_depth++;
+            gen_expr(node->cond);
+            int case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++) {
+                if (c->kind == ND_CASE) {
+                    load_imm("w9", c->case_val);
+                    printf("    cmp w0, w9\n");
+                    printf("    b.eq .L64_case_%d_%d\n", lbl, case_num);
+                }
+            }
+            int def_num = -1;
+            case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++)
+                if (c->kind == ND_DEFAULT) def_num = case_num;
+            if (def_num >= 0)
+                printf("    b .L64_case_%d_%d\n", lbl, def_num);
+            else
+                printf("    b .L64_brk_%d\n", lbl);
+            /* generate case bodies (each body is a statement LIST) */
+            case_num = 0;
+            for (Node *c = node->cases; c; c = c->next, case_num++) {
+                printf(".L64_case_%d_%d:\n", lbl, case_num);
+                for (Node *s = c->body; s; s = s->next) gen_stmt(s);
+            }
+            printf(".L64_brk_%d:\n", lbl);
+            loop_depth--;
+            return;
+        }
 
-    case ND_CONTINUE:
-        if (loop_depth > 0)
-            printf("    b .L64_cont_%d\n", loop_cont_labels[loop_depth - 1]);
-        return;
+        case ND_BREAK:
+            if (loop_depth > 0) printf("    b .L64_brk_%d\n", loop_break_labels[loop_depth - 1]);
+            return;
 
-    case ND_BLOCK:
-        for (Node *s = node->body; s; s = s->next)
-            gen_stmt(s);
-        return;
+        case ND_CONTINUE:
+            if (loop_depth > 0) printf("    b .L64_cont_%d\n", loop_cont_labels[loop_depth - 1]);
+            return;
 
-    case ND_EXPR_STMT:
-        gen_expr(node->lhs);
-        return;
+        case ND_BLOCK:
+            for (Node *s = node->body; s; s = s->next) gen_stmt(s);
+            return;
 
-    case ND_VAR_DECL:
-        gen_expr(node);
-        return;
+        case ND_EXPR_STMT:
+            gen_expr(node->lhs);
+            return;
 
-    default:
-        fprintf(stderr, "a64 codegen: unexpected statement kind %d\n", node->kind);
-        exit(1);
+        case ND_VAR_DECL:
+            gen_expr(node);
+            return;
+
+        default:
+            fprintf(stderr, "a64 codegen: unexpected statement kind %d\n", node->kind);
+            exit(1);
     }
 }
 
-static void gen_function(Node *fn)
-{
+static void gen_function(Node *fn) {
     if (fn->kind != ND_FUNC) return;
 
     cur_fn_name = fn->name;
@@ -576,12 +567,14 @@ static void gen_function(Node *fn)
     printf("    ret\n");
 }
 
-void codegen_a64(Node *prog)
-{
+void codegen_a64(Node *prog) {
     /* .data section for global variables */
     int has_data = 0;
     for (Var *v = globals; v; v = v->next) {
-        if (!has_data) { printf(".data\n"); has_data = 1; }
+        if (!has_data) {
+            printf(".data\n");
+            has_data = 1;
+        }
         printf(".globl %s\n", v->name);
         printf("%s:\n", v->name);
         if (v->ty && v->ty->kind == TY_ARRAY)
@@ -592,8 +585,7 @@ void codegen_a64(Node *prog)
 
     /* .text section for functions */
     printf("\n.text\n");
-    for (Node *fn = prog->body; fn; fn = fn->next)
-        gen_function(fn);
+    for (Node *fn = prog->body; fn; fn = fn->next) gen_function(fn);
 
     /* .rodata section for string literals */
     if (nstrings > 0) {

@@ -1,0 +1,50 @@
+[[exercises]]
+name = "37_binary_tree_level_order"
+title = "二叉树层序遍历（BFS）"
+unit = "unit2"
+lesson = 37
+order = 85
+mode = "stdout"
+source = "37_binary_tree_level_order.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/37_binary_tree_level_order"
+hint = '''
+层序遍历 = BFS，用队列辅助，逐层访问。
+
+    void levelorder(struct node *root) {
+        if (root == NULL) return;
+        struct node *queue[MAX];
+        int front = 0, rear = 0;
+        queue[rear++] = root;
+
+        while (front < rear) {
+            struct node *cur = queue[front++];
+            printf("%c ", cur->ch);
+            if (cur->left)  queue[rear++] = cur->left;
+            if (cur->right) queue[rear++] = cur->right;
+        }
+    }
+
+BFS vs DFS:
+- DFS (前/中/后序): 用递归（隐式栈），沿一条路走到底
+- BFS (层序): 用队列，逐层扩展，先近后远
+
+关键: 队列存储的是 struct node*（指针），不是字符。
+
+思考:
+- 队列里存什么？(struct node* 指针，不是字符)
+- 初始状态？(根节点入队)
+- 循环做什么？(出队→打印→左右孩子入队)
+- 什么时候结束？(队列为空)
+
+对比 Lesson 36 的递归遍历(DFS): 递归用栈(隐式)，层序用队列(显式)。
+这就是 BFS vs DFS 的区别。
+参考: 可以复用 Lesson 35 的队列思想。
+'''
+
+[[exercises.cases]]
+stdin = "A B C D E . . . . .\n"
+stdout = "A B C D E\n"
+
+[[exercises.cases]]
+stdin = "A . .\n"
+stdout = "A\n"

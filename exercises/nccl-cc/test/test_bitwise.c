@@ -5,7 +5,7 @@ int main(void) {
     int b = 0x0f;
 
     /* bitwise AND */
-    int and_result = a & b;   /* 0x0f = 15 */
+    int and_result = a & b; /* 0x0f = 15 */
     if (and_result != 15) return 1;
 
     /* bitwise OR */
@@ -13,19 +13,19 @@ int main(void) {
     if (or_result != 511) return 2;
 
     /* bitwise XOR */
-    int xor_result = a ^ b;   /* 0xf0 = 240 */
+    int xor_result = a ^ b; /* 0xf0 = 240 */
     if (xor_result != 240) return 3;
 
     /* bitwise NOT */
-    int not_result = ~0;       /* -1 */
+    int not_result = ~0; /* -1 */
     if (not_result != -1) return 4;
 
     /* left shift */
-    int shl = 1 << 4;         /* 16 */
+    int shl = 1 << 4; /* 16 */
     if (shl != 16) return 5;
 
     /* right shift */
-    int shr = 256 >> 3;       /* 32 */
+    int shr = 256 >> 3; /* 32 */
     if (shr != 32) return 6;
 
     /* compound assignment */

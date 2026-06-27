@@ -27,8 +27,7 @@ int main(void) {
 
     i = 0;
     while (i < n) {
-        if (a[i] == 1)
-            return i;
+        if (a[i] == 1) return i;
         i = i + 1;
     }
     return -1;

@@ -1,0 +1,70 @@
+[[exercises]]
+name = "48_io_buffer_perf"
+title = "标准I/O缓冲性能对比：文件拷贝"
+unit = "unit2"
+lesson = 48
+order = 96
+mode = "stdout"
+source = "48_io_buffer_perf.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/48_io_buffer_perf"
+hint = '''
+对比两种文件拷贝方式的性能差异。
+
+逐字节拷贝:
+    double copy_fgetc(const char *src, const char *dst) {
+        clock_t start = clock();
+        FILE *fin = fopen(src, "rb");
+        FILE *fout = fopen(dst, "wb");
+        int c;
+        while ((c = fgetc(fin)) != EOF)
+            fputc(c, fout);
+        fclose(fin);
+        fclose(fout);
+        return (double)(clock() - start) / CLOCKS_PER_SEC;
+    }
+
+缓冲拷贝:
+    double copy_fread(const char *src, const char *dst) {
+        clock_t start = clock();
+        FILE *fin = fopen(src, "rb");
+        FILE *fout = fopen(dst, "wb");
+        char buf[BUF_SIZE];
+        size_t n;
+        while ((n = fread(buf, 1, sizeof(buf), fin)) > 0)
+            fwrite(buf, 1, n, fout);
+        fclose(fin);
+        fclose(fout);
+        return (double)(clock() - start) / CLOCKS_PER_SEC;
+    }
+
+10MB 文件:
+- fgetc: 约 1000 万次系统调用 → 极慢
+- fread(4KB): 约 2500 次系统调用 → 快 100-1000x
+- 这就是标准库做缓冲的原因 — 系统调用是昂贵的
+
+三种缓冲模式:
+- 全缓冲: 默认 FILE*, 缓冲区满才 flush
+- 行缓冲: stdout 连终端, 遇 \n 刷新
+- 无缓冲: stderr, 立即输出
+
+逐字节拷贝(fgetc/fputc)思考:
+- 每次读写几个字节？(1 个)
+- 10MB 文件要多少次系统调用？(约 1000 万次！)
+
+缓冲拷贝(fread/fwrite)思考:
+- 每次读写多少？(4096 字节)
+- 10MB 文件要多少次？(约 2500 次)
+- 快多少倍？
+
+实现:
+- fopen 打开 src(读) 和 dst(写)
+- 循环读→写直到 EOF
+- fclose 关闭两个文件
+- 用 clock() 计时
+
+为什么标准库要做缓冲？(减少系统调用次数)
+参考: man fread, man fwrite。
+'''
+
+[[exercises.cases]]
+stdout = "file size: 10485760 bytes (10 MB)"

@@ -1,28 +1,21 @@
 #include <stdio.h>
 #include <string.h>
 
-#define debug(fmt, args...) 	fprintf(stderr, fmt, ##args)
+#define debug(fmt, args...) fprintf(stderr, fmt, ##args)
 
-int get_input_type(char * word)
-{
-	if (strcmp(word, " ") == 0)
-		return 0;
-	if (strcmp(word, "\t") == 0)
-		return 0;
+int get_input_type(char* word) {
+    if (strcmp(word, " ") == 0) return 0;
+    if (strcmp(word, "\t") == 0) return 0;
 
-	if (strcmp(word, "#") == 0)
-		return 1;
-	
-	if (strcmp(word, "if") == 0)
-		return 2;
+    if (strcmp(word, "#") == 0) return 1;
 
-	if (strcmp(word, "\n") == 0)
-		return 4;
+    if (strcmp(word, "if") == 0) return 2;
 
-	if (strcmp(word, "endif") == 0)
-		return 5;
+    if (strcmp(word, "\n") == 0) return 4;
 
-	return 3;
+    if (strcmp(word, "endif") == 0) return 5;
+
+    return 3;
 }
 
 char c;
@@ -32,80 +25,70 @@ char buf[128];
 
 int macro_value = 0;
 
-void act_print_word(void)
-{
-	printf("%s", word);
+void act_print_word(void) {
+    printf("%s", word);
 
-	return;
+    return;
 }
 
-void act_save_to_buf(void)
-{
-	strcat(buf, word);
+void act_save_to_buf(void) {
+    strcat(buf, word);
 
-	return;
+    return;
 }
 
-void act_print_buf_and_word(void)
-{
-	printf("%s", buf);
-	printf("%s", word);
+void act_print_buf_and_word(void) {
+    printf("%s", buf);
+    printf("%s", word);
 
-	strcpy(buf, "");
+    strcpy(buf, "");
 
-	return;
+    return;
 }
 
-void act_save_word(void)
-{
-	strcat(word_buf, word);
-	strcat(buf, word);
+void act_save_word(void) {
+    strcat(word_buf, word);
+    strcat(buf, word);
 
-	return;
+    return;
 }
 
-void act_get_macro_name(void)
-{
-	debug("macro name = <%s>\n", word_buf);
+void act_get_macro_name(void) {
+    debug("macro name = <%s>\n", word_buf);
 
-	if (atoi(word_buf) > 0)
-		macro_value = 1;
-	else
-		macro_value = 0;
+    if (atoi(word_buf) > 0)
+        macro_value = 1;
+    else
+        macro_value = 0;
 
-	return;
+    return;
 }
 
-void act_print_word_in_macro(void)
-{
-	debug("word buf = <%s>, macro = %d\n", word_buf, macro_value);
+void act_print_word_in_macro(void) {
+    debug("word buf = <%s>, macro = %d\n", word_buf, macro_value);
 
-	if (macro_value > 0)
-		printf("%s", word);
+    if (macro_value > 0) printf("%s", word);
 
-	return;
+    return;
 }
 
-void act_print_buf_and_word_in_macro(void)
-{
-	debug("word buf = <%s>, macro = %d\n", word_buf, macro_value);
+void act_print_buf_and_word_in_macro(void) {
+    debug("word buf = <%s>, macro = %d\n", word_buf, macro_value);
 
-	if (macro_value > 0)
-	{
-		printf("%s", buf);
-		printf("%s", word);
-	}
+    if (macro_value > 0) {
+        printf("%s", buf);
+        printf("%s", word);
+    }
 
-	return;
+    return;
 }
 
-void act_clear_buf(void)
-{
-	strcpy(buf, "");
-	strcpy(word_buf, "");
-	macro_value = 0;
+void act_clear_buf(void) {
+    strcpy(buf, "");
+    strcpy(word_buf, "");
+    macro_value = 0;
 
-	return;
+    return;
 }
 
 /* state machine design */
@@ -157,7 +140,7 @@ s5:  #if abc
      a5,  a1,  a5,  a5,  a5,  a5,
 
 s6:  #if abc
-     #
+#
      s6,  s5,  s5,  s6,  s7,  s8,
      a1,  a3,  a6,  a6,  a6,  a1,
 
@@ -180,18 +163,10 @@ s9:  if
 
 enum { s0 = 0, s1, s2, s3, s4, s5, s6, s7, s8, s9 };
 
-int state_transition[10][6] = 
-{
-     s0,  s1,  s9,  s9,  s0,  s9,
-     s1,  s0,  s2,  s0,  s0,  s0,
-     s3,  s0,  s0,  s0,  s0,  s0,
-     s3,  s4,  s4,  s4,  s5,  s4,
-     s4,  s4,  s4,  s4,  s5,  s4,  
-     s5,  s6,  s7,  s7,  s5,  s5, 
-     s6,  s5,  s5,  s6,  s7,  s8,
-     s7,  s7,  s7,  s7,  s5,  s7,
-     s8,  s7,  s7,  s7,  s0,  s7,
-     s9,  s9,  s9,  s9,  s0,  s9,
+int state_transition[10][6] = {
+    s0, s1, s9, s9, s0, s9, s1, s0, s2, s0, s0, s0, s3, s0, s0, s0, s0, s0, s3, s4,
+    s4, s4, s5, s4, s4, s4, s4, s4, s5, s4, s5, s6, s7, s7, s5, s5, s6, s5, s5, s6,
+    s7, s8, s7, s7, s7, s7, s5, s7, s8, s7, s7, s7, s0, s7, s9, s9, s9, s9, s0, s9,
 };
 
 #define a0 act_print_word
@@ -205,84 +180,69 @@ int state_transition[10][6] =
 
 #if 1
 typedef void (*PF)(void);
-PF act_table[10][6] =
-{
-     a0,  a1,  a0,  a0,  a0,  a0,
-     a1,  a2,  a1,  a2,  a2,  a2,
-     a1,  a2,  a2,  a2,  a2,  a2,
-     a1,  a3,  a3,  a3,  a2,  a3,
-     a3,  a3,  a3,  a3,  a4,  a3,
-     a5,  a1,  a5,  a5,  a5,  a5,
-     a1,  a3,  a6,  a6,  a6,  a1,
-     a5,  a5,  a5,  a5,  a5,  a5,
-     a7,  a6,  a6,  a6,  a7,  a6,
-     a0,  a0,  a0,  a0,  a0,  a0,
+PF act_table[10][6] = {
+    a0, a1, a0, a0, a0, a0, a1, a2, a1, a2, a2, a2, a1, a2, a2, a2, a2, a2, a1, a3,
+    a3, a3, a2, a3, a3, a3, a3, a3, a4, a3, a5, a1, a5, a5, a5, a5, a1, a3, a6, a6,
+    a6, a1, a5, a5, a5, a5, a5, a5, a7, a6, a6, a6, a7, a6, a0, a0, a0, a0, a0, a0,
 };
 #endif
 
-void getword(char * word)
-{
-	char c;
+void getword(char* word) {
+    char c;
 
-	c = getchar();
+    c = getchar();
 
-	if (c == EOF)
-	{
-		*word = '\0';
-		return;
-	}
+    if (c == EOF) {
+        *word = '\0';
+        return;
+    }
 
-	// if c == 1, % 
-	if (!isalpha(c))
-	{
-		*word++ = c;
-		*word = '\0';
-		return;
-	}
+    // if c == 1, %
+    if (!isalpha(c)) {
+        *word++ = c;
+        *word = '\0';
+        return;
+    }
 
-	do
-	{
-		*word++ = c;
-		
-		c = getchar();
-	} while (isalnum(c) || c == '_');
+    do {
+        *word++ = c;
 
-	// current c is $
-	ungetc(c, stdin);
-	*word = '\0';
+        c = getchar();
+    } while (isalnum(c) || c == '_');
 
-	return;
+    // current c is $
+    ungetc(c, stdin);
+    *word = '\0';
+
+    return;
 }
 
-int main(void)
-{
-	int state = 0;
+int main(void) {
+    int state = 0;
 
-	while (1)
-	{
-		int input = 0;
-		void (*pf)(void);
-//		char word[64];
+    while (1) {
+        int input = 0;
+        void (*pf)(void);
+        //		char word[64];
 
-	//	c = getchar();
-	//	input = get_input_type(c);
-		getword(word);
-		input = get_input_type(word);
-		
-		//printf("c = %c, input = %d\n", c, input);
+        //	c = getchar();
+        //	input = get_input_type(c);
+        getword(word);
+        input = get_input_type(word);
 
-		//if (c == EOF)
-		//	break;
-		if (strcmp(word, "") == 0)
-			break;
+        // printf("c = %c, input = %d\n", c, input);
 
-		pf = act_table[state][input];
-		pf();
+        // if (c == EOF)
+        //	break;
+        if (strcmp(word, "") == 0) break;
 
-		state = state_transition[state][input];
+        pf = act_table[state][input];
+        pf();
 
-		debug("word = <%s>, input = %d, state = %d\n", word, input, state);
-	}
+        state = state_transition[state][input];
 
-	return 0;
+        debug("word = <%s>, input = %d, state = %d\n", word, input, state);
+    }
+
+    return 0;
 }

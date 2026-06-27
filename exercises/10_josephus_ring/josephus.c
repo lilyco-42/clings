@@ -18,39 +18,36 @@
 
 #include <stdio.h>
 
-#define ALL	10
-#define OUT	3
+#define ALL 10
+#define OUT 3
 
 int next[ALL];
 
-void init_ring(void)
-{
-	int i;
-	for (i = 0; i < ALL; i++)
-		next[i] = (i + 1) % ALL;
+void init_ring(void) {
+    int i;
+    for (i = 0; i < ALL; i++) next[i] = (i + 1) % ALL;
 }
 
-int main(void)
-{
-	int left;
-	int counter;
-	int i;
-	int prev;
+int main(void) {
+    int left;
+    int counter;
+    int i;
+    int prev;
 
-	init_ring();
+    init_ring();
 
 #error TODO: Implement Josephus ring elimination loop. Run "clings hint" for help.
-	/* 提示:
-	 *   counter++;
-	 *   if (counter == OUT) {
-	 *       left--;
-	 *       printf("%d is out\n", i + 1);
-	 *       next[prev] = next[i];
-	 *       counter = 0;
-	 *   }
-	 *   prev = i;
-	 *   i = next[i];
-	 */
+    /* 提示:
+     *   counter++;
+     *   if (counter == OUT) {
+     *       left--;
+     *       printf("%d is out\n", i + 1);
+     *       next[prev] = next[i];
+     *       counter = 0;
+     *   }
+     *   prev = i;
+     *   i = next[i];
+     */
 
-	return 0;
+    return 0;
 }

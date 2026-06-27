@@ -1,0 +1,80 @@
+[[exercises]]
+name = "38_BST_ops"
+title = "二叉搜索树：插入、查找与删除"
+unit = "unit2"
+lesson = 38
+order = 86
+mode = "stdout"
+source = "38_BST_ops.c"
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/38_BST_ops"
+hint = '''
+BST 三个操作: 插入、查找、删除(难点)。
+
+插入:
+    struct node *bst_insert(struct node *root, int val) {
+        if (root == NULL) return make_node(val);
+        if (val < root->data)
+            root->left = bst_insert(root->left, val);
+        else if (val > root->data)
+            root->right = bst_insert(root->right, val);
+        return root;
+    }
+
+查找:
+    struct node *bst_search(struct node *root, int val) {
+        if (root == NULL) return NULL;
+        if (val == root->data) return root;
+        if (val < root->data) return bst_search(root->left, val);
+        return bst_search(root->right, val);
+    }
+
+删除（三种情况）:
+    struct node *bst_delete(struct node *root, int val) {
+        if (root == NULL) return NULL;
+        if (val < root->data) root->left = bst_delete(root->left, val);
+        else if (val > root->data) root->right = bst_delete(root->right, val);
+        else {
+            /* case 1&2: 0或1个子树 */
+            if (root->left == NULL) { struct node *t=root->right; free(root); return t; }
+            if (root->right == NULL) { struct node *t=root->left; free(root); return t; }
+            /* case 3: 双子 → 右子树最小值替换 */
+            struct node *succ = find_min(root->right);
+            root->data = succ->data;
+            root->right = bst_delete(root->right, succ->data);
+        }
+        return root;
+    }
+
+find_min 已提供: 沿 left 走到尽头。
+中序遍历 BST 得到有序序列（用于验证）。
+
+插入思考:
+- val < root->data 往哪边走？(左子树)
+- val > root->data 往哪边？(右子树)
+- 遇到 NULL 怎么办？(建新节点)
+
+查找: 类似插入，遇 NULL 返回 NULL。
+
+删除三种情况(重点！):
+- 叶子节点: 直接 free 返回 NULL
+- 只有一个子树: 返回那个子树(free 当前)
+- 有两个子树: 怎么办？(找右子树最小值替换，再递归删除那个最小值)
+
+find_min 已提供。参考: 本课 README 中的删除三种情况。
+'''
+
+[[exercises.cases]]
+stdin = "insert 5 3 7 2 4\n"
+stdout = "inorder: 2 3 4 5 7\n"
+
+[[exercises.cases]]
+stdin = "insert 5 3 7\nsearch 3\n"
+stdout = "found\n"
+
+[[exercises.cases]]
+stdin = "insert 5 3 7\nsearch 9\n"
+stdout = "not found\n"
+
+[[exercises.cases]]
+stdin = "insert 5 3 7 2 4\ndelete 3\n"
+stdout = "inorder: 2 4 5 7\n"
