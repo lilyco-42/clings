@@ -1,0 +1,43 @@
+[[cases]]
+stdout = '''
+=== Vector Clocks: 3 Nodes (P0, P1, P2) ===
+
+E1: P0 SEND to P1
+  P0: [1, 0, 0]
+  P1: [0, 0, 0]
+  P2: [0, 0, 0]
+E2: P1 RECV from P0
+  P0: [1, 0, 0]
+  P1: [1, 1, 0]
+  P2: [0, 0, 0]
+E3: P1 LOCAL
+  P0: [1, 0, 0]
+  P1: [1, 2, 0]
+  P2: [0, 0, 0]
+E4: P2 RECV from P1
+  P0: [1, 0, 0]
+  P1: [1, 2, 0]
+  P2: [1, 2, 1]
+E5: P2 LOCAL
+  P0: [1, 0, 0]
+  P1: [1, 2, 0]
+  P2: [1, 2, 2]
+E6: P0 RECV from P2
+  P0: [2, 2, 2]
+  P1: [1, 2, 0]
+  P2: [1, 2, 2]
+
+=== Happens-Before Tests ===
+
+Rule: A→B iff for all k: A[k]<=B[k] AND exists k: A[k]<B[k]
+
+  E1→E2 (send→recv): YES (expected YES)
+  E2→E3 (same node): YES (expected YES)
+  E1→E3 (transitive): YES (expected YES)
+  E3→E4 (send→recv): YES (expected YES)
+  E3→E5 (transitive): YES (expected YES)
+  E1→E5 (chain): YES (expected YES)
+  E5→E1 (reverse): NO (expected NO)
+  E3→E6 (full chain): YES (expected YES)
+  E4→E6 (send→recv): YES (expected YES)
+'''

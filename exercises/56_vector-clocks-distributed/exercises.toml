@@ -4,9 +4,10 @@ title = "向量时钟 — Vector Clocks"
 unit = "unit3"
 lesson = 56
 order = 104
-mode = "make"
+mode = "make+stdout"
 source = "vector_clocks.c"
-make_targets = ["test"]
+binary = "vector_clocks"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/56_vector-clocks-distributed"
 hint = '''
 向量时钟: 在 3 节点分布式系统中实现向量时钟并判断 Happens-Before 关系。

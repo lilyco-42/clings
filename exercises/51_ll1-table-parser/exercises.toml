@@ -4,9 +4,10 @@ title = "表驱动 LL(1) 语法解析 — LL(1) Parser"
 unit = "unit3"
 lesson = 51
 order = 99
-mode = "make"
+mode = "make+stdout"
 source = "ll1_parser.c"
-make_targets = ["test"]
+binary = "ll1_parser"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/51_ll1-table-parser"
 hint = '''
 LL(1) 预测分析表构造与语法解析：用位掩码迭代计算 FIRST/FOLLOW 集，构建预测分析表，驱动自顶向下解析。

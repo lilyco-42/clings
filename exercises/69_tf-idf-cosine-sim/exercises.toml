@@ -4,9 +4,10 @@ title = "TF-IDF 文档相似度 — TF-IDF Cosine Similarity"
 unit = "unit3"
 lesson = 69
 order = 117
-mode = "make"
+mode = "make+stdout"
 source = "tfidf.c"
-make_targets = ["test"]
+binary = "tfidf"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/69_tf-idf-cosine-sim"
 hint = '''
 TF-IDF 文档相似度: 用纯 C 实现向量空间模型, 计算 3 篇文档的 TF-IDF 加权向量和两两余弦相似度。

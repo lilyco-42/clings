@@ -4,9 +4,10 @@ title = "RSA 公钥加密 — RSA Cryptography"
 unit = "unit3"
 lesson = 55
 order = 103
-mode = "make"
+mode = "make+stdout"
 source = "rsa_crypto.c"
-make_targets = ["test"]
+binary = "rsa_crypto"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/55_rsa-crypto-demo"
 hint = '''
 ═══════════════════════════════════════

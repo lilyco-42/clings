@@ -4,9 +4,10 @@ title = "缓冲区溢出分析 — Buffer Overflow Lab"
 unit = "unit3"
 lesson = 61
 order = 109
-mode = "make"
+mode = "make+stdout"
 source = "overflow_lab.c"
-make_targets = ["test"]
+binary = "overflow_lab"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/61_buffer-overflow-lab"
 hint = '''
 缓冲区溢出安全分析实验: 给定 3 段 C 代码片段，画栈帧图、计算偏移、判断风险、讲解 canary 。

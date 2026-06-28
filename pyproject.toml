@@ -38,6 +38,7 @@ packages = ["clings"]
 "exercises" = "clings/exercises"
 "clings.toml" = "clings/clings.toml"
 "pyproject.toml" = "clings/pyproject.toml"
+"tests" = "clings/tests"
 
 [tool.hatch.build.targets.sdist]
-include = ["clings/", "exercises/", "clings.toml", "pyproject.toml", "README.md"]
+include = ["clings/", "exercises/", "tests/", "clings.toml", "pyproject.toml", "README.md"]

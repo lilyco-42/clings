@@ -4,9 +4,10 @@ title = "哲学家就餐问题 — Dining Philosophers"
 unit = "unit3"
 lesson = 49
 order = 97
-mode = "make"
+mode = "make+stdout"
 source = "dining_philosophers.c"
-make_targets = ["test"]
+binary = "dining_philosophers"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/49_dining-philosophers-sync"
 hint = '''
 哲学家就餐: 状态机模拟 + 非对称防死锁。

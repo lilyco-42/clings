@@ -4,9 +4,10 @@ title = "可靠数据传输 — Stop-and-Wait"
 unit = "unit3"
 lesson = 50
 order = 98
-mode = "make"
+mode = "make+stdout"
 source = "rdt_stop_wait.c"
-make_targets = ["test"]
+binary = "rdt_stop_wait"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/50_rdt-stop-and-wait"
 hint = '''
 可靠数据传输: 停等协议 (Stop-and-Wait) — 在不可靠信道上实现可靠传输。

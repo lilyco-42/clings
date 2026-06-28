@@ -4,9 +4,10 @@ title = "基础光线追踪 — Ray Tracer"
 unit = "unit3"
 lesson = 53
 order = 101
-mode = "make"
+mode = "make+stdout"
 source = "raytracer.c"
-make_targets = ["test"]
+binary = "raytracer"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/53_raytracer-from-scratch"
 hint = '''
 从零实现基础光线追踪器: 用 C 语言手写光线-球体求交 + Phong 光照模型，输出 PPM P3 文本图像。
