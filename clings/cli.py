@@ -26,6 +26,13 @@ def main() -> int:
 
     p = sub.add_parser("list", help="list exercises with progress status")
     p.add_argument("selector", nargs="?")
+    p.add_argument(
+        "--check",
+        action="store_true",
+        help="re-verify all exercises before listing (slower but accurate)",
+    )
+    p.add_argument("--solutions", action="store_true")
+    p.add_argument("--hidden", action="store_true")
     p.set_defaults(func=cmd_list)
 
     p = sub.add_parser("hint", help="show hint for an exercise (default: next pending)")
