@@ -1,4 +1,4 @@
-"""clings show — display test cases for an exercise.
+"""clings tests — display test cases for an exercise.
 
 Students can inspect the expected test cases (public tests only) to understand
 what their program should produce. Hidden tests are never shown.
@@ -147,7 +147,7 @@ def _show_summary(selected: list[dict]) -> int:
     return 0
 
 
-def cmd_show(args: argparse.Namespace) -> int:
+def cmd_tests(args: argparse.Namespace) -> int:
     """Entry point for `clings show`."""
     config = load_config()
     selector = args.exercise

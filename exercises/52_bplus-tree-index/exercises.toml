@@ -105,3 +105,34 @@ B+树与普通 B 树的区别:
 ───────────────────────────────
 参考: README.md 中的分裂过程图解
 '''
+
+[[exercises.cases]]
+stdout = '''=== B+ Tree Index (ORDER=3, MAX_KEY=2) ===
+
+After insert(10, v0):
+[leaf] keys: 10 | values: 100
+
+After insert(20, v1):
+[leaf] keys: 10 20 | values: 100 200
+
+After insert(5, v2):
+[inner] keys: 20
+  [leaf] keys: 5 10 | values: 50 100
+  [leaf] keys: 20 | values: 200
+
+After insert(15, v3):
+[inner] keys: 15 20
+  [leaf] keys: 5 10 | values: 50 100
+  [leaf] keys: 15 | values: 150
+  [leaf] keys: 20 | values: 200
+
+After insert(25, v4):
+[inner] keys: 15 20
+  [leaf] keys: 5 10 | values: 50 100
+  [leaf] keys: 15 | values: 150
+  [leaf] keys: 20 25 | values: 200 250
+
+=== Search Results ===
+search(15) = 150
+search(30) = -1
+'''

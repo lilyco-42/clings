@@ -130,3 +130,32 @@ test 目标用管道 | diff 比对 expected_output.txt 。
 - 根节点索引固定为 0
 - 不要忘记 #include <stdlib.h> (虽然本题可能不需要 malloc)
 '''
+
+[[exercises.cases]]
+stdout = '''=== Trie Structure ===
+Total nodes: 10
+
+Node 0: children={'h'->1, 's'->3} fail=0
+Node 1: children={'e'->2, 'i'->6} fail=0
+Node 2: children={'r'->8} fail=0 output=["he"]
+Node 3: children={'h'->4} fail=0
+Node 4: children={'e'->5} fail=1
+Node 5: children={} fail=2 output=["she", "he"]
+Node 6: children={'s'->7} fail=0
+Node 7: children={} fail=3 output=["his"]
+Node 8: children={'s'->9} fail=0
+Node 9: children={} fail=3 output=["hers"]
+
+=== Scanning: "ushers" ===
+Step 0: char='u' -> node 0
+Step 1: char='s' -> node 3
+Step 2: char='h' -> node 4
+Step 3: char='e' -> node 5 [match: she@1 he@2 ]
+Step 4: char='r' -> node 8
+Step 5: char='s' -> node 9 [match: hers@2 ]
+
+=== Final Matches ===
+Pattern "she" found at position 1 (ending at 3)
+Pattern "he" found at position 2 (ending at 3)
+Pattern "hers" found at position 2 (ending at 5)
+'''

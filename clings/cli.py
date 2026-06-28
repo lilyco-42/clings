@@ -11,7 +11,7 @@ from .commands.list import cmd_list
 from .commands.reset import cmd_reset
 from .commands.run import cmd_run
 from .commands.score import cmd_score
-from .commands.show import cmd_show
+from .commands.tests import cmd_tests
 from .commands.watch import cmd_watch
 
 
@@ -33,8 +33,8 @@ def main() -> int:
     p.set_defaults(func=cmd_hint)
 
     p = sub.add_parser(
-        "show",
-        help="show test cases for an exercise (public tests only)",
+        "tests",
+        help="tests for an exercise for an exercise (public tests only)",
     )
     p.add_argument(
         "exercise",
@@ -43,7 +43,7 @@ def main() -> int:
         help="exercise name, lesson number, or unit (e.g. unit3). "
              "Omit to see a summary of all exercises.",
     )
-    p.set_defaults(func=cmd_show)
+    p.set_defaults(func=cmd_tests)
 
     p = sub.add_parser("run", help="run exercise(s): name, unit selector, 'random', or next pending")
     p.add_argument("exercise", nargs="?", metavar="exercise|selector",
