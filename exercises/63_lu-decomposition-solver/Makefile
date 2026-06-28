@@ -14,11 +14,7 @@ all: $(TARGET)
 $(TARGET): $(SRC)
 	???
 
-test: $(TARGET)
-	???
-	@echo "PASS: All tests passed."
-
 clean:
 	???
 
-.PHONY: all test clean
+.PHONY: all  clean

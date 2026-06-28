@@ -4,9 +4,10 @@ title = "B+树索引 — B+Tree Index"
 unit = "unit3"
 lesson = 52
 order = 100
-mode = "make"
+mode = "make+stdout"
 source = "bplus_tree.c"
-make_targets = ["test"]
+binary = "bplus_tree"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/52_bplus-tree-index"
 hint = '''
 B+树索引: ORDER=3 (MAX_KEY=2) 的多路平衡树，叶子节点链表连接。

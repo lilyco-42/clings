@@ -1,0 +1,25 @@
+[[cases]]
+stdout = '''
+=== RDT Stop-and-Wait ===
+Msgs: HELLO OpenCamp NCCL 2026
+Loss=25% Corrupt=10% ACKloss=10%
+
+[00] SEND  seq=0 "HELLO"
+[01] RECV  seq=0 "HELLO"
+[01] ACK   seq=0
+[01] SEND  seq=1 "OpenCamp"
+[02] RECV  seq=1 "OpenCamp"
+[02] ACK   seq=1
+[02] SEND  seq=0 "NCCL"
+[03] LOST  seq=0
+[03] SEND  seq=0 "NCCL"
+[04] RECV  seq=0 "NCCL"
+[04] ACK   seq=0
+[04] SEND  seq=1 "2026"
+[05] RECV  seq=1 "2026"
+[05] ACK   seq=1
+
+=== Stats ===
+Delivered: 4/4
+Sends: 5  Retrans: 1
+'''

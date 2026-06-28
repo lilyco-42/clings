@@ -82,7 +82,13 @@ def run_cases(ex: dict, binary: Path, include_hidden: bool) -> None:
         if case.get("compile_only", False):
             continue
         stdin = case.get("stdin", "")
-        expected = case.get("stdout", "")
+        # Support base64-encoded stdout for cases containing control chars
+        # (e.g. ANSI escape sequences) that TOML cannot represent directly.
+        if "stdout_b64" in case:
+            import base64
+            expected = base64.b64decode(case["stdout_b64"]).decode("utf-8", errors="replace")
+        else:
+            expected = case.get("stdout", "")
         args = [str(arg) for arg in case.get("args", [])]
         timeout = float(case.get("timeout", 2.0))
         proc = subprocess.run(
@@ -131,6 +137,9 @@ def check_one(ex: dict, use_solutions: bool, include_hidden: bool) -> None:
     if mode == "make":
         check_make(ex, use_solutions)
         return
+    if mode == "make+stdout":
+        check_make_stdout(ex, use_solutions, include_hidden)
+        return
     if mode == "compile":
         compile_exercise(ex, use_solutions)
         return
@@ -170,3 +179,62 @@ def check_make(ex: dict, use_solutions: bool) -> None:
                 f"{proc.stdout[-4000:]}\n{proc.stderr[-4000:]}"
             )
         MAKE_CACHE.add(cache_key)
+
+
+def check_make_stdout(
+    ex: dict, use_solutions: bool, include_hidden: bool
+) -> None:
+    """Hybrid mode: student Makefile builds; clings runs + compares stdout.
+
+    Flow:
+      1. `make <make_targets>` (default ["build"]) — student's Makefile compiles.
+      2. Locate the produced binary (named via `binary` field or exercise name).
+      3. clings runs the binary and compares stdout against bundled test cases
+         (from clings/tests/<name>.toml or repo tests/<name>.toml).
+
+    Students cannot tamper with the test cases: they live inside the installed
+    clings package (site-packages) or repo-root tests/, never in the exercise
+    directory. On failure, expected vs actual is shown so students can debug.
+    """
+    src_dir = source_dir_for(ex, use_solutions)
+    if not src_dir.exists():
+        raise ClingsError(f"missing source directory: {src_dir.relative_to(ROOT)}")
+
+    # Phase 1: run student's Makefile targets (typically just `build`).
+    targets = ex.get("make_targets", ["build"])
+    env = os.environ.copy()
+    env.setdefault("CC", find_compiler() or "cc")
+    for target in targets:
+        cache_key = (str(src_dir.resolve()), target, use_solutions)
+        if cache_key in MAKE_CACHE:
+            continue
+        cmd = ["make", target]
+        proc = subprocess.run(
+            cmd,
+            cwd=src_dir,
+            text=True,
+            capture_output=True,
+            timeout=float(ex.get("timeout", 120.0)),
+            env=env,
+        )
+        if proc.returncode != 0:
+            raise ClingsError(
+                f"make target failed for {ex['name']}\n"
+                f"$ {' '.join(cmd)} (cwd {src_dir})\n"
+                f"{proc.stdout[-4000:]}\n{proc.stderr[-4000:]}"
+            )
+        MAKE_CACHE.add(cache_key)
+
+    # Phase 2: locate the produced binary.
+    binary_name = ex.get("binary") or ex["name"]
+    suffix = ".exe" if os.name == "nt" else ""
+    binary = src_dir / f"{binary_name}{suffix}"
+    if not binary.exists():
+        raise ClingsError(
+            f"make build did not produce expected binary: {binary_name}\n"
+            f"looked at: {binary.relative_to(ROOT)}\n"
+            f"set the `binary` field in exercises.toml to match your Makefile's TARGET."
+        )
+
+    # Phase 3: clings authoritative run + stdout comparison.
+    run_cases(ex, binary, include_hidden)

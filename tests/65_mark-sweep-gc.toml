@@ -1,0 +1,60 @@
+[[cases]]
+stdout = '''
+=== Before GC: Initial Object Graph ===
+Object states (before marking):
+  OBJ0 : marked=0  refs=[ 1, -1]  ref_count=1
+  OBJ1 : marked=0  refs=[ 2, -1]  ref_count=1
+  OBJ2 : marked=0  refs=[-1, -1]  ref_count=0
+  OBJ3 : marked=0  refs=[ 4, -1]  ref_count=1
+  OBJ4 : marked=0  refs=[-1, -1]  ref_count=0
+  OBJ5 : marked=0  refs=[ 6, -1]  ref_count=1
+  OBJ6 : marked=0  refs=[ 7, -1]  ref_count=1
+  OBJ7 : marked=0  refs=[ 5, -1]  ref_count=1
+  OBJ8 : marked=0  refs=[-1, -1]  ref_count=0
+  OBJ9 : marked=0  refs=[-1, -1]  ref_count=0
+  OBJ10: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ11: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ12: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ13: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ14: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ15: marked=0  refs=[-1, -1]  ref_count=0
+
+=== Mark Phase ===
+Marking from root OBJ0...
+Marking from root OBJ3...
+Marking from root OBJ5...
+
+=== Sweep Phase ===
+Sweeping (reclaiming unmarked objects):
+  OBJ8 reclaimed
+  OBJ9 reclaimed
+  OBJ10 reclaimed
+  OBJ11 reclaimed
+  OBJ12 reclaimed
+  OBJ13 reclaimed
+  OBJ14 reclaimed
+  OBJ15 reclaimed
+
+=== GC Summary ===
+Objects collected: 8
+Objects alive: 8
+
+=== After GC: Final State ===
+Object states (after sweep):
+  OBJ0 : marked=1  refs=[ 1, -1]  ref_count=1
+  OBJ1 : marked=1  refs=[ 2, -1]  ref_count=1
+  OBJ2 : marked=1  refs=[-1, -1]  ref_count=0
+  OBJ3 : marked=1  refs=[ 4, -1]  ref_count=1
+  OBJ4 : marked=1  refs=[-1, -1]  ref_count=0
+  OBJ5 : marked=1  refs=[ 6, -1]  ref_count=1
+  OBJ6 : marked=1  refs=[ 7, -1]  ref_count=1
+  OBJ7 : marked=1  refs=[ 5, -1]  ref_count=1
+  OBJ8 : marked=0  refs=[-1, -1]  ref_count=0
+  OBJ9 : marked=0  refs=[-1, -1]  ref_count=0
+  OBJ10: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ11: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ12: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ13: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ14: marked=0  refs=[-1, -1]  ref_count=0
+  OBJ15: marked=0  refs=[-1, -1]  ref_count=0
+'''

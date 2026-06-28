@@ -14,10 +14,7 @@ all: $(TARGET)
 $(TARGET): $(SRC)
 	???
 
-test: $(TARGET)
-	???
-
 clean:
 	???
 
-.PHONY: all test clean
+.PHONY: all  clean

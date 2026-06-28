@@ -4,9 +4,10 @@ title = "无锁环形缓冲区 — Lock-Free Ring Buffer"
 unit = "unit3"
 lesson = 64
 order = 112
-mode = "make"
+mode = "make+stdout"
 source = "ringbuffer.c"
-make_targets = ["test"]
+binary = "ringbuffer"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/64_lockfree-ringbuffer"
 hint = '''
 无锁环形缓冲区: C11 _Atomic + SPSC 设计。

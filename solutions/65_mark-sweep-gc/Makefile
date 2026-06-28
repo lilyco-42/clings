@@ -9,13 +9,7 @@ all: $(TARGET)
 $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) -lm
 
-test: $(TARGET)
-	./$(TARGET)
-	@echo ""
-	@echo "=== Diff against expected ==="
-	./$(TARGET) | diff - expected_output.txt && echo "OK: output matches" || echo "FAIL: output differs"
-
 clean:
 	rm -f $(TARGET)
 
-.PHONY: all test clean
+.PHONY: all  clean

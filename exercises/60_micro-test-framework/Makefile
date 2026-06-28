@@ -1,4 +1,4 @@
-# Makefile for 60_micro-test-framework
+# Makefile for 60_micro--framework
 #
 # TODO: Fill in all fields marked with ??? and implement the build rules.
 #       完成后删除本 TODO 行。
@@ -13,10 +13,7 @@ all: $(TARGET)
 $(TARGET): $(SRC)
 	???
 
-test: $(TARGET)
-	???
-
 clean:
 	???
 
-.PHONY: all test clean
+.PHONY: all  clean

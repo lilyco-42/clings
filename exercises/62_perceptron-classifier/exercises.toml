@@ -4,9 +4,10 @@ title = "感知机二分类器 — Perceptron Classifier"
 unit = "unit3"
 lesson = 62
 order = 110
-mode = "make"
+mode = "make+stdout"
 source = "perceptron.c"
-make_targets = ["test"]
+binary = "perceptron"
+make_targets = ["all"]
 lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/62_perceptron-classifier"
 hint = '''
 感知机二分类器: 用纯 C 实现单层感知机，学习 AND 逻辑函数并演示 XOR 的线性不可分。

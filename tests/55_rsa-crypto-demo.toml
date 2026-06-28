@@ -1,0 +1,38 @@
+[[cases]]
+stdout = '''
+=== RSA Public-Key Crypto Demo (uint64 toy version) ===
+
+Step 1 — RSA Parameter Setup & Primality Verification:
+  Prime p = 61 — Miller-Rabin: prime ✓
+  Prime q = 53 — Miller-Rabin: prime ✓
+  Modulus n = p*q = 3233
+  Euler φ(n) = (p-1)*(q-1) = 3120
+  Public exponent e = 17
+  Plaintext message m = 42
+
+Step 2 — Key Generation:
+  n = p*q = 61*53 = 3233
+  φ(n) = (p-1)*(q-1) = 60*52 = 3120
+  Select e = 17 (public exponent)
+  Verify gcd(e, φ) = gcd(17, 3120) = 1
+  [OK — e and φ are coprime]
+  ext_gcd(e=17, φ=3120) → gcd=1, x=-367, y=2
+  Equation: e*x + φ*y = gcd  →  17*-367 + 3120*2 = 1
+  Private key d = x mod φ = 2753
+  Verify: e*d mod φ = 1 [OK]
+
+Step 3 — Encryption (c = m^e mod n):
+  c = 42^17 mod 3233
+    = fast_pow(42, 17, 3233)
+    = 2557
+
+Step 4 — Decryption (m' = c^d mod n):
+  m' = 2557^2753 mod 3233
+     = fast_pow(2557, 2753, 3233)
+     = 42
+
+Step 5 — Verification:
+  Original message  m  = 42
+  Decrypted message m' = 42
+  m' == m  →  RSA works! ✓
+'''

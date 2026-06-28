@@ -1,0 +1,43 @@
+[[cases]]
+stdout = '''
+=== Simple Proof-of-Work Blockchain (SHA-256) ===
+Difficulty: hash prefix must be "0000"
+
+Mining block 0: "Genesis"...
+Block 0:
+  prev_hash: 0000000000000000000000000000000000000000000000000000000000000000
+  data:      Genesis
+  nonce:     47863
+  hash:      00007b9bd1f65db61fb820269070e778b112edb1caf2e8604f07eb87d13150c2
+  attempts:  47864
+
+Mining block 1: "Alice pays Bob 10"...
+Block 1:
+  prev_hash: 00007b9bd1f65db61fb820269070e778b112edb1caf2e8604f07eb87d13150c2
+  data:      Alice pays Bob 10
+  nonce:     73636
+  hash:      0000c2f671d37e1fd60eda78b65cabd36245f11c500e3b1d7416e49f8a7a906d
+  attempts:  73637
+
+Mining block 2: "Bob pays Carol 5"...
+Block 2:
+  prev_hash: 0000c2f671d37e1fd60eda78b65cabd36245f11c500e3b1d7416e49f8a7a906d
+  data:      Bob pays Carol 5
+  nonce:     96168
+  hash:      00001723ab890c1e8ceb9fe1df6b3e6e3a571f895228cae7b6b24db074140c72
+  attempts:  96169
+
+=== Chain Summary ===
+Total blocks:     3
+Total attempts:   217670
+Average attempts: 72556.7
+
+=== Chain Verification ===
+Block 0: computed=00007b9bd1f65db61fb820269070e778b112edb1caf2e8604f07eb87d13150c2  stored=00007b9bd1f65db61fb820269070e778b112edb1caf2e8604f07eb87d13150c2  [VALID]
+Block 1: computed=0000c2f671d37e1fd60eda78b65cabd36245f11c500e3b1d7416e49f8a7a906d  stored=0000c2f671d37e1fd60eda78b65cabd36245f11c500e3b1d7416e49f8a7a906d  [VALID]
+  Chain link 0->1: 00007b9bd1f65db61fb820269070e778b112edb1caf2e8604f07eb87d13150c2  [OK]
+Block 2: computed=00001723ab890c1e8ceb9fe1df6b3e6e3a571f895228cae7b6b24db074140c72  stored=00001723ab890c1e8ceb9fe1df6b3e6e3a571f895228cae7b6b24db074140c72  [VALID]
+  Chain link 1->2: 0000c2f671d37e1fd60eda78b65cabd36245f11c500e3b1d7416e49f8a7a906d  [OK]
+
+Chain integrity: VALID
+'''

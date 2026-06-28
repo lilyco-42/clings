@@ -22,7 +22,15 @@ PKG_CONFIG = _config_in_pkg if _config_in_pkg.exists() else _config_in_repo
 ROOT = Path.cwd()
 BUILD_DIR = ROOT / ".clings" / "build"
 CONFIG_PATH = ROOT / "clings.toml"
-PUBLIC_TEST_DIR = ROOT / "tests" / "public"
+
+# Test cases: prefer bundled tests/ inside the installed package (site-packages),
+# fall back to repo-root tests/ during development. Layout is flat:
+#   tests/<exercise-name>.toml
+# e.g. tests/49_dining-philosophers-sync.toml
+_pkg_tests = PKG_DIR / "tests"
+_repo_tests = ROOT / "tests"
+PUBLIC_TEST_DIR = _pkg_tests if _pkg_tests.exists() else _repo_tests
+
 STATE_FILE = ROOT / ".clings-state.txt"
 HIDDEN_TEST_ENV = "CLINGS_HIDDEN_TEST_DIR"
 SOLUTIONS_ENV = "CLINGS_SOLUTIONS_DIR"
@@ -136,7 +144,13 @@ def select_exercises(config: dict, selector: str | None) -> list[dict]:
 # ─── Source/Test File Helpers ────────────────────────────────────────────────
 
 def test_files_for(ex: dict, include_hidden: bool) -> list[Path]:
-    rel = Path(ex["unit"]) / f"{ex['name']}.toml"
+    """Locate test case files for an exercise.
+
+    Layout is flat: tests/<exercise-name>.toml
+    Public tests come from PUBLIC_TEST_DIR (bundled in package or repo-root).
+    Hidden tests (if any) come from CLINGS_HIDDEN_TEST_DIR env var.
+    """
+    rel = Path(f"{ex['name']}.toml")
     files = []
     public = PUBLIC_TEST_DIR / rel
     if public.exists():
