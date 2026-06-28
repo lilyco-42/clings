@@ -1,39 +1,96 @@
+# Python
 __pycache__/
+*.pyc
 dist/
 *.egg-info/
+
+# clings runtime
 .clings/
 .clings-state.txt
+
+# Editor / IDE
 .devin/
-*.exe
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ─── C build artifacts ─────────────────────────────────
+# Reference: GitHub official C.gitignore template
+# https://github.com/github/gitignore/blob/main/C.gitignore
+
+# Object files
 *.o
-*.out
+*.ko
+*.obj
 *.elf
 
-# Docker/Linux 编译产物（无后缀 ELF 二进制）
-# 仅明确列举已知的编译产物名（不使用通配规则，避免干扰 hatchling sdist）
-/exercises/*/more
-/exercises/*/sort
-/exercises/*/ll
-/exercises/*/bashclone
-/exercises/*/array_test
-/exercises/*/josephus
-/exercises/*/stack_eval
-/exercises/*/queue
-/exercises/*/readelf
-/exercises/*/26a_read_magic
-/exercises/*/26b_parse_header
-/exercises/*/26c_file_type
-/solutions/*/26a_read_magic
-/solutions/*/26b_parse_header
-/solutions/*/26c_file_type
-/solutions/*/25c_mycp
-/solutions/*/29c_more
-/solutions/*/31a_file_size
-/solutions/*/31b_file_time
-/solutions/*/31c_ls_l
-/solutions/*/32c_mybash
-/solutions/*/33e_array_ops
-/solutions/*/34d_josephus
-/solutions/*/36c_bfs_maze
-/solutions/*/48d_gps_ncurses
-_test_*
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# ─── Project-specific: compiled binaries without extension ───
+# C exercises produce extension-less ELF binaries (e.g. dining_philosophers,
+# rdt_stop_wait). Since hatchling sdist includes exercises/ and solutions/,
+# we cannot use a blanket "exercises/*" rule. Instead, ignore any file in
+# exercises/ or solutions/ that is NOT a known source file.
+#
+# Strategy: whitelist source files, ignore everything else in exercise dirs.
+#
+# Known source extensions in exercise directories:
+#   .c .h .md .toml Makefile expected_output.txt
+#
+# Use negation: ignore all, then un-ignore known sources.
+exercises/*/*
+solutions/*/*
+!exercises/*/*.c
+!exercises/*/*.h
+!exercises/*/*.md
+!exercises/*/*.toml
+!exercises/*/Makefile
+!exercises/*/expected_output.txt
+!solutions/*/*.c
+!solutions/*/*.h
+!solutions/*/*.md
+!solutions/*/*.toml
+!solutions/*/Makefile
+!solutions/*/expected_output.txt
+
+# Keep directory structure (git doesn't track empty dirs, but this helps)
+!exercises/lessons/
+!exercises/nccl-cc/
