@@ -12,7 +12,7 @@
 ```c
 #define MAX 64
 int queue[MAX];
-int front = 0, rear = 0;   // 初始状态: front==rear 表示队空
+int front = 0, rear = 0;   // 初始状态：front==rear 表示队空
 
 int is_empty(void) { return front == rear; }
 ```
@@ -29,6 +29,7 @@ int is_empty(void) { return front == rear; }
 ```
 
 队列的两个基本操作：
+
 - **enqueue（入队）**: 将元素添加到队尾
 - **dequeue（出队）**: 从队头取出元素
 
@@ -195,11 +196,11 @@ rear == MAX → "满了"！
 
 ### 状态判定
 
-| 状态 | 条件 | 说明 |
-|------|------|------|
-| 队空 | `front == rear` | 初始状态，或全部出队后 |
-| 非空 | `front != rear` | 至少有一个元素 |
-| 队满 | `(rear + 1) % MAX == front` | rear 即将追上 front |
+| 状态 | 条件                        | 说明                   |
+| ---- | --------------------------- | ---------------------- |
+| 队空 | `front == rear`             | 初始状态，或全部出队后 |
+| 非空 | `front != rear`             | 至少有一个元素         |
+| 队满 | `(rear + 1) % MAX == front` | rear 即将追上 front    |
 
 **为什么队满要牺牲一个位置？**
 
@@ -215,12 +216,12 @@ rear == MAX → "满了"！
 
 ### 常见错误与陷阱
 
-| 错误 | 后果 | 正确做法 |
-|------|------|---------|
-| 忘取模 `rear++` 代替 `(rear+1)%MAX` | 数组越界 | 必须用取模 |
-| 入队先移 rear 再赋值 | 跳过位置 0 | `queue[rear]=val; rear=(rear+1)%MAX;` |
-| dequeue 忘取模 | front 无限增长 | `front=(front+1)%MAX` |
-| 混淆 front/rear 语义 | 逻辑完全错乱 | front=队头(出队处), rear=队尾下一个空位 |
+| 错误                                | 后果           | 正确做法                                 |
+| ----------------------------------- | -------------- | ---------------------------------------- |
+| 忘取模 `rear++` 代替 `(rear+1)%MAX` | 数组越界       | 必须用取模                               |
+| 入队先移 rear 再赋值                | 跳过位置 0     | `queue[rear]=val; rear=(rear+1)%MAX;`    |
+| dequeue 忘取模                      | front 无限增长 | `front=(front+1)%MAX`                    |
+| 混淆 front/rear 语义                | 逻辑完全错乱   | front=队头 (出队处), rear=队尾下一个空位 |
 
 ### 重要知识点
 
@@ -228,11 +229,11 @@ rear == MAX → "满了"！
 - front 指向队头（下一个要出队的元素），rear 指向下一个空位
 - 初始 `front=rear=0` 同时满足队空条件
 - 牺牲一个位置换取队空/队满的简洁区分
-- 环形队列工程应用极广：Linux kfifo、音频环形 buffer、网络数据包缓冲、生产者-消费者模式
+- 环形队列工程应用极广：Linux kfifo、音频环形 buffer、网络数据包缓冲、生产者 - 消费者模式
 
 ### 课堂讨论
 
-1. **如果想存满 MAX 个元素，怎么改？** — 增加 `count` 变量。入队 count++，出队 count--。队空: count==0，队满: count==MAX。不再需要牺牲一个位置。
+1. **如果想存满 MAX 个元素，怎么改？** — 增加 `count` 变量。入队 count++，出队 count--。队空：count==0，队满：count==MAX。不再需要牺牲一个位置。
 
 2. **取模运算 `%` 性能如何？** — 取模是除法指令，比加减慢。高性能场景（如每秒百万次操作）可将 MAX 设为 2^n（如 64、128），用位运算 `(ptr+1) & (MAX-1)` 替代 `%`。
 

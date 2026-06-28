@@ -5,7 +5,7 @@
  * 参考原课 restrict.c 中的 is_restricted() 函数
  *
  * 任务：实现 is_restricted(tail_num, today):
- *       用 switch(tail_num) 判断尾号是否在今日限行:
+ *       用 switch(tail_num) 判断尾号是否在今日限行：
  *       - case 0/5: ret = (today == MONDAY) ? 1 : 0; break;
  *       - case 1/6: ret = (today == TUESDAY) ? 1 : 0; break;
  *       - case 2/7: ret = (today == WEDNESDAY) ? 1 : 0; break;

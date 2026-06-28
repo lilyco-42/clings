@@ -21,6 +21,7 @@ comments, and `exercises.toml`-based test configuration.
 ### Step 1: Determine Exercise Metadata
 
 For each new exercise, establish:
+
 - **Lesson number** (`NN`): sequential from the unit plan
 - **Directory name**: `exercises/<NN>_<snake_name>/`
 - **Source file**: `<NN>_<snake_name>.c`
@@ -80,11 +81,11 @@ printf "test_input2\n" | ./<NN>_<name>   # Match expected output
 The `assets/` directory contains template files with `<PLACEHOLDERS>` that must
 be replaced:
 
-| Asset | Purpose | Key Placeholders |
-|-------|---------|-----------------|
-| `assets/template.c` | C source template | `<NN>`, `<NAME>`, `<CHINESE_TITLE>`, `<FUNCTION_NAME>`, `<RETURN_TYPE>`, `<PARAMETERS>` |
-| `assets/exercises.toml` | Test config | `<NN>`, `<name>`, `<ORDER>`, test cases |
-| `assets/Makefile` | Build | `<NN>`, `<name>` |
+| Asset                   | Purpose           | Key Placeholders                                                                        |
+| ----------------------- | ----------------- | --------------------------------------------------------------------------------------- |
+| `assets/template.c`     | C source template | `<NN>`, `<NAME>`, `<CHINESE_TITLE>`, `<FUNCTION_NAME>`, `<RETURN_TYPE>`, `<PARAMETERS>` |
+| `assets/exercises.toml` | Test config       | `<NN>`, `<name>`, `<ORDER>`, test cases                                                 |
+| `assets/Makefile`       | Build             | `<NN>`, `<name>`                                                                        |
 
 ## Detailed Conventions
 
@@ -92,6 +93,7 @@ For comprehensive reference on all conventions (comments, I/O pattern, test
 cases, difficulty ratings, README structure), load `references/exercise-pattern.md`.
 
 Key rules at a glance:
+
 - All comments use `/* */`, never `//`
 - Input via `fgets` + manual `\n` stripping
 - Output format must match exercises.toml `stdout` exactly (including trailing `\n`)

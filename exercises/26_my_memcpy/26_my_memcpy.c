@@ -1,10 +1,10 @@
 /* 26_my_memcpy.c — 实现 my_memcpy：标准内存拷贝
  *
- * 任务: 实现 my_memcpy(dest, src, n) — 逐字节拷贝
+ * 任务：实现 my_memcpy(dest, src, n) — 逐字节拷贝
  *       将 n 字节从 src 拷贝到 dest，返回 dest
  *       掌握 void* 到 char* 的转换与逐字节拷贝的底层逻辑
  *
- * 知识点: void* 泛型指针、char* 逐字节操作、size_t 类型
+ * 知识点：void* 泛型指针、char* 逐字节操作、size_t 类型
  *         为后续 my_memmove（内存重叠拷贝）打底
  *
  * 验证：

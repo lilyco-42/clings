@@ -1,0 +1,186 @@
+[[exercises]]
+name = "59_nfa-subset-construction"
+title = "NFA 模拟与子集构造 — NFA to DFA"
+unit = "unit3"
+lesson = 59
+order = 107
+mode = "make"
+source = "nfa_dfa.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/59_nfa-subset-construction"
+hint = '''
+NFA 模拟与子集构造: 固定 NFA 识别语言 a*b | ab*，实现ε-闭包计算、 NFA 模拟和子集构造(→DFA)。
+
+═══════════════════════════════════════
+背景: NFA 与 DFA
+═══════════════════════════════════════
+NFA (Nondeterministic Finite Automaton) 与 DFA (Deterministic FA)
+的区别在于:
+- DFA: 每个状态对每个符号有唯一后继
+- NFA: 允许 (1) 同一符号有多条转移 (2) ε转移(空转移)
+
+定理: NFA 与 DFA 等价——任何 NFA 都可以通过"子集构造"转化为
+等价的 DFA 。这是自动机理论最核心的结论之一。
+
+═══════════════════════════════════════
+本题 NFA 定义
+═══════════════════════════════════════
+语言: a*b | ab*  (a*后接 b, 或 a 后接 b*)
+
+状态转移图:
+         ε        a
+    ┌───────→ 1 ────→ 1 (自环)
+    │         │ b
+    0         ↓
+    │         3 (接受态)
+    │   a     ↑ b
+    └───────→ 2 ────→ 3 (b 自环)
+         ε   │
+             └── b ──→ 3
+
+状态 0: 初态(非接受)
+状态 1: a* 循环 (a→1 自环, b→3)
+状态 2: ab* 入口 (a→3)
+状态 3: 接受态 (b→3 自环)
+
+ε转移:  0→1, 0→2
+a 转移:  1→1, 2→3
+b 转移:  1→3, 3→3
+
+输入串测试:
+  "aab": 0--ε-->{0,1,2}--a-->{1,3}--a-->{1}--b-->{3} → ACCEPT ✓
+  "aba": 0--ε-->{0,1,2}--a-->{1,3}--b-->{3}--a-->{} → REJECT ✓
+
+═══════════════════════════════════════
+核心概念 1: ε-闭包 (ε-closure)
+═══════════════════════════════════════
+定义: ε-closure(S) = 从 S 中任意状态出发，仅经过ε转移能到达
+的所有状态的集合(包括 S 自身)。
+
+算法(不动点迭代):
+  closure = S
+  do:
+    changed = false
+    for each state s in closure:
+      for each ε-target t of s:
+        if t not in closure:
+          closure = closure ∪ {t}
+          changed = true
+  while changed
+
+示例: ε-closure({0}) = {0, 1, 2}
+  初始: {0}
+  0 的ε目标: 1,2 → 加入 → {0,1,2}
+  1 的ε目标: 无
+  2 的ε目标: 无
+  不动点 → {0,1,2}
+
+═══════════════════════════════════════
+核心概念 2: 子集构造 (Subset Construction)
+═══════════════════════════════════════
+原理: DFA 的每个状态对应 NFA 状态集合的一个子集(幂集)。
+NFA 有 n 个状态时, DFA 最多有 2^n 个状态。
+
+算法:
+  1. DFA 初态 = ε-closure({NFA 初态})
+  2. 对每个未处理的 DFA 状态(子集) S:
+     a. 标记 S 是否包含 NFA 接受态
+     b. 对每个符号 sym:
+        - 计算 move(S, sym) = {t | ∃s∈S, s--sym-->t}
+        - 新子集 T = ε-closure(move(S, sym))
+        - 若 T 不为空:
+          · 若 T 已对应某 DFA 状态则复用
+          · 否则创建新 DFA 状态
+          · 记录转移: S --sym--> T
+        - 若 T 为空: 无转移(或指向死状态)
+  3. 打印 DFA 转换表
+
+本题 NFA→DFA 结果:
+  D0 = {0,1,2}    (初态)
+  D1 = {1,3}      (接受态, 包含 3)
+  D2 = {3}        (接受态)
+  D3 = {1}        (非接受态)
+
+  DFA 转移:
+    D0 --a--> D1,  D0 --b--> D2
+    D1 --a--> D3,  D1 --b--> D2
+    D2 --a--> --,  D2 --b--> D2
+    D3 --a--> D3,  D3 --b--> D2
+
+═══════════════════════════════════════
+位掩码技巧
+═══════════════════════════════════════
+用 int 的低 4 位表示状态集, 第 s 位=1 表示状态 s 在集合中:
+  状态 0 → bit 0 (值 1)
+  状态 1 → bit 1 (值 2)
+  状态 2 → bit 2 (值 4)
+  状态 3 → bit 3 (值 8)
+
+加入状态 s: states |= (1 << s)
+检查状态 s: states & (1 << s)
+空集判断: states == 0
+
+═══════════════════════════════════════
+六个 TODO 任务
+═══════════════════════════════════════
+
+TODO 1 — e_closure():
+  实现不动点迭代。用 do-while 循环, 每次扫描所有状态,
+  若状态 s 在 closure 中则将其所有 EPSILON_TRANS[s][t]加入。
+  当一轮扫描无新增状态时退出。返回位掩码。
+
+TODO 2 — NFA_simulate():
+  初态: current = e_closure(1 << 0)
+  若 verbose: 打印初态信息
+  逐字符循环:
+    - 用 sym_idx(c)获取符号索引 si
+    - 初始化 next = 0
+    - 双重循环: 对 current 中每个状态 s, 对 NFA_TRANS[s][si]中
+      每个有效目标 t, next |= (1 << t)
+    - next = e_closure(next)
+    - 若 verbose: 打印转移信息
+    - current = next
+  最终: return (current & (1 << 3)) != 0
+
+TODO 3 — subset_construct():
+  定义数组: dfa_states[MAX_SUBSETS], dfa_trans[MAX_SUBSETS][2],
+           dfa_accepting[MAX_SUBSETS]
+  初始化 dfa_states[0]=e_closure(1<<0), dfa_count=1
+  对 d=0..dfa_count-1:
+    - 标记接受态: if(dfa_states[d] & (1<<3)) dfa_accepting[d]=1
+    - 对 si=0(a)和 si=1(b):
+      - 计算 next_subset: 对 dfa_states[d]中每个状态 s,
+        查 NFA_TRANS[s][si], 收集目标; 再 e_closure
+      - 若 next_subset!=0: 在 dfa_states 中查找, 不存在则新建
+      - 记录转移
+  打印表格(参照 expected_output.txt 格式)
+
+TODO 4 — ε-闭包打印:
+  循环 s=0..3: 调用 e_closure(1<<s)并用 print_state_set 打印
+
+TODO 5 — NFA 模拟调用:
+  调用 NFA_simulate("aab", true) 和 NFA_simulate("aba", true)
+
+TODO 6 — 子集构造调用:
+  调用 subset_construct()
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+填写 4 个变量(CC/CFLAGS/TARGET/SRC)+1 条编译命令。
+CC=gcc, CFLAGS=-Wall -std=c99, TARGET=nfa_dfa, SRC=nfa_dfa.c
+编译命令: $(CC) $(CFLAGS) -o $(TARGET) $(SRC)
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- 位掩码操作务必使用 (1 << s) 而非直接写数字
+- ε-闭包的不动点迭代: 需要外层 do-while + 内层 for 扫描
+- NFA 模拟中, 每个符号的转移分两步: symbol 转移 → ε-闭包
+- 子集构造中, 必须先计算 symbol 转移再求ε-闭包(不能颠倒)
+- 空集(next_subset==0)表示该符号下无合法转移
+- print_state_set 已提供, 直接调用即可
+- 注意 printf 格式, 必须与 expected_output.txt 完全一致
+- 包含状态 3 的子集即为接受态
+- NFA 有 4 个状态, DFA 最多 2^4=16 个状态, MAX_SUBSETS 已设好
+'''

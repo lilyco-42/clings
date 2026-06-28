@@ -1,0 +1,254 @@
+[[exercises]]
+name = "72_ansi-terminal-calc"
+title = "ANSI 终端计算器 — ANSI Terminal Calc"
+unit = "unit3"
+lesson = 72
+order = 120
+mode = "make"
+source = "terminal_calc.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/72_ansi-terminal-calc"
+hint = '''
+ANSI 终端计算器: 用 C 语言实现双栈表达式求值并用 ANSI 颜色美化输出。
+
+═══════════════════════════════════════
+背景: 表达式求值
+═══════════════════════════════════════
+
+计算器是数据结构与算法的经典应用。实现一个表达式求值器需要:
+1. 解析数字 (parse_number): 从字符串中提取整数
+2. 判断优先级 (precedence): 确定运算符的计算顺序
+3. 执行运算 (apply_op): 对两个操作数应用运算符
+4. 双栈求值 (evaluate): 使用操作数栈和运算符栈协同工作
+5. 彩色输出 (print_colored): 用 ANSI 转义序列美化终端输出
+
+═══════════════════════════════════════
+双栈算法 (Two-Stack Algorithm)
+═══════════════════════════════════════
+
+双栈算法是 Edsger Dijkstra 提出的经典表达式求值方法:
+
+数据结构:
+  int nums[64];    ← 操作数栈 (存放整数)
+  char ops[64];    ← 运算符栈 (存放字符)
+  int ntop = 0;    ← nums 栈顶索引 (指向下一个空位)
+  int otop = 0;    ← ops 栈顶索引
+
+核心规则:
+  1. 遇到数字 → 直接压入 nums 栈
+  2. 遇到 '('   → 直接压入 ops 栈
+  3. 遇到 ')'   → 不断弹栈计算, 直到弹出 '('
+  4. 遇到运算符 → 先弹出栈中优先级 >= 当前运算符的所有运算符进行计算,
+                  再将当前运算符压栈
+  5. 遍历结束   → 弹出剩余所有运算符进行计算
+
+优先级定义:
+  * 和 / : 优先级 2 (高)
+  + 和 - : 优先级 1 (低)
+  (      : 优先级 0 (特殊, 不参与比较)
+
+═══════════════════════════════════════
+表达式 "3+4*2" 的双栈执行过程
+═══════════════════════════════════════
+
+初始状态:
+  nums: [ ]        ops: [ ]
+  ntop=0           otop=0
+
+步骤 1: 读取 '3' → 数字
+  parse_number 返回 3
+  nums: [3]       ops: [ ]
+  打印: "  parse_number: 3"
+
+步骤 2: 读取 '+' → 运算符
+  precedence('+') = 1
+  ops 栈为空, 直接压栈
+  nums: [3]       ops: [+]
+  打印: "  operator: + (precedence=1)"
+
+步骤 3: 读取 '4' → 数字
+  parse_number 返回 4
+  nums: [3, 4]    ops: [+]
+  打印: "  parse_number: 4"
+
+步骤 4: 读取 '*' → 运算符
+  precedence('*') = 2
+  ops 栈顶是 '+' (precedence=1)
+  1 < 2, 不弹栈! 因为 * 优先级更高, 要先算
+  将 '*' 压栈
+  nums: [3, 4]    ops: [+, *]
+  打印: "  operator: * (precedence=2)"
+
+步骤 5: 读取 '2' → 数字
+  parse_number 返回 2
+  nums: [3, 4, 2] ops: [+, *]
+  打印: "  parse_number: 2"
+
+步骤 6: 遍历结束, 弹出剩余运算符
+  弹出 '*': b=2, a=4, 4*2=8
+    nums: [3, 8] ops: [+]
+    打印: "  apply_op: 4 * 2 = 8"
+  弹出 '+': b=8, a=3, 3+8=11
+    nums: [11]   ops: [ ]
+    打印: "  apply_op: 3 + 8 = 11"
+
+结果: nums[0] = 11 ✓
+
+═══════════════════════════════════════
+表达式 "(5+3)*2" 的双栈执行过程
+═══════════════════════════════════════
+
+步骤 1: 读取 '(' → 左括号
+  nums: [ ]       ops: [(]
+  打印: "  enter paren: ("
+
+步骤 2: 读取 '5' → 数字
+  nums: [5]       ops: [(]
+  打印: "  parse_number: 5"
+
+步骤 3: 读取 '+' → 运算符
+  ops 栈顶是 '(' → 不弹栈 (括号是边界)
+  nums: [5]       ops: [(, +]
+  打印: "  operator: + (precedence=1)"
+
+步骤 4: 读取 '3' → 数字
+  nums: [5, 3]    ops: [(, +]
+  打印: "  parse_number: 3"
+
+步骤 5: 读取 ')' → 右括号
+  打印: "  exit paren: )"
+  弹栈直到 '(':
+    弹出 '+': b=3, a=5, 5+3=8
+      nums: [8]   ops: [(]
+      打印: "  apply_op: 5 + 3 = 8"
+  弹出 '('
+  nums: [8]       ops: [ ]
+
+步骤 6: 读取 '*' → 运算符
+  ops 栈为空, 直接压栈
+  nums: [8]       ops: [*]
+  打印: "  operator: * (precedence=2)"
+
+步骤 7: 读取 '2' → 数字
+  nums: [8, 2]    ops: [*]
+  打印: "  parse_number: 2"
+
+步骤 8: 遍历结束, 弹出剩余运算符
+  弹出 '*': b=2, a=8, 8*2=16
+    nums: [16]    ops: [ ]
+    打印: "  apply_op: 8 * 2 = 16"
+
+结果: nums[0] = 16 ✓
+
+═══════════════════════════════════════
+ANSI 转义序列 (Escape Sequences)
+═══════════════════════════════════════
+
+ANSI 转义序列用于控制终端文字的颜色和样式:
+
+格式: \033[<code>m
+
+常用颜色代码:
+  \033[31m  红色 (RED)      — 用于错误信息
+  \033[32m  绿色 (GREEN)    — 用于正确结果
+  \033[33m  黄色 (YELLOW)   — 用于标题
+  \033[36m  青色 (CYAN)     — 用于解析头
+  \033[1m   加粗 (BOLD)     — 用于强调
+  \033[0m   重置所有属性 (RESET)
+
+使用方式:
+  printf("\033[32mOK\033[0m\n");   // 绿色输出 "OK"
+  printf("\033[31mFAIL\033[0m\n"); // 红色输出 "FAIL"
+
+关键规则: 每次使用颜色后必须用 \033[0m 重置!
+否则后续所有输出都会保持该颜色。
+
+═══════════════════════════════════════
+六个 TODO 任务
+═══════════════════════════════════════
+
+TODO 1 — parse_number(s, pos):
+  从字符串 s[*pos] 开始提取整数。
+  int val = 0;
+  while (isdigit((unsigned char)s[*pos])) {
+      val = val * 10 + (s[*pos] - '0');
+      (*pos)++;
+  }
+  return val;
+  注意: 使用 (unsigned char) 强制转换避免 char 为负时 isdigit 未定义行为。
+
+TODO 2 — precedence(op):
+  返回运算符优先级。
+  if (op == '*' || op == '/') return 2;
+  if (op == '+' || op == '-') return 1;
+  return 0;
+  这是最简单的 TODO, 仅 3 行。
+
+TODO 3 — apply_op(a, b, op):
+  对两个操作数执行运算。
+  switch (op) {
+      case '+': return a + b;
+      case '-': return a - b;
+      case '*': return a * b;
+      case '/': return (b != 0) ? a / b : 0;
+      default:  return 0;
+  }
+  除法必须检查 b != 0 防止除零崩溃。
+
+TODO 4 — evaluate(s):
+  这是核心 TODO, 约 40 行。
+  双栈算法完整实现。
+  关键点:
+  - nums[64] 和 ops[64] 作为局部数组
+  - 用 while (i < len) 遍历字符串
+  - 先跳过空格
+  - 遇到数字: 调用 parse_number, 压入 nums
+  - 遇到 '(' : 压入 ops
+  - 遇到 ')' : 弹栈计算直到 '('
+  - 遇到运算符: while 栈顶优先级 >= 当前优先级, 弹栈计算; 然后压入当前运算符
+  - 遍历结束: while (otop > 0) 弹栈计算剩余
+  - 每次 apply_op 后打印 "  apply_op: %d %c %d = %d\n"
+  - 返回 nums[0]
+
+TODO 5 — print_colored(color, text):
+  用 ANSI 颜色打印文本。
+  printf("%s%s" COLOR_RESET, color, text);
+  只有一行 printf! 但很重要: 不要忘了 COLOR_RESET 。
+
+TODO 6 — main():
+  驱动函数, 约 20 行。
+  - 定义 expressions[] = {"3+4*2", "(5+3)*2"}
+  - 定义 expected[] = {11, 16}
+  - 打印加粗黄色标题
+  - for 循环: 打印青色解析头 → evaluate() → 打印结果 → 比较 expected
+  - 正确用 COLOR_GREEN, 错误用 COLOR_RED
+  - 打印加粗黄色汇总
+
+═══════════════════════════════════════
+Makefile 填写
+═══════════════════════════════════════
+填写 4 个变量和 1 条编译命令:
+CC = gcc
+CFLAGS = -Wall -std=c99
+TARGET = terminal_calc
+SRC = terminal_calc.c
+编译命令: $(CC) $(CFLAGS) -o $(TARGET) $(SRC)
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- parse_number 中 isdigit 参数要强转 (unsigned char), 否则中文/负数 char 会出错
+- parse_number 用 while 而非 if — 支持多位数如 "42"
+- precedence 中 '(' 返回 0, 这样它永远不会被 >= 条件触发弹栈
+- evaluate 中遇到 ')' 时, while 弹栈直到 ops[otop-1] == '('
+- evaluate 中运算符压栈前, 先弹栈所有优先级 >= 当前运算符的已有运算符
+- 弹栈计算时注意顺序: 先 pop b (右操作数), 再 pop a (左操作数)
+- evaluate 遍历结束后不要忘记处理 ops 栈中剩余运算符
+- ANSI 颜色宏是字符串字面量, 直接拼接: COLOR_GREEN "text" COLOR_RESET
+- 每个颜色块后必须跟 COLOR_RESET, 否则颜色会"泄漏"
+- expected_output.txt 包含 ANSI 转义序列的原始字节, diff 会精确比较
+- make test 使用管道 | diff - expected_output.txt, 输出必须逐字节匹配
+- 不要输出多余空格或换行, 否则 diff 失败
+- 除法要检查除数为 0, 返回 0 即可 (本题表达式不会触发)
+- 两个测试表达式固定为 "3+4*2" 和 "(5+3)*2"
+'''

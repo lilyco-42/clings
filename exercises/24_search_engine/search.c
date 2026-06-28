@@ -4,7 +4,7 @@
  * 知识点：字符串匹配，指针操作，引号解析，动态内存
  * 参考原课 search.c — 从 HTML 中提取所有 <a href="..."> 链接
  *
- * 任务：read_all 已实现 (读取全部 stdin)，学生实现:
+ * 任务：read_all 已实现 (读取全部 stdin)，学生实现：
  *       1. find_istr(text, pattern): tolower 大小写不敏感匹配
  *       2. extract_links(html): 循环 find_istr("href=") → 解析引号 → 提取 URL
  *       3. main(): 调用 read_all + extract_links + 打印总计

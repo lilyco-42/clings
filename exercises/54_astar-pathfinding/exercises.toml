@@ -1,0 +1,118 @@
+[[exercises]]
+name = "54_astar-pathfinding"
+title = "A*寻路算法 — A* Pathfinding"
+unit = "unit3"
+lesson = 54
+order = 102
+mode = "make"
+source = "astar.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/54_astar-pathfinding"
+hint = '''
+A*寻路算法: 在 6×5 网格上从 (0,0) 寻路到 (5,4)，绕过障碍物。
+
+═══════════════════════════════════════
+背景
+═══════════════════════════════════════
+A* (A-Star) 是 Peter Hart、Nils Nilsson 和 Bertram Raphael
+在 1968 年提出的启发式搜索算法。它融合了 Dijkstra 的最优性
+（按实际代价 g 扩展）和贪心最佳优先的效率（用启发函数 h
+引导方向），通过评估函数 f(n) = g(n) + h(n) 选择下一个
+要扩展的节点。
+
+本题使用简单的数组实现 Open/Closed 表，无需优先队列。
+核心在于理解 f = g + h 的含义以及如何从终点回溯路径。
+
+═══════════════════════════════════════
+地图 (6 rows × 5 cols)
+═══════════════════════════════════════
+      c0    c1    c2    c3    c4
+  r0  S     .     .     .     .
+  r1  .     .     .     X     .
+  r2  .     .     X     .     .
+  r3  .     .     X     X     .
+  r4  .     .     .     .     .
+  r5  .     .     .     .     G
+
+  S = 起点 (0,0)   G = 终点 (5,4)
+  X = 障碍物: (2,2) (3,2) (1,3) (3,3)
+  . = 可通行格子
+
+═══════════════════════════════════════
+A* 算法步骤
+═══════════════════════════════════════
+
+1. 初始化:
+   - 将起点加入 Open 表，g=0, h=Manhattan(起点,终点), f=g+h
+   - parent = -1（起点无父节点）
+
+2. 主循环:
+   a) 从 Open 表中选出 f 最小的节点作为当前节点 cur
+      （f 相同时选 h 更小的，打破平局）
+   b) 若 Open 表为空 → 无路可走，算法终止
+   c) 将 cur 标记为 closed（移入 Closed 表）
+   d) 若 cur 是终点 → 找到路径，跳转到步骤 3
+   e) 扩展 cur 的四个邻居（上/下/左/右）:
+      - 越界检查: 0 <= r < ROWS, 0 <= c < COLS
+      - 障碍物检查: OBS[r][c] == 0
+      - 新代价: ng = cur.g + 1（每步代价为 1）
+      - 若邻居已在 Open 表中且 ng < 其旧 g:
+        更新 g/f/parent（找到更优路径）
+      - 若邻居不在 Open 表中:
+        创建新节点，计算 h = Manhattan(邻居, 终点)
+        f = ng + h, parent = cur 索引, 加入 Open 表
+
+3. 路径重建:
+   - 从终点沿 parent 指针回溯到起点
+   - 将路径节点索引存入数组
+   - 逆序输出即为从起点到终点的路径
+
+═══════════════════════════════════════
+Manhattan 启发函数
+═══════════════════════════════════════
+h(r, c) = |r - goal_r| + |c - goal_c|
+
+Manhattan 距离适用于四方向网格移动（不允许对角线）。
+它满足"可接受性"（admissible）——不会高估实际代价，
+因此 A* 保证找到最优路径。
+
+═══════════════════════════════════════
+四个 TODO 任务
+═══════════════════════════════════════
+
+TODO 1 — 节点结构体:
+  定义 Node 结构体，包含 r, c, g, h, f, parent, closed 字段。
+  声明 nodes[MAX_NODES] 数组和 node_count 变量。
+
+TODO 2 — 启发函数 heuristic():
+  static int heuristic(int r, int c, int gr, int gc)
+  返回 abs(r - gr) + abs(c - gc)
+
+TODO 3 — A* 主循环:
+  在 main() 的注释区域内实现 while(1) 循环:
+  - pick_best() 选节点
+  - 标记 closed ，打印 Expand
+  - 到达终点则 break
+  - 扩展四个方向邻居
+
+TODO 4 — 路径重建:
+  从 goal_idx 沿 parent 回溯，存入 path[] 数组。
+  逆序打印路径坐标和长度。
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+填写 4 个变量 (CC/CFLAGS/TARGET/SRC) + 3 条命令。
+test 目标用管道 | diff 比对 expected_output.txt 。
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- find_or_create() 和 pick_best() 的代码骨架已在注释中给出
+- 使用 abs() 计算绝对值，需 #include <stdlib.h>
+- 邻居扩展顺序不影响正确性，但会影响 Open 表平局时的选择
+- parent 存储的是 nodes[] 中的索引，不是坐标
+- 路径长度 = 步数（起点不算一步），所以 path_len - 1
+- Closed 表就是 nodes 数组中 closed==true 的那些节点
+- Open 表就是 nodes 数组中 closed==false 的那些节点
+'''

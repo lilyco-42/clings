@@ -1,0 +1,204 @@
+[[exercises]]
+name = "64_lockfree-ringbuffer"
+title = "无锁环形缓冲区 — Lock-Free Ring Buffer"
+unit = "unit3"
+lesson = 64
+order = 112
+mode = "make"
+source = "ringbuffer.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/64_lockfree-ringbuffer"
+hint = '''
+无锁环形缓冲区: C11 _Atomic + SPSC 设计。
+
+═══════════════════════════════════════
+背景: 什么是无锁编程？
+═══════════════════════════════════════
+
+传统多线程同步使用互斥锁(mutex):
+  lock(&mutex);
+  // critical section
+  unlock(&mutex);
+
+锁的问题:
+  - 阻塞: 一个线程持锁时, 其他线程等待(上下文切换开销)
+  - 死锁: 多个锁的获取顺序不当导致永久等待
+  - 优先级反转: 低优先级线程持锁阻塞高优先级线程
+  - 性能瓶颈: 高竞争时吞吐量急剧下降
+
+无锁编程(lock-free)使用原子操作(atomic operations)实现
+线程间同步, 无需互斥锁。 CPU 提供硬件原语(CAS, FAA, LL/SC),
+C11 通过 <stdatomic.h> 提供了标准化的原子类型和操作。
+
+═══════════════════════════════════════
+SPSC 环形缓冲区原理
+═══════════════════════════════════════
+
+SPSC = Single Producer Single Consumer
+(单生产者单消费者)
+
+环形缓冲区结构:
+  ┌───┬───┬───┬───┬───┬───┬───┬───┐
+  │ 0 │ 1 │ 2 │ 3 │ 4 │ 5 │ 6 │ 7 │  ← 容量 8
+  └───┴───┴───┴───┴───┴───┴───┴───┘
+    ↑                       ↑
+  read_idx               write_idx
+
+两个原子索引:
+  write_idx: 生产者已写入的元素总数(单调递增, 不取模)
+  read_idx:  消费者已读取的元素总数(单调递增, 不取模)
+
+实际槽位 = idx % BUFFER_SIZE
+
+关键不变量:
+  - 可写槽位数 = BUFFER_SIZE - (write_idx - read_idx)
+  - 可读槽位数 = write_idx - read_idx
+  - 满: write_idx - read_idx == BUFFER_SIZE  (生产者等待)
+  - 空: write_idx == read_idx               (消费者等待)
+
+═══════════════════════════════════════
+内存顺序 (memory_order)
+═══════════════════════════════════════
+
+C11 定义了 6 种内存顺序, 本题使用 3 种:
+
+┌────────────────────┬──────────────────────────────────────┐
+│ memory_order       │ 含义                                 │
+├────────────────────┼──────────────────────────────────────┤
+│ memory_order_relaxed │ 只保证原子性, 不保证顺序。          │
+│                    │ 用于: 计数器、标志位(不依赖其他数据)  │
+├────────────────────┼──────────────────────────────────────┤
+│ memory_order_acquire │ 后续读写不会被重排到此操作之前。    │
+│                    │ 用于: 加载共享标志(消费者读 write_idx)│
+├────────────────────┼──────────────────────────────────────┤
+│ memory_order_release │ 之前的读写不会被重排到此操作之后。  │
+│                    │ 用于: 发布数据(生产者更新 write_idx)  │
+└────────────────────┴──────────────────────────────────────┘
+
+acquire-release 配对:
+  生产者: store(data, relaxed) → store(write_idx, release)
+  消费者: load(write_idx, acquire) → load(data, relaxed)
+
+这构成了 happens-before 关系:
+  生产者写入数据 → 生产者发布索引 → 消费者获取索引 → 消费者读取数据
+  保证消费者看到的是完整写入的数据, 不会读到半写状态。
+
+═══════════════════════════════════════
+缓存行伪共享 (False Sharing)
+═══════════════════════════════════════
+
+CPU 缓存以缓存行(cache line, 通常 64 字节)为单位操作。
+当两个变量位于同一缓存行, 一个核心修改其中变量时,
+整个缓存行在其他核心上失效。
+
+伪共享问题:
+  write_idx 和 read_idx 如果相邻声明:
+  ┌─────────────────────────────────┐
+  │ write_idx(4B) │ read_idx(4B)  │ ← 同一 64B 缓存行
+  └─────────────────────────────────┘
+  生产者更新 write_idx → 消费者缓存行失效(反之亦然)!
+  即使它们从不访问对方的变量!
+
+缓解方案:
+  - 用 alignas(64) 将两个索引放在不同缓存行
+  - 或在索引之间填充 padding[60] 字节
+  - SPSC 场景下伪共享影响较小(只有两个线程),
+    但在 MPMC 场景下可能严重降低吞吐量
+
+═══════════════════════════════════════
+Makefile (4 个变量 + 3 条规则)
+═══════════════════════════════════════
+
+变量:
+  CC     = gcc
+  CFLAGS = -Wall -Wextra -std=c11
+  TARGET = ringbuffer
+  SRC    = ringbuffer.c
+
+规则:
+  all: $(TARGET)
+  $(TARGET): $(SRC) → $(CC) $(CFLAGS) $< -o $@
+  test: $(TARGET)   → ./$(TARGET) | diff - expected_output.txt
+  clean:            → rm -f $(TARGET)
+
+═══════════════════════════════════════
+C 代码 — 5 个 TODO 区 (~55 行)
+═══════════════════════════════════════
+
+数据结构(已提供):
+  static _Atomic int buffer[BUFFER_SIZE];
+  static _Atomic int write_idx = 0;
+  static _Atomic int read_idx  = 0;
+
+TODO 1 — init_buffer():
+  将所有 buffer 槽位初始化为 -1 (哨兵值，表示空)。
+  重置 write_idx 和 read_idx 为 0 。
+
+TODO 2 — print_buffer(label):
+  遍历 buffer 读取每个槽位。值 >= 0 打印数字，否则打印 "."。
+  格式: "[label] buf=[. . 2 3 4 . . .]"
+
+TODO 3 — producer_write(value):
+  忙等待直到缓冲区非满 (write_idx - read_idx < BUFFER_SIZE)。
+  写入 value 到 buffer[write_idx % BUFFER_SIZE]。
+  打印操作信息后发布递增的 write_idx 。
+
+TODO 4 — consumer_read():
+  忙等待直到缓冲区非空 (read_idx < write_idx)。
+  从 buffer[read_idx % BUFFER_SIZE] 读取值，标记槽位为 -1 。
+  打印操作信息后发布递增的 read_idx ，返回读取的值。
+
+TODO 5 — main():
+  按交错时间线执行：生产 5 个 → 消费 3 个 → 生产 5 个 (回绕!) → 消费 7 个。
+  输出最终结果： Produced/Consumed 序列、最终索引、缓冲区是否为空。
+
+═══════════════════════════════════════
+交错时间线追踪
+═══════════════════════════════════════
+
+初始: write_idx=0, read_idx=0, buffer=[. . . . . . . .]
+
+Phase 1 — 生产 5 个 (0..4):
+  P 写 0@槽 0 → w=1 r=0 buf=[0 . . . . . . .]
+  P 写 1@槽 1 → w=2 r=0 buf=[0 1 . . . . . .]
+  P 写 2@槽 2 → w=3 r=0 buf=[0 1 2 . . . . .]
+  P 写 3@槽 3 → w=4 r=0 buf=[0 1 2 3 . . . .]
+  P 写 4@槽 4 → w=5 r=0 buf=[0 1 2 3 4 . . .]
+
+Phase 2 — 消费 3 个 (0..2):
+  C 读 0@槽 0 → w=5 r=1 buf=[. 1 2 3 4 . . .]
+  C 读 1@槽 1 → w=5 r=2 buf=[. . 2 3 4 . . .]
+  C 读 2@槽 2 → w=5 r=3 buf=[. . . 3 4 . . .]
+
+Phase 3 — 生产 5 个 (5..9):
+  P 写 5@槽 5 → w=6 r=3 buf=[. . . 3 4 5 . .]
+  P 写 6@槽 6 → w=7 r=3 buf=[. . . 3 4 5 6 .]
+  P 写 7@槽 7 → w=8 r=3 buf=[. . . 3 4 5 6 7]
+  P 写 8@槽 0 → w=9 r=3 buf=[8 . . 3 4 5 6 7]  ← 回绕!
+  P 写 9@槽 1 → w=10 r=3 buf=[8 9 . 3 4 5 6 7] ← 回绕!
+
+Phase 4 — 消费 7 个 (3..9):
+  C 读 3@槽 3 → w=10 r=4 buf=[8 9 . . 4 5 6 7]
+  C 读 4@槽 4 → w=10 r=5 buf=[8 9 . . . 5 6 7]
+  C 读 5@槽 5 → w=10 r=6 buf=[8 9 . . . . 6 7]
+  C 读 6@槽 6 → w=10 r=7 buf=[8 9 . . . . . 7]
+  C 读 7@槽 7 → w=10 r=8 buf=[8 9 . . . . . .]
+  C 读 8@槽 0 → w=10 r=9 buf=[. 9 . . . . . .]
+  C 读 9@槽 1 → w=10 r=10 buf=[. . . . . . . .]
+
+最终: write_idx=10, read_idx=10, 缓冲区空。
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- #include <stdatomic.h> 是必需的，提供 _Atomic 和 atomic_store/load_explicit
+- 索引值永远递增(不取模), 只在访问 buffer[] 时用 % BUFFER_SIZE
+- 满判断: write_idx - read_idx >= BUFFER_SIZE
+- 空判断: read_idx >= write_idx (即 write_idx == read_idx)
+- 生产者的 acquire 读 read_idx 确保看到消费者最新的释放
+- 消费者的 acquire 读 write_idx 确保看到生产者最新的释放
+- print_buffer 中 -1 打印 "." (点), >=0 打印数字
+- 消费后把槽位标记回 -1 (空), 否则打印输出不正确
+- 使用 atomic_store_explicit 和 atomic_load_explicit, 不要直接用 = 赋值
+- 参考: README.md 中的环形缓冲区结构图和原子操作对比表
+'''

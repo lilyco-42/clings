@@ -3,7 +3,7 @@
  *
  * 知识点：局部变量，while 循环，关系运算符 <, 自增运算符 ++
  *
- * 任务：参考原课 counter.c，写一个完整程序:
+ * 任务：参考原课 counter.c，写一个完整程序：
  *       1. 定义 int counter = 0
  *       2. 用 while (counter < 10) 循环
  *       3. 每次循环：先 counter++，再 printf("counter = %d\n", counter)

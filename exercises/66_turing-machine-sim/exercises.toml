@@ -1,0 +1,262 @@
+[[exercises]]
+name = "66_turing-machine-sim"
+title = "图灵机模拟器 — Turing Machine"
+unit = "unit3"
+lesson = 66
+order = 114
+mode = "make"
+source = "turing_machine.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/66_turing-machine-sim"
+hint = '''
+图灵机模拟器: 用 C 语言模拟图灵机识别语言 L = {aⁿbⁿ | n≥1}。
+
+═══════════════════════════════════════
+背景: 图灵机 (Turing Machine)
+═══════════════════════════════════════
+
+图灵机是 Alan Turing 于 1936 年提出的抽象计算模型，
+用于精确定义"可计算性"(computability)的概念。
+
+图灵机的组成部分:
+  ┌──────────────────────────────────────────┐
+  │  有限控制器 (Finite Control)              │
+  │  ┌─────────────────────────────┐         │
+  │  │ 状态: q0, q1, q2, q3 (接受)  │         │
+  │  │ 转移规则表 (Transition Table) │         │
+  │  └─────────────────────────────┘         │
+  │         ↑ 读写头 (Head)                   │
+  │  ┌──┬──┬──┬──┬──┬──┬──┬──┬──┬──┐        │
+  │  │a │a │a │b │b │b │_ │_ │_ │_ │ ...    │
+  │  └──┴──┴──┴──┴──┴──┴──┴──┴──┴──┘        │
+  │         无限纸带 (Infinite Tape)           │
+  └──────────────────────────────────────────┘
+
+与有限自动机(FA)的关键区别:
+- FA: 只读头, 单向移动, 无写入能力
+- TM: 可读可写, 双向移动, 无限纸带
+
+计算能力:
+  正则语言 (FA) ⊂ 上下文无关语言 (PDA) ⊂ 递归可枚举语言 (TM)
+
+═══════════════════════════════════════
+本题图灵机: 识别 aⁿbⁿ
+═══════════════════════════════════════
+
+语言: L = {aⁿbⁿ | n ≥ 1} = {ab, aabb, aaabbb, aaaabbbb, ...}
+
+这不是正则语言 (无法用 DFA/NFA 识别, 因为需要"计数")。
+这是上下文无关语言 (可用 PDA 识别, 也可用图灵机识别)。
+
+转移图 (状态转移图):
+
+            a/X,R
+         ┌─────────┐
+         │         │
+    ┌────▼───┐     │   a/a,R
+    │   q0   │     │  ┌──────┐
+    └──┬──┬──┘     └──►  q1  │
+       │  │             │    │
+ Y/Y,R │  │ X/X,R       │ b/Y,L
+       │  │      ┌──────┘
+       │  │      │
+    ┌──▼──┴──┐   │
+    │   q3   │   │
+    │ (接受)  │   │
+    └──┬─────┘   │
+       │         │
+  Y/Y,R│    ┌────▼───┐
+       │    │   q2   │◄──┐
+       │    └───┬────┘  a/a,L
+       │        │      Y/Y,L
+       └────────┘
+
+转移函数 δ(state, symbol) = (next_state, write_symbol, move):
+
+  δ(q0, a) = (q1, X, R)    — 标记第一个 a 为 X, 向右寻找 b
+  δ(q0, Y) = (q3, Y, R)    — 所有 a 都已匹配, 检查剩余
+  δ(q1, a) = (q1, a, R)    — 跳过未标记的 a
+  δ(q1, Y) = (q1, Y, R)    — 跳过已匹配的 Y
+  δ(q1, b) = (q2, Y, L)    — 标记一个 b 为 Y, 向左返回
+  δ(q2, a) = (q2, a, L)    — 向左跳过 a
+  δ(q2, Y) = (q2, Y, L)    — 向左跳过 Y
+  δ(q2, X) = (q0, X, R)    — 找到 X, 开始下一轮
+  δ(q3, Y) = (q3, Y, R)    — 向右跳过 Y
+  δ(q3, _) = (halt, accept) — 到达空白, 接受
+
+策略: 每次消去一个 a 和一个 b, 用 X 和 Y 标记。
+若最终所有 a 都变成 X 且所有 b 都变成 Y, 则接受。
+
+═══════════════════════════════════════
+转移表在代码中的表示
+═══════════════════════════════════════
+
+TRANSITION[state][symbol_index] 是一个 Transition 结构体:
+  typedef struct {
+      int next_state;     // -1 表示无转移 → 拒绝
+      char write_symbol;  // 要写入纸带的符号
+      int move;           // LEFT(-1), RIGHT(1), 或 HALT(0)
+  } Transition;
+
+symbol_index 由 sym_to_idx() 映射:
+  'a'→0, 'b'→1, 'X'→2, 'Y'→3, '_'→4
+
+TRANSITION 表已完整提供, 无需修改。
+
+═══════════════════════════════════════
+纸带追踪: "aaabbb" (接受)
+═══════════════════════════════════════
+
+初始: [a a a b b b _ _], q0, head=0
+
+第 1 轮消去 (匹配第 1 对 a-b):
+  Step 1: q0 读 a→写 X 右移 q1 → [X a a b b b _ _], q1, head=1
+  Step 2: q1 读 a→右移 q1   → [X a a b b b _ _], q1, head=2
+  Step 3: q1 读 a→右移 q1   → [X a a b b b _ _], q1, head=3
+  Step 4: q1 读 b→写 Y 左移 q2 → [X a a Y b b _ _], q2, head=2
+  Step 5: q2 读 a→左移 q2   → [X a a Y b b _ _], q2, head=1
+  Step 6: q2 读 a→左移 q2   → [X a a Y b b _ _], q2, head=0
+  Step 7: q2 读 X→右移 q0   → [X a a Y b b _ _], q0, head=1
+
+第 2 轮消去 (匹配第 2 对 a-b):
+  Step 8:  q0 读 a→写 X 右移 q1 → [X X a Y b b _ _], q1, head=2
+  Step 9:  q1 读 a→右移 q1   → [X X a Y b b _ _], q1, head=3
+  Step 10: q1 读 Y→右移 q1   → [X X a Y b b _ _], q1, head=4
+  Step 11: q1 读 b→写 Y 左移 q2 → [X X a Y Y b _ _], q2, head=3
+  Step 12: q2 读 Y→左移 q2   → [X X a Y Y b _ _], q2, head=2
+  Step 13: q2 读 a→左移 q2   → [X X a Y Y b _ _], q2, head=1
+  Step 14: q2 读 X→右移 q0   → [X X a Y Y b _ _], q0, head=2
+
+第 3 轮消去 (匹配第 3 对 a-b):
+  Step 15: q0 读 a→写 X 右移 q1 → [X X X Y Y b _ _], q1, head=3
+  Step 16: q1 读 Y→右移 q1   → [X X X Y Y b _ _], q1, head=4
+  Step 17: q1 读 Y→右移 q1   → [X X X Y Y b _ _], q1, head=5
+  Step 18: q1 读 b→写 Y 左移 q2 → [X X X Y Y Y _ _], q2, head=4
+  Step 19: q2 读 Y→左移 q2   → [X X X Y Y Y _ _], q2, head=3
+  Step 20: q2 读 Y→左移 q2   → [X X X Y Y Y _ _], q2, head=2
+  Step 21: q2 读 X→右移 q0   → [X X X Y Y Y _ _], q0, head=3
+
+验收阶段:
+  Step 22: q0 读 Y→右移 q3   → [X X X Y Y Y _ _], q3, head=4
+  Step 23: q3 读 Y→右移 q3   → [X X X Y Y Y _ _], q3, head=5
+  Step 24: q3 读 Y→右移 q3   → [X X X Y Y Y _ _], q3, head=6
+  此时 q3 读 _, 接受!
+
+═══════════════════════════════════════
+纸带追踪: "aab" (拒绝)
+═══════════════════════════════════════
+
+初始: [a a b _ _], q0, head=0
+
+第 1 轮消去 (匹配第 1 对 a-b):
+  Step 1: q0 读 a→写 X 右移 q1 → [X a b _ _], q1, head=1
+  Step 2: q1 读 a→右移 q1   → [X a b _ _], q1, head=2
+  Step 3: q1 读 b→写 Y 左移 q2 → [X a Y _ _], q2, head=1
+  Step 4: q2 读 a→左移 q2   → [X a Y _ _], q2, head=0
+  Step 5: q2 读 X→右移 q0   → [X a Y _ _], q0, head=1
+
+第 2 轮: 尝试匹配第 2 对
+  Step 6: q0 读 a→写 X 右移 q1 → [X X Y _ _], q1, head=2
+  Step 7: q1 读 Y→右移 q1   → [X X Y _ _], q1, head=3
+  Step 8: q1 读_ → 无转移! → q_reject
+
+拒绝原因: a 的个数(2) > b 的个数(1), 第 2 轮找不到 b 来匹配。
+
+═══════════════════════════════════════
+五个 TODO 任务
+═══════════════════════════════════════
+
+TODO 1 — init_tape():
+  将 tape 数组全部填充为 BLANK ('_').
+  用 strlen(input) 获取输入长度.
+  用 for 循环将 input 的每个字符复制到 tape[i].
+  注意: 不要越界 (i < tape_size).
+
+TODO 2 — print_tape():
+  先找到 rightmost (最右侧非 BLANK 位置).
+  打印从 tape[0] 到 tape[rightmost+2] 的每个符号, 空格分隔.
+  格式: printf("Tape: [");
+  然后打印每个符号: printf("%c", tape[i]) (i==0 时无前导空格, 否则先打印空格)
+  最后: printf("], head=%d, state=%s\n", head, STATE_NAMES[state]);
+
+TODO 3 — step():
+  获取当前符号: char symbol = tape[*head];
+  获取符号索引: int si = sym_to_idx(symbol);
+  查表: Transition t = TRANSITION[state][si];
+  若 t.next_state == -1: return Q_REJECT;
+  否则: tape[*head] = t.write_symbol;
+       *head += t.move;
+       限制 *head 在 [0, tape_size-1] 范围内.
+       return t.next_state;
+
+TODO 4 — run():
+  声明 tape[TAPE_SIZE], head=0, state=Q0, steps=0.
+  调用 init_tape(tape, TAPE_SIZE, input).
+  打印 "Input: \"%s\"\n", input.
+  打印 "Initial: "; 调用 print_tape(...).
+  循环 while (1):
+    若 state == Q_REJECT: 打印 reject, return 0.
+    若 state == Q3 && tape[head] == BLANK: 打印 accept, return 1.
+    记录 prev_state = state.
+    state = step(tape, TAPE_SIZE, &head, state).
+    steps++.
+    打印 "Step %d: ", steps; 调用 print_tape(...).
+    若 state == Q_REJECT: 打印 reject 原因, return 0.
+    若 state == Q3 && tape[head] == BLANK: 打印 accept, return 1.
+
+TODO 5 — main():
+  打印标题: "=== Turing Machine Simulator for L = {a^n b^n | n >= 1} ===\n"
+  调用 run("aaabbb");  (应接受)
+  调用 run("aab");     (应拒绝)
+  return 0.
+
+═══════════════════════════════════════
+关键概念
+═══════════════════════════════════════
+
+Church-Turing 论题 (Church-Turing Thesis):
+  "任何直观上可计算的函数都可以被图灵机计算。"
+  这不是数学定理, 而是一个无法证明但被广泛接受的假说。
+  所有已知的计算模型 (λ演算, 递归函数, C 程序, Python...) 
+  都与图灵机等价。
+
+停机问题 (Halting Problem):
+  "是否存在一个算法, 能判断任意图灵机在任意输入上是否停机?"
+  答案: 不存在。这是不可判定问题 (undecidable problem)。
+  图灵用对角线法证明了这一点, 这也是计算机科学最重要的
+  理论结果之一。
+
+通用图灵机 (Universal Turing Machine):
+  可以模拟任何其他图灵机的图灵机。
+  这等价于现代计算机的"存储程序"概念。
+  冯·诺依曼架构即受此启发。
+
+图灵完备 (Turing Completeness):
+  一个计算系统若能模拟图灵机, 则称其为图灵完备的。
+  C 语言、任何通用编程语言都是图灵完备的。
+  甚至某些"意外"的系统也是图灵完备的:
+    - Magic: The Gathering
+    - Minecraft 红石电路
+    - Excel 公式
+    - C++ 模板元编程
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+填写 4 个变量(CC/CFLAGS/TARGET/SRC)+1 条编译命令。
+CC=gcc, CFLAGS=-Wall -std=c99, TARGET=turing_machine, SRC=turing_machine.c
+编译命令: $(CC) $(CFLAGS) -o $(TARGET) $(SRC)
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- TRANSITION 表已完整提供, 直接查表即可, 不要自己写 if/else
+- step() 中 next_state == -1 表示无转移, 返回 Q_REJECT
+- 头位置移动后要 clamp 到 [0, tape_size-1]
+- print_tape 中符号之间用空格分隔, 注意第一个符号前不要多余空格
+- 判定接受: 状态==Q3 且 当前读头下的符号==BLANK('_')
+- q3 读 Y 时继续右移 (跳过所有 Y 找到末尾空白)
+- 不要忘记打印 "Input: \"...\"" 和 "Initial: " 行
+- 输出格式必须与 expected_output.txt 完全一致, 注意换行
+- 仔细理解 aⁿbⁿ 的识别策略: 每次消去最左 a 和最左 b
+'''

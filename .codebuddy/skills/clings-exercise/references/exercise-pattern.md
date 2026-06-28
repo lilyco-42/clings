@@ -3,16 +3,20 @@
 ## Conventions
 
 ### Naming
+
 - Exercise directory: `exercises/<NN>_<snake_name>/` where `NN` is the lesson number
 - Source file: `<NN>_<snake_name>.c` (single file per exercise, no sub-exercises)
 - Solution directory: `solutions/<NN>_<snake_name>/`
 - Solution file: same name as source
 
 ### Comment Style
+
 Always use `/* */` block comments, never `//`. This is C-traditional and works with all standards.
 
 ### Template Structure
+
 Every `.c` template must:
+
 1. Start with a block comment: exercise title, task description, knowledge points
 2. Include verification examples (stdin → expected output)
 3. Have `#include` directives needed
@@ -20,6 +24,7 @@ Every `.c` template must:
 5. Provide a complete `main()` that handles I/O — the student only fills in the core function
 
 ### Input/Output Pattern (Primary: stdin)
+
 ```c
 char haystack[256];
 char needle[256];
@@ -38,6 +43,7 @@ needle[i] = '\0';
 Use `stdin = "line1\nline2\n"` in exercises.toml test cases.
 
 ### exercises.toml Pattern
+
 ```toml
 [[exercises]]
 name = "<NN>_<name>"
@@ -58,11 +64,13 @@ stdout = "expected output\n"
 ```
 
 ### Test Case Requirements
+
 - At least 3 cases covering: normal, edge, and special
 - One case for "not found" / "not found" scenarios
 - One case for empty/null input where applicable
 
 ### Makefile Pattern
+
 ```makefile
 .PHONY: all clean
 
@@ -76,6 +84,7 @@ clean:
 ```
 
 ### README.md Structure
+
 1. Lesson title and task description
 2. Algorithm outline (step-by-step)
 3. Examples with expected output
@@ -85,15 +94,18 @@ clean:
 7. References
 
 ### Difficulty Rating
-| Level | When to use |
-|-------|-------------|
-| ★★☆☆ | Simple algorithm, ~10 lines student code |
-| ★★★☆ | Moderate complexity, ~15-20 lines |
-| ★★★★ | Multiple sub-steps or tricky edge cases |
-| ★★★★★ | Capstone projects (GPS, mybash-level) |
+
+| Level | When to use                              |
+| ----- | ---------------------------------------- |
+| ★★☆☆  | Simple algorithm, ~10 lines student code |
+| ★★★☆  | Moderate complexity, ~15-20 lines        |
+| ★★★★  | Multiple sub-steps or tricky edge cases  |
+| ★★★★★ | Capstone projects (GPS, mybash-level)    |
 
 ## Verification Checklist
+
 After creating an exercise, verify:
+
 - [ ] Template fails to compile (`#error` triggers)
 - [ ] Solution compiles with `gcc -Wall` and no warnings
 - [ ] All test cases pass with exact stdout match

@@ -1,17 +1,17 @@
 /* 28_permutations.c — 全排列问题：回溯算法（DFS）入门
  *
- * 任务: 实现 permute(str, l, r) — 输出字符串全排列，每行一个
+ * 任务：实现 permute(str, l, r) — 输出字符串全排列，每行一个
  *       这是经典的回溯算法（Backtracking / DFS）入门题
  *       为后续八皇后问题（Lesson 29）打底
  *
- * 算法: swap + 递归 + 回溯（回溯三步曲）
+ * 算法：swap + 递归 + 回溯（回溯三步曲）
  *       1. 固定位置 l，枚举候选字符 i ∈ [l, r]
  *       2. swap(str[l], str[i]) — 把候选换到固定位置
  *       3. 递归处理子问题 permute(str, l+1, r)
  *       4. swap(str[l], str[i]) — 换回来！（回溯）
  *       5. 当 l == r 时到达叶子节点，打印当前排列
  *
- * 知识点: 递归、回溯（swap-递归-swap模式）、DFS 排列树
+ * 知识点：递归、回溯（swap-递归-swap 模式）、DFS 排列树
  *
  * 验证：
  *   stdin: "ABC\n"  → ABC ACB BAC BCA CBA CAB

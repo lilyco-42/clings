@@ -6,7 +6,7 @@
 
 1. 在 `main()` 中用 `setjmp(env)` 设锚点（保存执行环境）
 2. 在深层嵌套函数 `funcC()` 中检测到错误时，用 `longjmp(env, 1)` 直接"空降"回 main
-3. 调用链: `main → funcA → funcB → funcC → longjmp → main`（跳过中间所有栈帧）
+3. 调用链：`main → funcA → funcB → funcC → longjmp → main`（跳过中间所有栈帧）
 
 ```
 验证用例:
@@ -37,14 +37,14 @@ C 语言中，`return` 只能跳回上一层调用者。`goto` 只能跳到同�
 
 jmp_buf env;                          // 保存执行环境的缓冲区
 
-int setjmp(jmp_buf env);              // 设锚点: 保存当前环境, 返回 0
-void longjmp(jmp_buf env, int val);   // 跳回: 恢复环境, 让 setjmp 返回 val
+int setjmp(jmp_buf env);              // 设锚点：保存当前环境，返回 0
+void longjmp(jmp_buf env, int val);   // 跳回：恢复环境，让 setjmp 返回 val
 ```
 
-| 函数 | 调用位置 | 效果 |
-|------|---------|------|
-| `setjmp(env)` | 在 main 中（你想"回来"的地方） | 保存 SP/PC/寄存器到 env，返回 0 |
-| `longjmp(env, val)` | 在深层函数中（错误发生时） | 恢复 env 中保存的寄存器，让 setjmp 返回 val |
+| 函数                | 调用位置                       | 效果                                        |
+| ------------------- | ------------------------------ | ------------------------------------------- |
+| `setjmp(env)`       | 在 main 中（你想"回来"的地方） | 保存 SP/PC/寄存器到 env，返回 0             |
+| `longjmp(env, val)` | 在深层函数中（错误发生时）     | 恢复 env 中保存的寄存器，让 setjmp 返回 val |
 
 ### 返回值语义（核心考点）
 
@@ -150,13 +150,13 @@ throw e;  /* = longjmp(env, 1) */
 
 ### 常见错误
 
-| 错误 | 后果 | 正确 |
-|------|------|---------|
-| longjmp 的 val 传 0 | setjmp 返回 0，无法区分跳回 | val 必须非 0 |
-| setjmp 赋给非 volatile 变量 | 编译器可能优化掉检查 | `volatile int r = setjmp(env)` |
-| jmp_buf 是局部变量 | longjmp 时 env 已失效 | jmp_buf 必须是全局或静态变量 |
-| longjmp 跳到已返回的函数 | 未定义行为 | 确保 setjmp 的栈帧仍在 |
-| C++ 中跳过多层构造函数 | 析构函数泄漏 | C++ 中优先用 try/catch |
+| 错误                        | 后果                        | 正确                           |
+| --------------------------- | --------------------------- | ------------------------------ |
+| longjmp 的 val 传 0         | setjmp 返回 0，无法区分跳回 | val 必须非 0                   |
+| setjmp 赋给非 volatile 变量 | 编译器可能优化掉检查        | `volatile int r = setjmp(env)` |
+| jmp_buf 是局部变量          | longjmp 时 env 已失效       | jmp_buf 必须是全局或静态变量   |
+| longjmp 跳到已返回的函数    | 未定义行为                  | 确保 setjmp 的栈帧仍在         |
+| C++ 中跳过多层构造函数      | 析构函数泄漏                | C++ 中优先用 try/catch         |
 
 ### 重要知识点
 
@@ -181,8 +181,8 @@ throw e;  /* = longjmp(env, 1) */
 
 - Lesson 46: sscanf —— 解析出错误输入时如何优雅处理
 - Lesson 48: I/O 性能 —— 文件操作的底层开销
-- C++ 对比: try/catch/throw —— 现代异常处理
-- 高阶: 实现一个简单的协程库（用 setjmp/longjmp 切换上下文）
+- C++ 对比：try/catch/throw —— 现代异常处理
+- 高阶：实现一个简单的协程库（用 setjmp/longjmp 切换上下文）
 
 ### 寄存器保存的精确内容
 

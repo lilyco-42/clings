@@ -1,0 +1,106 @@
+[[exercises]]
+name = "52_bplus-tree-index"
+title = "B+树索引 — B+Tree Index"
+unit = "unit3"
+lesson = 52
+order = 100
+mode = "make"
+source = "bplus_tree.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/52_bplus-tree-index"
+hint = '''
+B+树索引: ORDER=3 (MAX_KEY=2) 的多路平衡树，叶子节点链表连接。
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+填写 4 个变量 (CC/CFLAGS/TARGET/SRC) + 3 条命令。
+CC = gcc, CFLAGS = -Wall -Wextra -std=c11, TARGET = bplus_tree, SRC = bplus_tree.c
+$(TARGET) 规则: $(CC) $(CFLAGS) -o $(TARGET) $(SRC)
+test 规则: ./$(TARGET) | diff - expected_output.txt
+clean 规则: rm -f $(TARGET)
+
+═══════════════════════════════════════
+C 代码 — 7 个 TODO 区
+═══════════════════════════════════════
+
+数据结构:
+  BPTreeNode {
+      is_leaf, num_keys,
+      keys[MAX_KEY+1],           // +1 容纳分裂前的溢出（3 个 key）
+      union { children[ORDER+1]; // 内部节点: 子节点指针
+              values[MAX_KEY+1]; // 叶子节点: 对应的 value }
+      next                        // 叶子链表指针
+  }
+  ORDER=3, MAX_KEY=2
+  内部节点: 最多 2 个 key，最多 3 个子节点
+  叶子节点: 最多 2 个 key，最多 2 个 value
+
+TODO 1 — create_node(is_leaf):
+  用 malloc 分配节点，设置 is_leaf, num_keys=0, next=NULL。
+  若 is_leaf: 用 for 循环将 values[0..MAX_KEY] 置 0
+  若 !is_leaf: 用 for 循环将 children[0..ORDER] 置 NULL
+
+TODO 2 — insert_into_leaf(leaf, key, value):
+  有序插入到叶子节点。
+  1. 找位置: while (pos < num_keys && keys[pos] < key) pos++
+  2. 后移: for (i = num_keys; i > pos; i--) 同时移动 keys[i] 和 values[i]
+  3. 写入: keys[pos]=key, values[pos]=value
+  4. num_keys++
+
+TODO 3 — split_leaf_child(parent, idx, child):
+  叶子节点溢出（3 个 key）时分裂。
+  1. 创建 new_leaf = create_node(1)
+  2. 右半复制: new_leaf->keys[0] = child->keys[2]
+              new_leaf->values[0] = child->values[2]
+  3. 设置 num_keys: new_leaf->num_keys = 1; child->num_keys = 2
+  4. 链表: new_leaf->next = child->next; child->next = new_leaf
+  5. 上移: insert_into_inner(parent, idx, new_leaf->keys[0], child, new_leaf)
+
+TODO 4 — insert_rec(node, key, value):
+  递归插入，返回 NULL 或溢出节点。
+  叶子:
+    insert_into_leaf(node, key, value)
+    若 num_keys > MAX_KEY → return node  // 溢出
+    否则 return NULL
+  内部节点:
+    找子节点位置: while (pos < num_keys && keys[pos] <= key) pos++
+    递归: overflow = insert_rec(children[pos], key, value)
+    若 overflow:
+      split_leaf_child(node, pos, overflow)
+      若 node->num_keys > MAX_KEY → return node
+    return NULL
+
+TODO 5 — insert(root, key, value):
+  入口函数。
+  1. 空树: root = create_node(1); 放入 key/value; num_keys=1; return root
+  2. 非空: overflow = insert_rec(root, key, value)
+  3. 若 overflow:
+       new_root = create_node(0)
+       new_root->children[0] = root
+       split_leaf_child(new_root, 0, overflow)
+       return new_root
+  4. return root
+
+TODO 6 — search(root, key):
+  查找 key 的 value，未找到返回 -1。
+  1. root==NULL → return -1
+  2. while (!cur->is_leaf): 找 pos 并 cur = children[pos]
+  3. 在叶子中: for i 遍历，keys[i]==key → return values[i]
+  4. return -1
+
+TODO 7 — print_tree(root, depth):
+  递归缩进打印。
+  - root==NULL: "(empty tree)\\n"
+  - 缩进: depth 个 "  "（两个空格）
+  - 叶子: "[leaf] keys: k0 k1 ... | values: v0 v1 ...\\n"
+  - 内部: "[inner] keys: k0 k1 ...\\n" + 递归打印 children[0..num_keys]
+
+───────────────────────────────
+B+树与普通 B 树的区别:
+  - B+树: 内部节点只存 key（路由），叶子存 key+value
+  - B 树: 所有节点都存 key+value
+  - B+树优势: 叶子链表支持高效范围查询，内部节点可容纳更多 key
+───────────────────────────────
+参考: README.md 中的分裂过程图解
+'''

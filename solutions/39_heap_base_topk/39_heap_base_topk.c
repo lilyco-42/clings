@@ -1,4 +1,4 @@
-/* 39_heap_base_topk.c — 堆与Top-K（参考解答） */
+/* 39_heap_base_topk.c — 堆与 Top-K（参考解答） */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

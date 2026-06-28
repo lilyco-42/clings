@@ -8,7 +8,7 @@
  *   - 机制 (mechanism): main 循环中的 state = yy_nxt[state][c] 状态转移
  *   - 策略 (policy): yy_nxt/yy_accept 表的具体数值 (由工具生成)
  *
- * 任务：实现 DFA 主循环:
+ * 任务：实现 DFA 主循环：
  *       1. while (1) 循环，getchar 读字符
  *       2. buf[i++] = c 积累当前 token
  *       3. state = yy_nxt[state][c] 查表转移

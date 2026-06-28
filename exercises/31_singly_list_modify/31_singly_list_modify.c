@@ -1,12 +1,12 @@
 /* 31_singly_list_modify.c — 单链表查找与删除
  *
- * 任务: 实现三个函数，操作单链表
+ * 任务：实现三个函数，操作单链表
  *       1. find_by_value(head, val) — 按值查找，返回第一个匹配节点，未找到返回 NULL
  *       2. find_by_index(head, idx) — 按索引查找（0-based），越界返回 NULL
  *       3. delete_node(head, val)   — 按值删除第一个匹配节点，返回（可能更新的）head
  *          正确处理删头节点、删尾节点、删唯一节点等边界
  *
- * 知识点: 链表遍历、前驱指针 prev、free 释放、空/单节点边界
+ * 知识点：链表遍历、前驱指针 prev、free 释放、空/单节点边界
  *
  * 验证：
  *   stdin: "1 2 3 4\nfind 3\n"     → found: 3

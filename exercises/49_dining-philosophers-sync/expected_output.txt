@@ -1,0 +1,27 @@
+=== Dining Philosophers ===
+N=5, asymmetric (P4 right-first), target=3 meals each
+T=Thinking H=Hungry E=Eating
+
+00 | P0:T P1:T P2:T P3:T P4:T
+01 | P0:T P1:T P2:T P3:T P4:T
+02 | P0:T P1:H P2:T P3:T P4:H
+03 | P0:T P1:E P2:H P3:H P4:E
+04 | P0:H P1:T P2:E P3:H P4:T
+05 | P0:E P1:T P2:T P3:E P4:T
+06 | P0:T P1:T P2:H P3:T P4:H
+07 | P0:T P1:H P2:E P3:T P4:E
+08 | P0:T P1:E P2:T P3:T P4:T
+09 | P0:T P1:T P2:T P3:T P4:T
+10 | P0:H P1:T P2:T P3:H P4:T
+11 | P0:E P1:H P2:H P3:E P4:T
+12 | P0:T P1:E P2:H P3:T P4:H
+13 | P0:H P1:T P2:E P3:H P4:E
+14 | P0:E P1:T P2:T P3:E P4:T
+
+=== Final Stats ===
+P0 ate 3 time(s)
+P1 ate 3 time(s)
+P2 ate 3 time(s)
+P3 ate 3 time(s)
+P4 ate 3 time(s)
+Total rounds: 14

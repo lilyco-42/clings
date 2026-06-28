@@ -3,7 +3,7 @@
  *
  * 知识点：指针运算优化，delt = dst - src, 减少变量存取次数
  *
- * 任务：参考原课 README "算法优化 1"，实现 delta 优化版:
+ * 任务：参考原课 README "算法优化 1"，实现 delta 优化版：
  *       1. char *mystrcpy_delt(char *dst, const char *src)
  *       2. char *s = (char *)src; int delt = dst - src;
  *       3. while (*s != '\0') { s[delt] = *s; s++; }

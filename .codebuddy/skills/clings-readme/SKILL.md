@@ -23,6 +23,7 @@ No answer code allowed.
 ### Step 1: Read Context Files
 
 Before writing, read:
+
 - The exercise's `.c` template — to understand the task and given helpers
 - The exercise's `exercises.toml` — for test cases and expected behavior
 - The gold standard reference: `exercises/27_my_memmove/README.md` (301 lines) — for structure and depth
@@ -58,6 +59,7 @@ Every README must include ALL 11 sections in this order:
 ### Step 4: Verify
 
 After writing, check:
+
 - [ ] All 11 sections present and non-empty
 - [ ] At least 1 ASCII diagram with labeled pointers
 - [ ] At least 2 comparison/analysis tables

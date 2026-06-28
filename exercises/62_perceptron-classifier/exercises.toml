@@ -1,0 +1,211 @@
+[[exercises]]
+name = "62_perceptron-classifier"
+title = "感知机二分类器 — Perceptron Classifier"
+unit = "unit3"
+lesson = 62
+order = 110
+mode = "make"
+source = "perceptron.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/62_perceptron-classifier"
+hint = '''
+感知机二分类器: 用纯 C 实现单层感知机，学习 AND 逻辑函数并演示 XOR 的线性不可分。
+
+═══════════════════════════════════════
+背景: 什么是感知机 (Perceptron)?
+═══════════════════════════════════════
+
+感知机是 Frank Rosenblatt 于 1957 年提出的最古老的人工神经网络模型。
+它是一个单层线性分类器，只能处理线性可分的数据集。
+
+模型结构:
+  输入层 (x0, x1) → 加权求和 (w·x + b) → 符号激活 (sign) → 输出 (+1 或 -1)
+
+  ┌───┐
+  │x0 │──→ w0 ──┐
+  └───┘         │    ┌─────┐     ┌──────┐
+                ├───→│  Σ  │────→│ sign │──→ ŷ ∈ {+1, -1}
+  ┌───┐         │    └─────┘     └──────┘
+  │x1 │──→ w1 ──┘       ↑
+  └───┘                  b (偏置)
+
+  决策函数: ŷ = sign(w0·x0 + w1·x1 + b)
+
+═══════════════════════════════════════
+线性可分性 (Linear Separability)
+═══════════════════════════════════════
+
+AND 逻辑函数的 4 个点在 2D 平面上:
+
+  x1 ↑
+     │
+  1  │  ●(-1)        ★(+1)     ● = 负类 (-1)
+     │                         ★ = 正类 (+1)
+     │
+  0  │  ●(-1)        ●(-1)
+     │
+     └──────────────────────→ x0
+        0              1
+
+  决策边界 (分离超平面): w0·x0 + w1·x1 + b = 0
+  即一条直线: x1 = -(w0/w1)·x0 - (b/w1)
+
+  注意: AND 是线性可分的——存在一条直线将 ★ 和 ● 完全分开。
+  例如 x1 = -2·x0 + 2 就是一条可行的决策边界:
+    - 点 (0,0): -2·0+2=2 > 0  → 在线上方 (但 AND 中 (0,0)→-1)
+    - 需要结合权重符号判断。
+
+  感知机收敛定理 (Perceptron Convergence Theorem):
+    若数据集线性可分，感知机算法必在有限步内收敛。
+    若数据集线性不可分 (如 XOR)，感知机永远不会收敛，会无限振荡。
+
+═══════════════════════════════════════
+感知机学习算法 (Perceptron Learning Rule)
+═══════════════════════════════════════
+
+核心思想: 对于每个误分类的样本，沿正确方向调整权重。
+
+更新规则 (对误分类点 x, 真实标签 y ∈ {+1, -1}):
+  w_new = w_old + α · y · x
+  b_new = b_old + α · y
+
+其中 α 是学习率 (Learning Rate)，控制每次调整的步长。
+
+几何直觉:
+  - 当 y = +1 但预测为 -1 (漏报): w 向 x 方向移动，使 w·x 增大
+  - 当 y = -1 但预测为 +1 (误报): w 向 -x 方向移动，使 w·x 减小
+  - 本质上等价于梯度下降，损失函数 L = Σ max(0, -y·(w·x+b))
+
+═══════════════════════════════════════
+七个 TODO 引导
+═══════════════════════════════════════
+
+TODO 1 — dot(): 点积 w·x + b
+  初始化 sum = b 。
+  遍历 j = 0 .. N_FEATURES-1:
+    sum += w[j] * x[j]
+  返回 sum 。
+
+TODO 2 — sign(): 符号函数
+  if (val >= 0.0) return 1.0; else return -1.0;
+  一行 if-else 即可。
+  注意: IEEE 754 规定 -0.0 >= 0.0 为 true ，即 sign(-0.0) = +1.0 。
+
+TODO 3 — predict(): 预测标签
+  return sign(dot(w, b, x));
+  一行代码，组合 dot 和 sign 。
+
+TODO 4 — train_one_epoch(): 单轮训练
+  注意：函数签名增加了 X_data 和 Y_data 参数以复用不同数据集。
+  1) 初始化 mistakes = 0
+  2) for i = 0 .. N_POINTS-1:
+       pred = predict(w, *b, X_data[i])
+       if (pred != Y_data[i]):   // 误分类
+         for j = 0 .. N_FEATURES-1:
+           w[j] += ALPHA * Y_data[i] * X_data[i][j]
+         *b += ALPHA * Y_data[i]
+         mistakes++
+  3) return mistakes
+
+TODO 5 — print_weights(): 打印权重
+  printf("w = {%.4f, %.4f}, b = %.4f", w[0], w[1], b);
+  格式严格: 花括号内有空格，小数点后固定 4 位。
+
+TODO 6 — AND 训练主流程:
+  1) 打印标题 "=== Perceptron Binary Classifier (AND logic) ==="
+  2) 打印数据集描述和学习率/最大轮数
+  3) 初始化 w = {0, 0}, b = 0
+  4) for epoch = 0 .. MAX_EPOCHS-1:
+       a) printf("--- Epoch %d ---\\n", epoch + 1);
+       b) printf("Before: "); print_weights(w, b); printf("\\n");
+       c) int mistakes = train_one_epoch(w, &b, X_AND, Y_AND);
+       d) printf("After:  "); print_weights(w, b); printf("\\n");
+       e) 打印分类结果（ 4 个点，用 "  " 两个空格分隔）
+       f) if (mistakes == 0):
+            printf("All points correctly classified — converged!\\n");
+            epoch++; break;
+  5) 打印决策边界: 方程、系数、 x1 = slope*x0 + intercept 形式
+  6) printf("Converged in %d epochs.\\n", epoch);
+
+TODO 7 — XOR 训练段（在 AND 之后）:
+  1) 重置 w={0,0}, b=0
+  2) 打印 "=== Perceptron Binary Classifier (XOR logic) ===" 及数据集描述
+  3) 同样循环最多 100 轮，但采用紧凑输出：
+     - 前 5 轮逐轮打印完整信息
+     - 之后每 10 轮打印一次 (epoch 10, 20, 30 ... 100)
+     - 中间轮次用摘要行替代：
+       "  ... (epochs 6–9: oscillating, 2 mistakes each) ..."
+       "  ... (epochs 11–19: oscillating, 2 mistakes each) ..."
+  4) 100 轮后打印警告: XOR 线性不可分，感知机无法学习
+  5) 打印最终决策边界和 "Did not converge" 信息
+
+═══════════════════════════════════════
+XOR 问题: 线性不可分的经典反例
+═══════════════════════════════════════
+
+XOR (异或) 是感知机无法学习的经典反例:
+  (0,0)→-1, (0,1)→+1, (1,0)→+1, (1,1)→-1
+
+  x1 ↑
+     │
+  1  │  ●(-1)        ★(+1)
+     │
+  0  │  ★(+1)        ●(-1)
+     └──────────────────────→ x0
+        0              1
+
+  不存在任何一条直线能将 ★ 和 ● 完全分开！
+  这直接导致了 1969 年 Minsky & Papert 对感知机的批判，
+  以及神经网络研究的第一次"AI 寒冬"。
+  直到多层感知机 (MLP) 和反向传播算法的出现才解决了 XOR 问题。
+
+═══════════════════════════════════════
+常见错误
+═══════════════════════════════════════
+
+1. sign(0) 的处理不一致:
+   如果 sign(0) 返回 +1 或 -1 不统一，训练行为会不同。
+   本题要求 sign(0) = +1 (即 val >= 0 返回 +1)。
+
+2. 忘记用指针更新 b:
+   train_one_epoch 的 b 参数是 double*，更新时写 *b += ...，
+   而非 b += ... (后者修改的是局部指针变量本身)。
+
+3. 更新时使用预测值而非真实标签:
+   正确: w[j] += ALPHA * Y_data[i] * X_data[i][j]   (用真实标签)
+   错误: w[j] += ALPHA * pred * X_data[i][j]   (用预测值)
+
+4. train_one_epoch 签名变更:
+   新签名接受 X_data/Y_data 参数以便复用于 AND 和 XOR 数据集。
+   调用时: train_one_epoch(w, &b, X_AND, Y_AND) 或 X_XOR, Y_XOR 。
+
+5. 输出格式细节:
+   - "After:  " 有两个空格 (与 "Before: " 对齐)
+   - 点之间用 "  " (两个空格) 分隔，不是逗号
+   - ✓ 和 ✗ 是 Unicode 字符 U+2713 和 U+2717
+   - XOR 段用紧凑摘要行跳过中间重复轮次
+
+6. XOR 段 epoch 计数:
+   即使 100 轮未收敛也正常——这正是要演示的线性不可分行为。
+
+═══════════════════════════════════════
+Makefile 填写
+═══════════════════════════════════════
+
+填写 5 处 ???:
+  - CC = gcc (C 编译器)
+  - CFLAGS = -Wall -Wextra -std=c11
+  - TARGET = perceptron
+  - SRC = perceptron.c
+  - 编译命令: $(CC) $(CFLAGS) $< -o $@
+  - test 目标: ./$(TARGET) | diff - expected_output.txt
+  - clean: rm -f $(TARGET)
+
+═══════════════════════════════════════
+验证
+═══════════════════════════════════════
+
+编译: make
+运行: ./perceptron
+比对: make test  (或 ./perceptron | diff - expected_output.txt)
+'''

@@ -1,0 +1,10 @@
+Running 5 test(s)...
+
+[test_add] PASS
+[test_str] PASS
+[test_fail]   FAIL test_framework.c:88: ASSERT_EQ(2 + 2, 5) — expected 5, got 4
+[test_null]   FAIL test_framework.c:96: ASSERT_STREQ(NULL, "hello") — expected "hello", got "(null)"
+[test_float]   FAIL test_framework.c:107: ASSERT_EQ((int)2.718, 3) — expected 3, got 2
+
+─── Summary ───
+5 tests, 2 passed, 3 failed

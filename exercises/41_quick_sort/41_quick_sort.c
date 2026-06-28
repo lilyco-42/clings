@@ -1,13 +1,13 @@
 /* 41_quick_sort.c — 快速排序
  *
- * 任务: 实现快速排序
+ * 任务：实现快速排序
  *       1. partition(arr, lo, hi) — Lomuto 分区
  *          选 arr[hi] 为 pivot，扫描 [lo, hi) 区间，小的放左边
  *          返回 pivot 最终位置
  *       2. quicksort(arr, lo, hi) — 递归快排
  *          分区 → 递归排左半 → 递归排右半
  *
- * 知识点: 分治、Lomuto 分区、pivot 选择、原地排序
+ * 知识点：分治、Lomuto 分区、pivot 选择、原地排序
  *
  * 验证：
  *   stdin: "5 3 8 1 4 2\n" → 1 2 3 4 5 8

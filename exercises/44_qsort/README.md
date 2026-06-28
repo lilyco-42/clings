@@ -23,12 +23,12 @@ void qsort(void *base, size_t n, size_t size,
            int (*cmp)(const void *, const void *));
 ```
 
-| 参数 | 含义 | int 数组 | 字符串数组 |
-|------|------|---------|-----------|
-| base | 数组首地址 | `arr` | `strs` |
-| n | 元素个数 | 5 | 3 |
+| 参数 | 含义           | int 数组        | 字符串数组        |
+| ---- | -------------- | --------------- | ----------------- |
+| base | 数组首地址     | `arr`           | `strs`            |
+| n    | 元素个数       | 5               | 3                 |
 | size | 单个元素字节数 | `sizeof(int)`=4 | `sizeof(char*)`=8 |
-| cmp | 比较函数指针 | `cmp_int` | `cmp_str` ←你写 |
+| cmp  | 比较函数指针   | `cmp_int`       | `cmp_str` ←你写   |
 
 ### cmp 函数万能模板
 
@@ -118,10 +118,10 @@ int cmp_str(const void *a, const void *b) {
 /* 发生了什么？
    qsort 传 a = &strs[0] = 0xA00
    (const char *)a = (const char *)0xA00 = 0xA00
-   
+
    但 0xA00 处存储的是一个指针值 0x200（strs[0] 的内容），
    不是字符串 "cherry"！
-   
+
    strcmp 把 0xA00 处的 8 字节二进制数据当作字符串去读 →
    读到的是指针值的字节表示（如 0x00 0x02 0x00...），
    很可能立即遇到 \0 → 视为空串 → 排序完全乱掉 → 段错误！
@@ -129,7 +129,7 @@ int cmp_str(const void *a, const void *b) {
 
 /* ✅ 正确写法 */
 int cmp_str(const void *a, const void *b) {
-    const char *s1 = *(const char **)a;  // 先解引用: 拿到 char*
+    const char *s1 = *(const char **)a;  // 先解引用：拿到 char*
     const char *s2 = *(const char **)b;
     return strcmp(s1, s2);
 }
@@ -137,15 +137,16 @@ int cmp_str(const void *a, const void *b) {
 
 ### 泛型解引用对照表
 
-| 数组类型 | 元素类型 | sizeof(元素) | qsort 传的地址类型 | cmp 强转为 | 解引用得到 |
-|---------|---------|-------------|-------------------|-----------|-----------|
-| `int arr[]` | int | 4 | `int*` | `const int*` | int |
-| `double arr[]` | double | 8 | `double*` | `const double*` | double |
-| `char arr[]` | char | 1 | `char*` | `const char*` | char |
-| `char *arr[]` | char* | 8 | **`char**`** | **`const char**`** | char* |
-| `struct node *arr[]` | struct node* | 8 | `struct node**` | `const struct node**` | struct node* |
+| 数组类型             | 元素类型     | sizeof(元素) | qsort 传的地址类型 | cmp 强转为            | 解引用得到   |
+| -------------------- | ------------ | ------------ | ------------------ | --------------------- | ------------ |
+| `int arr[]`          | int          | 4            | `int*`             | `const int*`          | int          |
+| `double arr[]`       | double       | 8            | `double*`          | `const double*`       | double       |
+| `char arr[]`         | char         | 1            | `char*`            | `const char*`         | char         |
+| `char *arr[]`        | char*        | 8            | **`char**`**       | **`const char**`**    | char*        |
+| `struct node *arr[]` | struct node* | 8            | `struct node**`    | `const struct node**` | struct node* |
 
 **记忆口诀**：qsort 传"元素地址"——元素什么类型，指针就几级。
+
 - int 数组 → 元素=int → 元素地址=int* → 一级指针
 - char* 数组 → 元素=char* → 元素地址=char** → 二级指针
 
@@ -163,13 +164,13 @@ void* + size 参数 + cmp 函数指针 = C 语言的泛型编程模式
 
 ### 常见错误
 
-| 错误 | 后果 | 正确 |
-|------|------|---------|
+| 错误                         | 后果               | 正确                |
+| ---------------------------- | ------------------ | ------------------- |
 | cmp_str 用 `(const char *)a` | 把指针值当字符串读 | `*(const char **)a` |
-| qsort 的 size 写成 strlen | 交换时破坏内存 | `sizeof(char *)` |
-| cmp_int 的 `*a - *b` 溢出 | INT_MIN-1 溢出 | 用 if-else 比较 |
-| 忘 `#include <stdlib.h>` | qsort 未声明 | 必须 include |
-| cmp 参数忘 `const` | 编译器警告 | `const void*` 接收 |
+| qsort 的 size 写成 strlen    | 交换时破坏内存     | `sizeof(char *)`    |
+| cmp_int 的 `*a - *b` 溢出    | INT_MIN-1 溢出     | 用 if-else 比较     |
+| 忘 `#include <stdlib.h>`     | qsort 未声明       | 必须 include        |
+| cmp 参数忘 `const`           | 编译器警告         | `const void*` 接收  |
 
 ### 重要知识点
 
@@ -192,9 +193,9 @@ void* + size 参数 + cmp 函数指针 = C 语言的泛型编程模式
 
 ### 后续衔接
 
-- Lesson 41: 手写快排——理解 qsort 内部的分区+递归原理
+- Lesson 41: 手写快排——理解 qsort 内部的分区 + 递归原理
 - Lesson 45: realloc——另一个需要理解内存模型的 API
-- C++ 对比: `std::sort` 用模板消除 void* 和函数指针开销
+- C++ 对比：`std::sort` 用模板消除 void* 和函数指针开销
 
 ### 完整示例输出追踪
 
@@ -224,6 +225,7 @@ qsort 后: {"apple", "banana", "cherry"}
 ### qsort 内部实现（了解即可）
 
 glibc 的 qsort 通常实现为 introsort（内省排序）：
+
 - 快速排序为主（选三数取中 pivot）
 - 递归深度超过 2×log₂n 时切换到堆排序（防 O(n²)）
 - 子数组小于一定阈值（通常 4-16）时切换到插入排序
@@ -232,13 +234,13 @@ glibc 的 qsort 通常实现为 introsort（内省排序）：
 
 ### C 泛型 vs C++ 模板
 
-| | C qsort | C++ std::sort |
-|---|--------|--------------|
-| 泛型方式 | void* + 函数指针 | 模板特化 |
-| 类型安全 | 编译期不检查 | 编译期完全检查 |
-| 比较开销 | 函数指针间接调用 | 内联展开（零开销） |
-| 代码膨胀 | 只有一份实现 | 每种类型生成一份 |
-| 速度 | 较慢（函数调用开销） | 更快（内联优化） |
+|          | C qsort              | C++ std::sort      |
+| -------- | -------------------- | ------------------ |
+| 泛型方式 | void* + 函数指针     | 模板特化           |
+| 类型安全 | 编译期不检查         | 编译期完全检查     |
+| 比较开销 | 函数指针间接调用     | 内联展开（零开销） |
+| 代码膨胀 | 只有一份实现         | 每种类型生成一份   |
+| 速度     | 较慢（函数调用开销） | 更快（内联优化）   |
 
 ### 参考资料
 

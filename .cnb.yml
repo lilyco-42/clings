@@ -133,4 +133,3 @@ cli:
           script: |
             pip3 install --break-system-packages build
             python3 -m build
-

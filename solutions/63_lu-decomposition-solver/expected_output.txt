@@ -1,0 +1,27 @@
+=== LU Decomposition Solver with Partial Pivoting ===
+
+Step 1: PA = LU decomposition
+  Pivot: swap row 0 <-> row 2
+  Pivot: swap row 1 <-> row 2
+
+Permutation vector p: [2 0 1]
+
+L matrix:
+  1.0000   0.0000   0.0000 
+  0.2500   1.0000   0.0000 
+  0.5000   0.6667   1.0000 
+
+U matrix:
+  8.0000   7.0000   9.0000 
+  0.0000  -0.7500  -1.2500 
+  0.0000   0.0000  -0.6667 
+
+Step 2: Forward substitution Ly = Pb
+y: [ 29.0000  -2.2500  -2.0000]
+
+Step 3: Backward substitution Ux = y
+x (solution): [  2.0000  -2.0000   3.0000]
+
+=== Verification: Ax ===
+Ax: [  5.0000  11.0000  29.0000]
+b:  [  5.0000  11.0000  29.0000]

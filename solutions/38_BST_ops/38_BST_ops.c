@@ -1,4 +1,4 @@
-/* 38_BST_ops.c — BST操作（参考解答） */
+/* 38_BST_ops.c — BST 操作（参考解答） */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

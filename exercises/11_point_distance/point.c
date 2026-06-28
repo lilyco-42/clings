@@ -3,7 +3,7 @@
  *
  * 知识点：struct, typedef, 函数参数传结构体，math.h sqrt
  *
- * 任务：参考原课 point.c，完成:
+ * 任务：参考原课 point.c，完成：
  *       1. 定义 struct point { float x; float y; } 和 typedef
  *       2. 实现 float calculate(point_t p1, point_t p2)
  *          - 计算 dx = p1.x - p2.x, dy = p1.y - p2.y

@@ -1,11 +1,11 @@
-/* 32_singly_list_reverse.c — 单链表反转与快慢指针环检测 【面试高频】
+/* 32_singly_list_reverse.c — 单链表反转与快慢指针环检测【面试高频】
  *
- * 任务: 1. reverse(head)  — 三指针法原地反转单链表，返回新 head
+ * 任务：1. reverse(head)  — 三指针法原地反转单链表，返回新 head
  *       2. has_cycle(head) — Floyd 快慢指针，有环返回 1 无环返回 0
  *       3. 编写 main(): 读一行数字建链表，
  *          若含 "cycle" 则制造环并检测，否则反转并打印
  *
- * 知识点: 三指针反转（prev/curr/next）、Floyd 判圈（slow 1步, fast 2步）
+ * 知识点：三指针反转（prev/curr/next）、Floyd 判圈（slow 1 步，fast 2 步）
  *
  * 验证（反转 1 2 3 → 3 2 1，有环链表检测）：
  *   stdin: "1 2 3 4 5\n"        → 5 4 3 2 1

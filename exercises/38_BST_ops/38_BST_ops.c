@@ -1,15 +1,15 @@
 /* 38_BST_ops.c — 二叉搜索树：插入、查找与删除
  *
- * 任务: 实现 BST 三个核心操作
+ * 任务：实现 BST 三个核心操作
  *       1. find_min(root)  — 找最小值（最左节点）
  *       2. bst_insert(root, val) — 插入：小于往左，大于往右，遇 NULL 新建
  *       3. bst_search(root, val) — 查找：返回找到的节点或 NULL
- *       4. bst_delete(root, val) — 删除【难点】，三种情况:
- *          a. 叶子: 直接 free 返回 NULL
- *          b. 单子树: 保留子树，free 被删节点
- *          c. 双子树: 右子树最小值替换，再递归删除该最小值
+ *       4. bst_delete(root, val) — 删除【难点】，三种情况：
+ *          a. 叶子：直接 free 返回 NULL
+ *          b. 单子树：保留子树，free 被删节点
+ *          c. 双子树：右子树最小值替换，再递归删除该最小值
  *
- * 知识点: BST 性质、递归插入/删除、find_min、右子树最小值替代法
+ * 知识点：BST 性质、递归插入/删除、find_min、右子树最小值替代法
  *
  * 验证：
  *   stdin: "insert 5 3 7 2 4\n"          → 2 3 4 5 7  (中序遍历=有序)
@@ -81,10 +81,10 @@ struct node *bst_delete(struct node *root, int val) {
     /* val > root->data → 递归删除右子树 */
 
     /* 找到要删的节点 (val == root->data)：
-     *   叶子: 无左右子 → free(root); return NULL
-     *   只有左子: tmp = root->left; free(root); return tmp
-     *   只有右子: tmp = root->right; free(root); return tmp
-     *   双子: min = find_min(root->right);
+     *   叶子：无左右子 → free(root); return NULL
+     *   只有左子：tmp = root->left; free(root); return tmp
+     *   只有右子：tmp = root->right; free(root); return tmp
+     *   双子：min = find_min(root->right);
      *         root->data = min->data;
      *         root->right = bst_delete(root->right, min->data) */
 

@@ -13,7 +13,7 @@ hint = '''
     struct node *clist_insert(struct node *cur, int val) {
         struct node *item = make_node(val);
         if (cur == NULL) {
-            item->next = item;     /* 第一个节点: 自环 */
+            item->next = item;     /* 第一个节点：自环 */
             return item;
         }
         item->next = cur->next;    /* 新节点指向 cur 的后继 */
@@ -28,7 +28,7 @@ hint = '''
             free(item);
             return NULL;
         }
-        /* 找前驱: 从 item 出发，找到 next 指向 item 的节点 */
+        /* 找前驱：从 item 出发，找到 next 指向 item 的节点 */
         struct node *prev = item;
         while (prev->next != item)
             prev = prev->next;

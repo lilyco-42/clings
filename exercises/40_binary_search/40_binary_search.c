@@ -1,10 +1,10 @@
 /* 40_binary_search.c — 二分查找
  *
- * 任务: 实现迭代二分查找 binary_search(arr, n, target)
+ * 任务：实现迭代二分查找 binary_search(arr, n, target)
  *       在有序数组中查找 target，返回索引；未找到返回 -1
- *       重点考察边界条件: mid = lo+(hi-lo)/2 防溢出, while(lo<=hi)
+ *       重点考察边界条件：mid = lo+(hi-lo)/2 防溢出，while(lo<=hi)
  *
- * 知识点: 循环不变式、防溢出 mid（不使用 (lo+hi)/2）、边界终止条件
+ * 知识点：循环不变式、防溢出 mid（不使用 (lo+hi)/2）、边界终止条件
  *
  * 验证：
  *   stdin: "1 3 5 7 9 11\n5\n" → 2
@@ -20,7 +20,7 @@ int binary_search(int arr[], int n, int target) {
 #error TODO: Finish this exercise. Run "clings hint" for help.
     /* 初始化搜索范围：lo = 0, hi = n - 1 */
 
-    /* while (lo <= hi) — 等号很重要！考虑只有1个元素时的情况 */
+    /* while (lo <= hi) — 等号很重要！考虑只有 1 个元素时的情况 */
 
     /* 计算中点：mid = lo + (hi - lo) / 2
      * 为什么不用 (lo + hi) / 2？→ 避免整数溢出 */

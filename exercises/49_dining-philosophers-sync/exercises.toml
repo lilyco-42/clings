@@ -1,0 +1,86 @@
+[[exercises]]
+name = "49_dining-philosophers-sync"
+title = "哲学家就餐问题 — Dining Philosophers"
+unit = "unit3"
+lesson = 49
+order = 97
+mode = "make"
+source = "dining_philosophers.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/49_dining-philosophers-sync"
+hint = '''
+哲学家就餐: 状态机模拟 + 非对称防死锁。
+
+数据结构（已提供）:
+  state[5]: 每位哲学家的状态 THINKING/HUNGRY/EATING
+  chopstick[5]: -1=空闲, 否则=持有者id
+  eat_count[5]: 已完成进餐次数
+  timer[5]: 当前状态的剩余轮数
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+Makefile 是 C 工程化的基石——一套规则描述"如何从源码生成程序"。
+make 检查文件时间戳，只重编译修改过的文件（增量编译），这在大型项目中
+能节省数十分钟的构建时间。本题需要填写 4 个变量 + 3 条命令。
+
+变量:
+  CC     — 用什么 C 编译器？（一般都是 gcc 或 cc）
+  CFLAGS — 编译选项，建议 -Wall -Wextra -std=c11
+  TARGET — 编译产出的可执行文件名
+  SRC    — 源文件名
+
+规则:
+  $(TARGET): $(SRC)  — 编译命令，用 $< (第一个依赖) 和 $@ (目标)
+  test: $(TARGET)    — 运行程序，用管道 | 把输出传给 diff 跟 expected_output.txt 比较
+  clean:             — 删除编译产物
+
+Makefile 特殊变量: $< = 第一个依赖文件  $@ = 目标文件
+
+═══════════════════════════════════════
+C 代码 — 7 个 TODO
+═══════════════════════════════════════
+
+TODO 1 — init(): 初始化 timer
+  用 rand() 产生 THINK_TIME_MIN~THINK_TIME_MAX 的随机值
+  随机数公式: rand() % N + base
+
+TODO 2 — can_eat(id): 非对称冲突检测
+  哲学家 i 的左手 = 筷[i]，右手 = 筷[(i+1)%5]
+  P0-P3 左手优先: 先检查左手再右手
+  P4   右手优先: 先检查右手再左手
+  两根都空闲才返回 1；否则返回 0
+  为什么 P4 右手优先？—— 打破循环等待环！
+
+TODO 3 — pickup(id): 非对称拿筷子
+  顺序同 can_eat: P0-P3 先左后右，P4 先右后左
+  chop[手] = id 表示被该哲学家持有
+
+TODO 4 — putdown(id): 放下筷子
+  左右两根筷子都设为 -1（空闲）
+
+TODO 5 — all_done(): 判定全员完成
+  遍历 N 位哲学家，任一 eat_count[i] < TARGET_EAT → 未完成
+
+TODO 6 — print_state(round): 格式化输出
+  格式: "RR | P0:X P1:X P2:X P3:X P4:X"
+  round 用 %02d 补零, X 为 T/H/E
+
+TODO 7 — main() 三阶段循环:
+  阶段1: EATING → timer-- → 到0则放筷+吃次数++ → THINKING
+         检查 all_done() break
+  阶段2: HUNGRY → 若 can_eat 则拿筷 → EATING
+  阶段3: THINKING → timer-- → 到0则 HUNGRY
+  顺序有讲究: 先放筷子再抢筷子，否则刚放的筷子可能被同一轮抢走
+
+───────────────────────────────
+死锁四个必要条件: 互斥、持有等待、不可剥夺、循环等待
+非对称策略破坏哪个? —— 循环等待
+
+为什么单线程能模拟并发？
+  本模拟是"交错执行模型"——每一轮，多个哲学家的动作被
+  串行化（先完成吃的，再尝试拿筷，最后思考变饿），模拟了
+  真实 OS 中时间片轮转调度的效果。当然，真正的并发还需要
+  原子操作和内存屏障（见 L64 无锁环形缓冲区）。
+───────────────────────────────
+参考: README.md 中的死锁图解和逐轮追踪
+'''
