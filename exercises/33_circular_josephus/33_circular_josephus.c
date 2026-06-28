@@ -1,14 +1,14 @@
 /* 33_circular_josephus.c — 循环链表与约瑟夫环问题
  *
- * 任务: 1. clist_insert(cur, val) — 循环链表插入
+ * 任务：1. clist_insert(cur, val) — 循环链表插入
  *          首节点自环（item->next = item），后续节点插在 cur 之后
  *       2. clist_delete(item)      — 删除 item，返回后继
  *          唯一节点返回 NULL
  *       3. 编写 main(): 读 N K，构建 1..N 循环链表，模拟约瑟夫环淘汰
  *
- * 约瑟夫环规则: N 个人围成圈，从 1 开始数，每数到 K 的人出局，直到所有人出局
+ * 约瑟夫环规则：N 个人围成圈，从 1 开始数，每数到 K 的人出局，直到所有人出局
  *
- * 知识点: 循环链表（自环初始化）、do-while 遍历、cursor 游标、动态删除
+ * 知识点：循环链表（自环初始化）、do-while 遍历、cursor 游标、动态删除
  *
  * 验证：
  *   stdin: "10 3\n"  → 3 6 9 2 7 1 8 5 10 4

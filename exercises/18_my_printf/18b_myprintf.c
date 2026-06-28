@@ -7,7 +7,7 @@
  * 任务：实现 myprintf(format, ...):
  *       1. va_start(ap, format) 初始化
  *       2. while ((c = *format++) != '\0') 遍历
- *       3. 非 '%' 直接 putchar(c); '%' 后看下一字符:
+ *       3. 非 '%' 直接 putchar(c); '%' 后看下一字符：
  *          %d → itoa(va_arg, buf, 10) + myputs
  *          %x → itoa(va_arg, buf, 16) + myputs
  *          %s → myputs(va_arg(ap, char *))

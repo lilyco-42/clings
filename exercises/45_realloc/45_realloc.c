@@ -1,18 +1,18 @@
 /* 45_realloc.c — realloc 动态扩容实验
  *
- * 任务: 用 malloc 分配初始内存，循环 realloc 扩容
+ * 任务：用 malloc 分配初始内存，循环 realloc 扩容
  *       1. 每次扩容前后打印指针地址（判断 in-place vs moved）
  *       2. 掌握安全用法：为什么不能写 ptr = realloc(ptr, size)
  *
- * realloc 两种行为:
+ * realloc 两种行为：
  *   原地扩容 [in-place]: 当前内存后有足够空间 → 返回原指针
  *   异地搬迁 [moved]: 空间不足 → 分配新内存 + memcpy + free 旧内存
  *
- * 致命错误: ptr = realloc(ptr, size);
+ * 致命错误：ptr = realloc(ptr, size);
  *   → 若 realloc 失败返回 NULL → ptr = NULL → 原内存泄漏！
- *   正确写法: tmp = realloc(ptr, size); if (tmp) ptr = tmp;
+ *   正确写法：tmp = realloc(ptr, size); if (tmp) ptr = tmp;
  *
- * 知识点: realloc 安全用法、原地 vs 异地、uintptr_t 防 use-after-free 警告
+ * 知识点：realloc 安全用法、原地 vs 异地、uintptr_t 防 use-after-free 警告
  *
  * 验证：
  *   stdin: "1 2 3 4 5\n" → 显示扩容过程 + values: 1 2 3 4 5
@@ -44,7 +44,7 @@ int main(void) {
      *       安全 realloc: int *tmp = realloc(arr, cap*sizeof(int))
      *       if (tmp) {
      *         判断是否 moved: ((uintptr_t)tmp != old)
-     *         打印扩容详情（地址+容量+moved/in-place）
+     *         打印扩容详情（地址 + 容量+moved/in-place）
      *         arr = tmp; expansions++
      *       } else {
      *         free(arr); return 1;  // realloc 失败

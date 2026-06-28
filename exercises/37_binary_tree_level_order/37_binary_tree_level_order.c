@@ -1,10 +1,10 @@
 /* 37_binary_tree_level_order.c — 二叉树层序遍历（BFS）
  *
- * 任务: 实现 levelorder(root) — 用队列辅助进行层序遍历
+ * 任务：实现 levelorder(root) — 用队列辅助进行层序遍历
  *       复用队列思想（数组 + front/rear），队列中存储 struct node*
  *       按层从上到下、从左到右输出每个节点
  *
- * 知识点: BFS 在树上的应用、队列辅助遍历、泛型元素 struct node*
+ * 知识点：BFS 在树上的应用、队列辅助遍历、泛型元素 struct node*
  *
  * 验证：
  *   stdin: "A B C D E . . . . .\n" → A B C D E

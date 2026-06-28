@@ -1,0 +1,318 @@
+[[exercises]]
+name = "69_tf-idf-cosine-sim"
+title = "TF-IDF 文档相似度 — TF-IDF Cosine Similarity"
+unit = "unit3"
+lesson = 69
+order = 117
+mode = "make"
+source = "tfidf.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/69_tf-idf-cosine-sim"
+hint = '''
+TF-IDF 文档相似度: 用纯 C 实现向量空间模型, 计算 3 篇文档的 TF-IDF 加权向量和两两余弦相似度。
+
+═══════════════════════════════════════
+背景: 什么是 TF-IDF?
+═══════════════════════════════════════
+
+TF-IDF (Term Frequency - Inverse Document Frequency) 是信息检索和文本挖掘中
+最经典的加权技术, 由 Karen Spärck Jones 于 1972 年提出。它用于评估一个词
+对一篇文档的重要程度。
+
+核心思想:
+  - 一个词在某文档中出现越频繁 (TF 高), 对该文档越重要
+  - 但若该词在很多文档中都出现 (DF 高), 其区分能力就弱
+  - IDF 惩罚常见词 (如 "the", "a", "is"), 奖励稀有词
+
+TF-IDF 是搜索引擎、文档聚类、推荐系统的基础。
+
+═══════════════════════════════════════
+向量空间模型 (Vector Space Model, VSM)
+═══════════════════════════════════════
+
+将文档表示为高维向量空间中的点:
+
+  词汇表: [the, cat, sat, on, mat, dog, log, ate, food]  (9 维)
+
+  D0 = "the cat sat on mat"
+    → 原始计数向量: [1, 1, 1, 1, 1, 0, 0, 0, 0]
+    → TF-IDF 向量:   [0.41, 0.41, 0.41, 0.41, 1.10, 0, 0, 0, 0]
+
+  向量的每个维度对应一个词, 值表示该词在文档中的重要性权重。
+
+  文档相似度 = 向量夹角余弦值:
+    cos(D0, D1) = (D0·D1) / (|D0| × |D1|)
+
+  值域 [0, 1] (非负 TF-IDF 时):
+    1.0 = 完全相同方向 (文档内容高度相似)
+    0.0 = 正交 (无共同词)
+
+  向量空间示意 (简化为 2D):
+    D0 → 方向: (the, cat, sat, on, mat 权重高)
+    D1 → 方向: (the, dog, sat, on, log 权重高)
+    D2 → 方向: (cat, dog, ate, food 权重高)
+
+    D0 与 D1 夹角较小 (共享 the/sat/on)
+    D0 与 D2 夹角较大 (仅共享 cat)
+    D1 与 D2 夹角较大 (仅共享 dog)
+
+═══════════════════════════════════════
+TF (Term Frequency) — 词频
+═══════════════════════════════════════
+
+TF 统计每个词在文档中的出现次数。
+
+本题使用原始计数 (raw count), 不做归一化:
+
+  D0: "the cat sat on mat" → 5 个词, 各出现 1 次
+    TF("the", D0) = 1, TF("cat", D0) = 1, TF("sat", D0) = 1, ...
+
+  其他 TF 变体 (了解即可, 本题不要求):
+    - 归一化 TF: tf / doc_length
+    - 对数 TF: 1 + log(tf)   (tf>0 时)
+    - 增强 TF: 0.5 + 0.5 * tf / max_tf
+
+  为什么用原始计数? 因为本题中文档长度相近, 且 IDF 已经提供了跨词归一化。
+
+═══════════════════════════════════════
+IDF (Inverse Document Frequency) — 逆文档频率
+═══════════════════════════════════════
+
+IDF 衡量一个词的"稀有度"或"信息量":
+
+  idf(t) = log(N / df(t))
+
+  其中:
+    N = 文档总数 (本题 N=3)
+    df(t) = 包含词 t 的文档数 (Document Frequency)
+
+  示例:
+    "the" 出现在 D0 和 D1 中 → df=2 → idf = log(3/2) = log(1.5) ≈ 0.4055
+    "mat" 仅出现在 D0 中   → df=1 → idf = log(3/1) = log(3)   ≈ 1.0986
+    "food" 仅出现在 D2 中  → df=1 → idf = log(3/1) ≈ 1.0986
+
+  直觉:
+    - 常见词 (df 大) → IDF 小 → 权重低 (区分度差)
+    - 稀有词 (df 小) → IDF 大 → 权重高 (区分度好)
+    - 若某词出现在所有文档中 (df=N) → idf = log(1) = 0 → 完全忽略
+
+  本题使用自然对数 log() (math.h)。也可用 log10(), 两者只差常数因子,
+  不影响余弦相似度 (因为分子分母的常数会约掉)。
+
+═══════════════════════════════════════
+TF-IDF 加权
+═══════════════════════════════════════
+
+TF-IDF 将 TF 和 IDF 相乘:
+
+  tfidf(d, t) = tf(d, t) × idf(t)
+
+  效果:
+    - 词 t 在文档 d 中出现多 → TF 大
+    - 词 t 在整个语料库中稀有 → IDF 大
+    - 两者都大 → 该词对文档 d 的"代表性"强
+
+  本例 TF-IDF 矩阵 (近似值):
+                   the     cat     sat      on     mat     dog     log     ate    food
+    D0           0.4055  0.4055  0.4055  0.4055  1.0986  0.0000  0.0000  0.0000  0.0000
+    D1           0.4055  0.0000  0.4055  0.4055  0.0000  0.4055  1.0986  0.0000  0.0000
+    D2           0.0000  0.4055  0.0000  0.0000  0.0000  0.4055  0.0000  1.0986  1.0986
+
+  观察:
+    - "the" 在 D0/D1 的权重仅 0.4055 (常见词被惩罚)
+    - "mat" 在 D0 的权重为 1.0986 (稀有词被奖励)
+    - D2 有两个高权重词 "ate" 和 "food" (都不常见)
+
+═══════════════════════════════════════
+余弦相似度 (Cosine Similarity)
+═══════════════════════════════════════
+
+余弦相似度度量两个向量方向的接近程度, 不受向量长度影响:
+
+  cos(a, b) = (a · b) / (|a| × |b|)
+
+  其中:
+    a · b = Σ a[k] × b[k]           (点积, 内积)
+    |a|   = sqrt(Σ a[k]²)           (L2 范数, 欧氏长度)
+    |b|   = sqrt(Σ b[k]²)
+
+  几何直觉:
+    在 9 维空间中, 每篇文档是一个向量。余弦相似度 = 两向量夹角的余弦。
+    - 夹角 0°  → cos=1 (完全同向, 内容几乎一样)
+    - 夹角 90° → cos=0 (正交, 无共同词)
+    - 夹角 180°→ cos=-1 (完全反向, TF-IDF 非负时不会出现)
+
+  本题结果:
+    cos(D0, D0) = 1.0000  (自相似)
+    cos(D0, D1) = 0.2645  (中等相似 — 共享 the/sat/on)
+    cos(D0, D2) = 0.0727  (低相似 — 仅共享 cat)
+    cos(D1, D2) = 0.0727  (低相似 — 仅共享 dog)
+
+  余弦 vs 欧氏距离:
+    - 欧氏距离受向量长度影响 (长文档天然距离远)
+    - 余弦相似度只看方向 (长文档和短文档可能很相似)
+    - 对于文本, 余弦相似度通常更合适
+
+═══════════════════════════════════════
+搜索引擎中的应用
+═══════════════════════════════════════
+
+现代搜索引擎 (如 Google 早期) 的基本流程:
+
+  1. 索引阶段:
+     - 对每个网页建立 TF-IDF 向量
+     - 存储为倒排索引 (inverted index)
+
+  2. 查询阶段:
+     - 将查询 "cat food" 转为 TF-IDF 向量
+     - 计算查询向量与所有文档向量的余弦相似度
+     - 按相似度降序排列返回结果
+
+  本例中:
+    - 若查询 "cat", D0 和 D2 都有 cat, 但 D2 的 "cat" TF-IDF 权重相同
+    - 若查询 "the cat", D0 排名更高 (the+cat 都在 D0), D1 次之 (有 the 无 cat)
+
+  这是信息检索 (Information Retrieval, IR) 的基石。
+
+═══════════════════════════════════════
+七个 TODO 引导
+═══════════════════════════════════════
+
+TODO 1 — tokenize(): 拆分文档为单词数组
+  初始化 n = 0 。
+  调用 strtok(doc, " ") 获得第一个 token 。
+  while (token != NULL && n < max):
+    tokens[n++] = token;
+    token = strtok(NULL, " ");
+  返回 n 。
+  注意: strtok 会修改输入字符串 (插入 '\0'), 所以 main 中需先 strcpy 复制。
+
+TODO 2 — compute_tf(): 统计词频
+  1) for j = 0 .. N_TERMS-1: tf[j] = 0 (初始化)
+  2) for i = 0 .. n_tokens-1:
+       for j = 0 .. N_TERMS-1:
+         if (strcmp(tokens[i], VOCAB[j]) == 0):
+           tf[j]++; break;
+  注意: strcmp 返回 0 表示相等。
+
+TODO 3 — compute_idf(): 计算逆文档频率
+  for t = 0 .. N_TERMS-1:
+    df = 0
+    for d = 0 .. N_DOCS-1:
+      if (tf_matrix[d][t] > 0) df++
+    idf[t] = log((double)N_DOCS / df)
+  关键: N_DOCS/df 要先转 double, 否则整数除法会截断。
+  log() 在 math.h 中, 链接 -lm 。
+
+TODO 4 — compute_tfidf(): TF-IDF 加权
+  for d = 0 .. N_DOCS-1:
+    for t = 0 .. N_TERMS-1:
+      tfidf[d][t] = tf_matrix[d][t] * idf[t]
+  直接逐元素相乘, 非常简单。
+
+TODO 5 — cosine_sim(): 余弦相似度
+  1) dot = 0, norm_a = 0, norm_b = 0
+  2) for k = 0 .. N_TERMS-1:
+       dot += a[k] * b[k]
+       norm_a += a[k] * a[k]
+       norm_b += b[k] * b[k]
+  3) if (norm_a == 0 || norm_b == 0) return 0.0
+  4) return dot / (sqrt(norm_a) * sqrt(norm_b))
+  注意: sqrt() 也在 math.h 中。除零保护防止零向量。
+
+TODO 6 — print_matrix(): 通用矩阵打印
+  这是一个辅助函数, 用于统一打印 TF 矩阵、 TF-IDF 矩阵和相似度矩阵。
+  参数说明:
+    - data 是 void*, 根据 is_double 决定读取方式
+    - 读取 double: ((double*)data)[i * n_cols + j]
+    - 读取 int:    ((int*)data)[i * n_cols + j]
+  打印步骤:
+    1) printf("%s\n", title)
+    2) 若 col_labels != NULL: 先 printf("%-6s", ""), 再逐个 printf(" %6s", col_labels[j]), 最后 printf("\n")
+    3) for i = 0..n_rows-1:
+         printf("%-6s", row_labels[i])
+         for j = 0..n_cols-1: printf(" "); printf(fmt, val)
+         printf("\n")
+  注意: 打印格式字符串前加空格, 如 printf(" %6.4f", val)。
+
+TODO 7 — main(): 主流程
+  需要实现完整的 7 步流程:
+  1) 打印标题 "=== TF-IDF Document Similarity ==="
+  2) 打印 "Documents:" 及 3 行文档内容
+  3) 对每篇文档: strcpy 到局部 buf → tokenize → compute_tf
+  4) compute_idf
+  5) compute_tfidf
+  6) 双重循环计算余弦相似度矩阵 (包括自相似)
+  7) 按 expected_output.txt 格式打印所有结果:
+     a) TF 矩阵: 调用 print_matrix(..., "%6d", 0)
+     b) IDF 信息: 直接用 printf (N=3 行 + Term 行 + IDF 行, 不用 print_matrix)
+     c) TF-IDF 矩阵: 调用 print_matrix(..., "%6.4f", 1)
+     d) 相似度矩阵: 调用 print_matrix(..., "%6.4f", 1), row_labels 和 col_labels 都用 D0/D1/D2
+     e) Interpretation 三行说明
+
+  输出格式必须与 expected_output.txt 逐字符一致。
+  建议先仔细阅读 expected_output.txt 的每一行。
+
+═══════════════════════════════════════
+Makefile 填写
+═══════════════════════════════════════
+
+填写 5 个变量 + 3 条规则:
+  变量:
+    CC = gcc
+    CFLAGS = -Wall -Wextra -std=c11
+    TARGET = tfidf
+    SRC = tfidf.c
+    LDLIBS = -lm
+  规则:
+    编译命令: $(CC) $(CFLAGS) $< $(LDLIBS) -o $@
+    test 目标: ./$(TARGET) | diff - expected_output.txt
+    clean: rm -f $(TARGET)
+
+注意: -lm 必须放在源文件之后 (链接顺序要求)。
+
+═══════════════════════════════════════
+常见错误
+═══════════════════════════════════════
+
+1. 忘记链接 -lm:
+   log() 和 sqrt() 在 libm 中, 编译时需要 -lm 。
+   错误信息: undefined reference to 'log' / 'sqrt'。
+   解决: gcc ... tfidf.c -lm
+
+2. strtok 修改原字符串:
+   strtok 会在分隔符处插入 '\0', 所以必须对副本操作。
+   错误: tokenize((char*)DOCS[d], ...) — DOCS 是 const!
+   正确: strcpy(buf, DOCS[d]); tokenize(buf, ...);
+
+3. IDF 计算中整数除法:
+   错误: log(N_DOCS / df) — N_DOCS=3, df=2 → 3/2=1 (整数除法!)
+   正确: log((double)N_DOCS / df) — 得到 1.5
+
+4. 余弦相似度除零:
+   若某文档的 TF-IDF 向量全为零 (例如空文档), 范数为 0 。
+   必须检查 norm_a==0 || norm_b==0, 返回 0.0 而非 NaN 。
+
+5. print_matrix 中 void* 索引:
+   错误: ((double*)data)[i][j] — data 是 flat 数组, 不是二维数组!
+   正确: ((double*)data)[i * n_cols + j]
+
+6. 输出格式细节:
+   - 列标签用 "%6s" 右对齐 (宽度 6)
+   - TF 矩阵用 "%6d" (整数)
+   - TF-IDF 和相似度用 "%6.4f" (4 位小数)
+   - 行标签用 "%-6s" 左对齐
+   - IDF 部分 "Term" 行和 "IDF" 行也需对齐
+
+7. 自相似度:
+   文档与自身的余弦相似度应为 1.0000 。
+   浮点误差可能导致 0.9999... , 但用 %.4f 打印会四舍五入为 1.0000 。
+
+═══════════════════════════════════════
+验证
+═══════════════════════════════════════
+
+编译: make  (或 gcc -Wall -Wextra -std=c11 -o tfidf tfidf.c -lm)
+运行: ./tfidf
+比对: make test  (或 ./tfidf | diff - expected_output.txt)
+'''

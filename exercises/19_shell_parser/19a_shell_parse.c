@@ -3,7 +3,7 @@
  *
  * 知识点：argc/argv, 状态机解析，函数指针，结构体数组
  *
- * 任务：参考原课 shell.c 的状态机解析:
+ * 任务：参考原课 shell.c 的状态机解析：
  *       1. 遍历 buf，用状态机切分：空格→state=0, 非空格→state=1
  *       2. state 0→1 时记录 argv[argc++] = &buf[i]
  *       3. state 1→0 时 buf[i] = '\0' 截断

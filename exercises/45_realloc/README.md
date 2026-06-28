@@ -73,8 +73,8 @@ int *tmp = realloc(arr, new_capacity * sizeof(int));
 if (tmp) {
     arr = tmp;          // 成功 → 更新指针
 } else {
-    /* 失败: arr 仍指向原内存, 有效!
-       可以选择: 继续用原大小、报错退出、或 free(arr) 清理 */
+    /* 失败：arr 仍指向原内存，有效！
+       可以选择：继续用原大小、报错退出、或 free(arr) 清理 */
     free(arr);
     return 1;
 }
@@ -82,11 +82,11 @@ if (tmp) {
 
 ### 扩容策略：为什么 ×2 而不是 +1？
 
-| 策略 | 插入 n 个元素总拷贝次数 | 复杂度 |
-|------|----------------------|--------|
-| `cap += 1` | 1+2+3+...+(n-1) = n²/2 | O(n²) |
-| `cap *= 2` | 1+2+4+...+n/2 ≈ 2n | O(n) 均摊 |
-| `cap *= 1.5` | 略多但省空间 | O(n) 均摊 |
+| 策略         | 插入 n 个元素总拷贝次数 | 复杂度    |
+| ------------ | ----------------------- | --------- |
+| `cap += 1`   | 1+2+3+...+(n-1) = n²/2  | O(n²)     |
+| `cap *= 2`   | 1+2+4+...+n/2 ≈ 2n      | O(n) 均摊 |
+| `cap *= 1.5` | 略多但省空间            | O(n) 均摊 |
 
 ```
 n=16, cap×2 的扩容过程:
@@ -116,7 +116,7 @@ val=3: size=2 >= cap=2 → 扩容!
   uintptr_t old_addr = (uintptr_t)arr;
   old_cap = 2, cap = 4
   tmp = realloc(arr, 4*sizeof(int))
-  
+
   if (tmp) {
       moved = ((uintptr_t)tmp != old_addr);
       printf("realloc: 0x%lx -> 0x%lx (cap 2 -> 4) %s\n",
@@ -147,7 +147,7 @@ uintptr_t old_addr = (uintptr_t)arr;     /* 保存旧地址的数值 */
 int *tmp = realloc(arr, capacity * sizeof(int));
 
 if (tmp) {
-    int moved = ((uintptr_t)tmp != old_addr);  /* 比较数值, 避开 GCC 警告 */
+    int moved = ((uintptr_t)tmp != old_addr);  /* 比较数值，避开 GCC 警告 */
     printf("realloc: 0x%lx -> 0x%lx (cap %d -> %d) %s\n",
            (unsigned long)old_addr, (unsigned long)(uintptr_t)tmp,
            old_cap, capacity, moved ? "[moved]" : "[in-place]");
@@ -159,20 +159,20 @@ if (tmp) {
 
 ### realloc 的其他特例
 
-| 调用形式 | 等价于 | 说明 |
-|---------|--------|------|
-| `realloc(NULL, size)` | `malloc(size)` | 统一分配/扩容逻辑 |
-| `realloc(ptr, 0)` | `free(ptr)` | C 标准说"实现定义"，不推荐依赖 |
+| 调用形式              | 等价于         | 说明                           |
+| --------------------- | -------------- | ------------------------------ |
+| `realloc(NULL, size)` | `malloc(size)` | 统一分配/扩容逻辑              |
+| `realloc(ptr, 0)`     | `free(ptr)`    | C 标准说"实现定义"，不推荐依赖 |
 
 ### 常见错误
 
-| 错误 | 后果 | 正确 |
-|------|------|---------|
+| 错误                       | 后果                        | 正确                                      |
+| -------------------------- | --------------------------- | ----------------------------------------- |
 | `arr = realloc(arr, size)` | 失败时 arr=NULL，原内存泄漏 | `tmp = realloc(...); if (tmp) arr = tmp;` |
-| 扩容后忘记更新 capacity | 后续越界写入 | `capacity *= 2;` |
-| realloc 返回 NULL 不做处理 | 使用已释放内存 | `if (!tmp) { free(arr); return 1; }` |
-| size 忘 sizeof | 分配字节数错误 | `capacity * sizeof(int)` |
-| 在 realloc 之后用旧指针 | 可能悬空（moved 时） | 永远用新指针 |
+| 扩容后忘记更新 capacity    | 后续越界写入                | `capacity *= 2;`                          |
+| realloc 返回 NULL 不做处理 | 使用已释放内存              | `if (!tmp) { free(arr); return 1; }`      |
+| size 忘 sizeof             | 分配字节数错误              | `capacity * sizeof(int)`                  |
+| 在 realloc 之后用旧指针    | 可能悬空（moved 时）        | 永远用新指针                              |
 
 ### 重要知识点
 
@@ -198,7 +198,7 @@ if (tmp) {
 
 - Lesson 35: 环形队列——用固定数组实现动态结构
 - Lesson 42: snprintf——预分配缓冲区大小
-- 扩展: 实现一个简易的 `vector` 库（push_back/pop_back/at）
+- 扩展：实现一个简易的 `vector` 库（push_back/pop_back/at）
 
 ### 完整代码模式
 

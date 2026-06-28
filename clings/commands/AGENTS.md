@@ -2,17 +2,17 @@
 
 ## 现有命令
 
-| 文件        | 命令                      | 功能              |
-| ----------- | ------------------------- | ----------------- |
-| `check.py`  | `clings check [selector]` | 批量验证练习 (遇到失败立即退出) |
-| `doctor.py` | `clings doctor`           | 检查开发环境                    |
-| `hint.py`   | `clings hint [exercise]`  | 显示练习提示                    |
-| `init.py`   | `clings init [unit]`      | 初始化练习文件                  |
-| `list.py`   | `clings list [selector]`  | 列出练习 + 进度                 |
-| `reset.py`  | `clings reset <exercise>` | 重置练习文件                    |
-| `run.py`    | `clings run [exercise]`   | 运行单个练习                    |
-| `score.py`  | `clings score [selector]` | CI 打分 (跑完全部, 输出 JSON + set-output) |
-| `watch.py`  | `clings watch [selector]` | 交互式 watch 模式               |
+| 文件        | 命令                      | 功能                                       |
+| ----------- | ------------------------- | ------------------------------------------ |
+| `check.py`  | `clings check [selector]` | 批量验证练习 (遇到失败立即退出)            |
+| `doctor.py` | `clings doctor`           | 检查开发环境                               |
+| `hint.py`   | `clings hint [exercise]`  | 显示练习提示                               |
+| `init.py`   | `clings init [unit]`      | 初始化练习文件                             |
+| `list.py`   | `clings list [selector]`  | 列出练习 + 进度                            |
+| `reset.py`  | `clings reset <exercise>` | 重置练习文件                               |
+| `run.py`    | `clings run [exercise]`   | 运行单个练习                               |
+| `score.py`  | `clings score [selector]` | CI 打分 (跑完全部，输出 JSON + set-output) |
+| `watch.py`  | `clings watch [selector]` | 交互式 watch 模式                          |
 
 ## 新增命令模板
 

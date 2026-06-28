@@ -1,0 +1,239 @@
+[[exercises]]
+name = "65_mark-sweep-gc"
+title = "标记-清除垃圾回收 — Mark-Sweep GC"
+unit = "unit3"
+lesson = 65
+order = 113
+mode = "make"
+source = "mark_sweep.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/65_mark-sweep-gc"
+hint = '''
+标记-清除垃圾回收器 (Mark-Sweep GC): 用数组模拟堆和对象图，实现标记和清除两阶段 GC 。
+
+═══════════════════════════════════════
+背景: 垃圾回收 (Garbage Collection)
+═══════════════════════════════════════
+
+垃圾回收是自动内存管理的核心技术。程序员分配内存后不需要手动释放，
+GC 系统自动识别并回收不再使用的对象。 John McCarthy 在 1959 年
+发明了 Lisp 语言时引入了 GC 概念。现代语言（ Java 、 Go 、 Python 、
+JavaScript 、 C#）都内置 GC ， C 语言中也有 Boehm GC 库。
+
+GC 四大基本算法家族:
+  1. 标记-清除 (Mark-Sweep) — 本题实现
+  2. 标记-整理 (Mark-Compact) — 解决碎片问题
+  3. 复制 (Copying / Semispace) — Cheney 算法
+  4. 引用计数 (Reference Counting) — Python/ObjC 使用
+
+═══════════════════════════════════════
+核心概念: 根集合与可达性
+═══════════════════════════════════════
+
+GC 的两个核心概念:
+
+1. 根集合 (Root Set):
+   程序可以直接访问的对象集合。包括:
+   - 全局变量 / 静态变量指向的对象
+   - 栈上局部变量指向的对象
+   - CPU 寄存器中持有的指针
+
+   本题的根集合: {OBJ0, OBJ3, OBJ5}
+
+2. 可达性 (Reachability):
+   从根集合出发，通过指针引用可以到达的所有对象。
+   如果对象 A 引用 B ， B 引用 C ，且 A 是根可达的，
+   那么 B 和 C 也是可达的（可传递）。
+
+   不可达对象 = 垃圾 (Garbage)，可以被回收。
+
+═══════════════════════════════════════
+三色标记抽象 (Tri-Color Marking)
+═══════════════════════════════════════
+
+Dijkstra 等人提出的三色抽象是理解所有追踪式 GC 的理论框架:
+
+  ┌─────────────────────────────────────────────┐
+  │  白色 (White) — 尚未访问，可能是垃圾        │
+  │      ↓ 从根出发标记                         │
+  │  灰色 (Gray)  — 已标记但子节点未处理        │
+  │      ↓ 处理完所有子节点                     │
+  │  黑色 (Black) — 已标记且子节点已全部处理    │
+  └─────────────────────────────────────────────┘
+
+初始状态: 所有对象都是白色
+标记阶段: 根集合 → 灰色 → 遍历子节点 → 黑色
+清除阶段: 白色对象 = 垃圾，回收之
+
+本题简化: 只用 marked (0/1) 位， DFS 隐式处理灰色集合
+（递归调用栈代替显式的灰色队列）。
+
+═══════════════════════════════════════
+对象图结构
+═══════════════════════════════════════
+
+16 个对象 (OBJ0~OBJ15)，引用关系如下:
+
+  ROOTS: [OBJ0]  [OBJ3]  [OBJ5]
+            │       │       │
+            ▼       ▼       ▼
+  OBJ0 ──→ OBJ1   OBJ3 ──→ OBJ4   OBJ5 ──→ OBJ6
+            │                         │
+            ▼                         ▼
+           OBJ2                      OBJ7
+            ▲                         │
+            └─────────────────────────┘ (cycle: OBJ7→OBJ5)
+
+  OBJ8: 孤立对象 (无入边，不在根集合)
+  OBJ9~OBJ15: 未使用
+
+可达对象 (8 个): OBJ0,OBJ1,OBJ2,OBJ3,OBJ4,OBJ5,OBJ6,OBJ7
+不可达对象 (8 个): OBJ8,OBJ9,OBJ10,OBJ11,OBJ12,OBJ13,OBJ14,OBJ15
+
+═══════════════════════════════════════
+五个 TODO 引导
+═══════════════════════════════════════
+
+TODO 1 — mark_recursive(int idx):
+  DFS 递归标记。参数 idx 是对象在 heap[] 中的索引。
+  步骤:
+    1. 边界检查: idx < 0 或 idx >= HEAP_SIZE 则 return 。
+    2. 已标记检查: 如果 heap[idx].marked == 1 则 return 。
+       这是处理循环引用的关键！没有这行会在 OBJ5↔OBJ7 循环中
+       无限递归导致栈溢出。
+    3. 标记: heap[idx].marked = 1 。
+    4. 递归子节点: 遍历 ref_count ，对每个 refs[i] 调用 mark_recursive 。
+  约 6 行代码。
+
+TODO 2 — sweep(void):
+  遍历整个堆，回收所有未标记对象。返回回收数量。
+  步骤:
+    1. 打印 "Sweeping (reclaiming unmarked objects):\n"。
+    2. for i = 0..HEAP_SIZE-1:
+       如果 heap[i].marked == 0:
+         - 打印 "  OBJ%d reclaimed\n", i
+         - 重置 refs[0] = refs[1] = -1, ref_count = 0
+         - collected++
+    3. return collected 。
+  约 12 行代码。
+
+TODO 3 — print_objects(const char *label):
+  打印所有对象状态。格式必须精确匹配:
+    printf("  OBJ%-2d: marked=%d  refs=[%2d, %2d]  ref_count=%d\n",
+           i, heap[i].marked, heap[i].refs[0], heap[i].refs[1],
+           heap[i].ref_count);
+  先打印 label 字符串（带换行），再循环打印 16 个对象。
+  约 5 行代码。
+
+TODO 4 — gc_collect(void):
+  协调标记和清除两个阶段。
+  步骤:
+    1. 打印 "=== Mark Phase ===\n"。
+    2. 遍历 roots[] 数组:
+       - 打印 "Marking from root OBJ%d...\n", roots[i]
+       - 调用 mark_recursive(roots[i])
+    3. 打印 "\n"。
+    4. 打印 "=== Sweep Phase ===\n"。
+    5. int collected = sweep()。
+    6. 打印 "\n"。
+    7. 打印 "=== GC Summary ===\n"。
+    8. 打印 "Objects collected: %d\n", collected 。
+    9. 统计 marked==1 的对象数 alive 。
+    10. 打印 "Objects alive: %d\n", alive 。
+  约 20 行代码。
+
+TODO 5 — main(void):
+  驱动函数。步骤:
+    1. init_heap()
+    2. 打印 "=== Before GC: Initial Object Graph ===\n"
+    3. print_objects("Object states (before marking):")
+    4. printf("\n")
+    5. gc_collect()
+    6. printf("\n")
+    7. 打印 "=== After GC: Final State ===\n"
+    8. print_objects("Object states (after sweep):")
+    9. return 0
+  约 10 行代码。
+
+═══════════════════════════════════════
+循环引用处理
+═══════════════════════════════════════
+
+本题对象图包含一个循环: OBJ5 → OBJ6 → OBJ7 → OBJ5
+
+如果没有 marked 检查:
+  mark_recursive(5)
+    → mark_recursive(6)
+      → mark_recursive(7)
+        → mark_recursive(5)  ← 又回到 OBJ5!
+          → mark_recursive(6)
+            → ... 无限递归 → 栈溢出 (Stack Overflow)
+
+有了 marked 检查:
+  mark_recursive(5) → marked[5]=1
+    → mark_recursive(6) → marked[6]=1
+      → mark_recursive(7) → marked[7]=1
+        → mark_recursive(5) → marked[5]==1 → return ✓
+
+这就是 marked 位充当 "visited" 集合的原理。
+
+═══════════════════════════════════════
+碎片问题 (Fragmentation)
+═══════════════════════════════════════
+
+标记-清除 GC 不会移动对象，因此会产生内存碎片:
+
+  回收前: [A][B][C][D][E][F][G][H]
+  回收后: [A][B][C][D][.][.][.][.]
+                存活区      空闲区(不连续小块)
+
+  问题: 虽然总空闲空间足够，但可能无法分配大对象。
+  解决: 标记-整理 (Mark-Compact) 或 复制 (Copying) GC 。
+
+═══════════════════════════════════════
+GC 算法对比
+═══════════════════════════════════════
+
+| 算法          | 移动对象 | 碎片  | 暂停时间   | 典型应用     |
+|--------------|---------|------|-----------|-------------|
+| Mark-Sweep   | 否      | 有   | 中等       | Boehm GC    |
+| Mark-Compact | 是      | 无   | 较长       | 老年代 GC    |
+| Copying      | 是      | 无   | 短(按存活) | 新生代 GC    |
+| Ref-Counting | 否      | 有   | 分摊       | Python/ObjC |
+
+═══════════════════════════════════════
+常见错误
+═══════════════════════════════════════
+
+1. 忘记 marked 检查导致循环引用无限递归:
+   mark_recursive 必须首先检查 heap[idx].marked ，否则栈溢出。
+
+2. sweep 后忘记保留 marked 状态:
+   输出要求显示回收后的对象状态，其中存活对象 marked=1 ，
+   已回收对象 marked=0 。不需要重置 marked 位。
+
+3. printf 格式不匹配:
+   refs 使用 %2d 格式（宽度 2 右对齐），不是 %d 。
+   OBJ 编号使用 %-2d （宽度 2 左对齐）。
+
+4. ref_count 在 sweep 时忘记清零:
+   回收对象时需要将 ref_count 也设为 0 。
+
+5. gc_collect 中 alive 计数逻辑错误:
+   应该统计 marked==1 的对象，不是 HEAP_SIZE - collected 。
+   （两者在本题中恰好相等，但语义不同）
+
+6. main 中忘记调用 init_heap():
+   不初始化的话 heap 全是零，所有对象看起来都相同。
+
+7. sweep 的返回值和 gc_collect 的打印顺序:
+   先调用 sweep 获取 collected 值，再打印汇总。
+
+═══════════════════════════════════════
+验证
+═══════════════════════════════════════
+
+编译: make  (或 gcc -std=c11 -Wall -Wextra -pedantic -O2 -o mark_sweep mark_sweep.c)
+运行: ./mark_sweep
+比对: ./mark_sweep | diff - expected_output.txt
+'''

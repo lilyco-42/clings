@@ -4,7 +4,7 @@
  * 知识点：n & (n-1) 清除最右边的 1, while 循环
  * 参考原课 bits.c 方法二
  *
- * 任务：实现 count_bits(num) 用 n&(n-1) 技巧:
+ * 任务：实现 count_bits(num) 用 n&(n-1) 技巧：
  *       while (num != 0) { num = num & (num - 1); sum++; }
  *       每次循环清除 num 最右边的一个 1
  *

@@ -1,0 +1,131 @@
+[[exercises]]
+name = "58_aho-corasick"
+title = "Aho-Corasick 多模式匹配 — AC Automaton"
+unit = "unit3"
+lesson = 58
+order = 106
+mode = "make"
+source = "aho_corasick.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/58_aho-corasick"
+hint = '''
+Aho-Corasick (AC 自动机): 构建 Trie + 失败链接, 一次扫描匹配多个模式串。
+
+═══════════════════════════════════════
+背景
+═══════════════════════════════════════
+Aho-Corasick 算法由 Alfred Aho 和 Margaret Corasick 在 1975 年
+提出 (论文 "Efficient String Matching: An Aid to Bibliographic Search")。
+它将 Trie 树与 KMP 的失败链接思想结合，实现了 O(n+m+z) 的多模式
+匹配，其中 n=文本长度, m=总模式长度, z=匹配数量。
+
+本题固定: 模式集 {"he","she","his","hers"}, 文本 "ushers"。
+字母表 a-z, 节点最多 30 个。
+
+═══════════════════════════════════════
+Trie 构建
+═══════════════════════════════════════
+将 4 个模式插入 Trie:
+- 根节点(索引 0)不存储字符
+- 每条边对应一个字符 'a'..'z'
+- 终止节点记录该处结束的模式名
+
+模式 "he"   → 0→h→1→e→2,  节点 2 输出 "he"
+模式 "she"  → 0→s→3→h→4→e→5, 节点 5 输出 "she"
+模式 "his"  → 0→h→1→i→6→s→7, 节点 7 输出 "his"
+模式 "hers" → 0→h→1→e→2→r→8→s→9, 节点 9 输出 "hers"
+
+共 10 个节点(0~9)。
+
+═══════════════════════════════════════
+失败链接 (Failure Link)
+═══════════════════════════════════════
+失败链接指向「当前已匹配前缀的最长真后缀」对应的节点。
+构建方法: BFS 层序遍历。
+
+关键规则:
+- 根节点的所有直接子节点 fail → 0 (根)
+- 对于节点 v (父节点 u, 边字符 c):
+   沿 u.fail 链向上找第一个有 c 子节点的祖先 f
+   若找到: v.fail = nodes[f].children[c]
+   否则:   v.fail = 0
+
+以本题为例:
+  Node 4 (s→h): 父=3, fail[3]=0, 0 有子'h'→1 → fail[4]=1
+  Node 5 (sh→e): 父=4, fail[4]=1, 1 有子'e'→2 → fail[5]=2
+  Node 7 (hi→s): 父=6, fail[6]=0, 0 有子's'→3 → fail[7]=3
+  Node 9 (her→s): 父=8, fail[8]=0, 0 有子's'→3 → fail[9]=3
+
+输出合并: 将 fail 链上的输出追加到当前节点。
+  Node 5 输出 "she", fail[5]=2 输出 "he" → Node 5 最终输出 ["she","he"]
+
+═══════════════════════════════════════
+扫描过程 (文本 "ushers")
+═══════════════════════════════════════
+cur 从根(0)开始, 逐个字符扫描:
+
+Step 0: 'u' → 0 无子'u', cur 保持 0
+Step 1: 's' → 0→3, cur=3
+Step 2: 'h' → 3→4, cur=4
+Step 3: 'e' → 4→5, cur=5 → 输出 she@1, he@2
+Step 4: 'r' → 5 无子'r', 沿 fail[5]=2, 2 有'r'→8, cur=8
+Step 5: 's' → 8→9, cur=9 → 输出 hers@2
+
+最终匹配:
+  "she"  在位置 1 (结束于 3)
+  "he"   在位置 2 (结束于 3)
+  "hers" 在位置 2 (结束于 5)
+
+═══════════════════════════════════════
+六个 TODO 任务
+═══════════════════════════════════════
+
+TODO 1 — new_node():
+  创建新节点, children 全初始化为-1, fail=0, output_count=0
+  返回节点索引。注意: node_count 要自增。
+
+TODO 2 — insert():
+  从根节点开始, 遍历 pattern 每个字符:
+    字符转索引 c = ch - 'a'
+    若 children[c]==-1 则调用 new_node()
+    cur = children[c] 进入下一层
+  遍历结束后在 cur 节点的 outputs[] 中记录模式名。
+
+TODO 3 — bfs_build_fail():
+  1) 根的直接子节点入队, fail=0
+  2) BFS 循环:
+     - 弹出 cur
+     - 遍历 cur 的 26 个子节点 child
+     - 计算 child.fail: 沿 cur.fail 链向上找
+     - 输出合并: 把 fail_node 的 outputs 复制到 child
+     - child 入队
+
+TODO 4 — print_trie():
+  遍历所有节点, 打印 children (跳过-1)、 fail 、 output 。
+
+TODO 5 — search():
+  扫描 text 每个字符:
+    - 沿 fail 链找到匹配路径
+    - 打印当前状态 (Step, char, node)
+    - 若有输出, 打印匹配的模式名和起始位置
+
+TODO 6 — main():
+  初始化→插入 4 个模式→bfs_build_fail→print_trie→search→最终汇总
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+填写 4 个变量 (CC/CFLAGS/TARGET/SRC) + 3 条命令。
+test 目标用管道 | diff 比对 expected_output.txt 。
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- children 用 -1 表示"无此子节点", 不是 0 (0 是根节点)
+- 失败链接构建必须用 BFS, 不能用 DFS (DFS 会先访问深层节点)
+- 输出合并时注意不要越界 (output_count < MAX_PATTERNS)
+- search() 中, 当前字符不匹配时沿 fail 链回退, 而不是回退到根
+- 匹配位置计算: start = current_pos - strlen(pattern) + 1
+- 根节点索引固定为 0
+- 不要忘记 #include <stdlib.h> (虽然本题可能不需要 malloc)
+'''

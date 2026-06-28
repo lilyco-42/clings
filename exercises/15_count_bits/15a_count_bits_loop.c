@@ -4,7 +4,7 @@
  * 知识点：位运算 &, 位移 <<, 掩码 1<<i, for 循环
  * 参考原课 bits.c 方法一
  *
- * 任务：实现 count_bits(num) 用逐位检测:
+ * 任务：实现 count_bits(num) 用逐位检测：
  *       for (i = 0; i < 32; i++)
  *           if (num & (1 << i)) sum++;
  *

@@ -1,0 +1,184 @@
+[[exercises]]
+name = "60_micro-test-framework"
+title = "微型单元测试框架 — Micro Test Framework"
+unit = "unit3"
+lesson = 60
+order = 108
+mode = "make"
+source = "test_framework.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/60_micro-test-framework"
+hint = '''
+微型 C 单元测试框架: 用纯 C 宏实现 ASSERT_EQ / ASSERT_STREQ / TEST / RUN_TESTS 。
+包含 5 个测试用例 (3 通过, 2 失败): test_add, test_str, test_fail, test_null, test_float 。
+
+═══════════════════════════════════════
+背景: 单元测试 (Unit Testing)
+═══════════════════════════════════════
+
+单元测试是软件工程中验证最小代码单元（函数）正确性的实践。
+成熟的框架（ JUnit 、 pytest 、 Check 、 Unity ）提供断言、测试
+发现、报告等功能。本题用纯 C 宏构建一个麻雀虽小五脏俱全的
+微型框架，深入理解宏编程和测试运行机制。
+
+测试金字塔（ Testing Pyramid ）:
+            ┌─────┐
+            │ E2E │  ← 少量端到端测试
+           ┌┴─────┴┐
+           │  Int. │  ← 中量集成测试
+          ┌┴───────┴┐
+          │   Unit   │  ← 大量单元测试 (本题)
+          └──────────┘
+
+TDD (Test-Driven Development) 红-绿-重构循环:
+  RED   → 写一个失败的测试
+  GREEN → 写最少代码让测试通过
+  REFACTOR → 优化代码结构，测试保持绿色
+
+═══════════════════════════════════════
+框架设计: 三个核心组件
+═══════════════════════════════════════
+
+1. 断言 (Assertions) — 验证期望值
+   ASSERT_EQ(a, b): 比较整数 a 和 b 是否相等
+   ASSERT_STREQ(a, b): 比较字符串 a 和 b 是否相等 (含 NULL 处理)
+
+2. 测试用例 (Test Cases) — 组织测试逻辑
+   TEST(name) { ... }: 定义一个测试函数，内部调用断言
+
+3. 测试运行器 (Test Runner) — 执行并报告
+   RUN_TESTS(): 运行所有注册的测试，打印通过/失败状态和汇总
+
+═══════════════════════════════════════
+宏编程关键技巧
+═══════════════════════════════════════
+
+A) # 操作符 (Stringification / 字符串化):
+   将宏参数转为字符串字面量。
+   例: #a  →  "a"
+       #hello  →  "hello"
+   用于断言失败时打印表达式文本。
+
+B) ## 操作符 (Token Pasting / 记号粘贴):
+   将两个记号合并为一个新记号。
+   例: test_##add  →  test_add
+   用于 TEST(name) 宏生成函数名。
+
+C) do { ... } while(0) 惯用法:
+   将多条语句包装成"一条语句"，防止展开后语法问题。
+   例:
+     if (cond)
+       MY_MACRO();  /* 如果 MY_MACRO 展开为多语句会出错 */
+     else
+       ...
+   用 do { ... } while(0) 包装后安全。
+
+D) 参数加括号:
+   宏参数必须用 (a) 包裹，防止运算符优先级问题。
+   例: #define SQUARE(x) (x)*(x)
+       SQUARE(1+2) → (1+2)*(1+2) = 9  ✓
+       #define SQUARE_BAD(x) x*x
+       SQUARE_BAD(1+2) → 1+2*1+2 = 5  ✗
+
+═══════════════════════════════════════
+六个 TODO 引导
+═══════════════════════════════════════
+
+TODO 1 — ASSERT_EQ 宏:
+  使用 do-while(0) 包裹。
+  比较 (a) != (b)，不等时用 printf 打印 FAIL 信息。
+  格式: "  FAIL %s:%d: ASSERT_EQ(%s, %s) — expected %d, got %d\n"
+  参数: __FILE__, __LINE__, #a, #b, (int)(b), (int)(a)
+  递增 fail_count 并 return 。
+
+TODO 2 — ASSERT_STREQ 宏:
+  使用 do-while(0) 包裹。
+  用局部 const char* 变量存储 (a) 和 (b) 避免重复求值。
+  NULL 处理逻辑:
+    - 两者均为 NULL → 相等 (通过)
+    - 仅一个为 NULL → 不等 (失败)
+    - 两者均非 NULL → 用 strcmp 比较
+  失败格式: "  FAIL %s:%d: ASSERT_STREQ(%s, %s) — expected \"%s\", got \"%s\"\n"
+  注意转义引号 \"。
+  递增 fail_count 并 return 。
+
+TODO 3 — TEST 宏:
+  用 ## 将 test_ 和 name 粘贴为函数名。
+  展开为: static void test_##name(void)
+
+TODO 4 — RUN_TESTS 宏:
+  设置 test_count = test_index 。
+  循环遍历 tests[] 数组，调用每个 test 函数。
+  比较调用前后 fail_count 判断通过/失败。
+  最后打印汇总: "%d tests, %d passed, %d failed\n"
+
+TODO 5 — 五个测试用例:
+  TEST(add): 3 个 ASSERT_EQ 验证加法/乘法/减法。
+  TEST(str): 3 个 ASSERT_STREQ 验证字符串比较。
+  TEST(fail): 1 个故意错误的 ASSERT_EQ(2+2, 5)。
+  TEST(null): ASSERT_STREQ(NULL, NULL) 通过 + ASSERT_STREQ(NULL, "hello") 失败。
+  TEST(float): ASSERT_EQ((int)3.14, 3) 通过 + ASSERT_EQ((int)2.718, 3) 失败。
+
+TODO 6 — main():
+  调用 register_test() 注册 5 个测试。
+  调用 RUN_TESTS()。
+
+═══════════════════════════════════════
+断言对比表
+═══════════════════════════════════════
+
+| 宏            | 比较对象     | 失败时行为              | NULL 安全 |
+|---------------|-------------|------------------------|-----------|
+| ASSERT_EQ     | 整数 (int)   | 打印期望值和实际值， return | N/A       |
+| ASSERT_STREQ  | 字符串 (char*)| 打印期望串和实际串， return | 是 (双 NULL 通过) |
+| TEST(name)    | N/A (定义)   | 创建 static void 测试函数 | N/A       |
+| RUN_TESTS()   | N/A (执行)   | 遍历运行并打印汇总报告    | N/A       |
+
+═══════════════════════════════════════
+常见错误
+═══════════════════════════════════════
+
+1. 宏参数忘记加括号:
+   #define ASSERT_EQ(a,b) if(a!=b)...  ← 错误！
+   应写: if((a)!=(b))...
+
+2. 忘记 do-while(0):
+   展开后 if/else 语法错乱。
+
+3. 字符串化 # 用错位置：
+   #a 只能用在宏定义中，不能用在普通代码里。
+
+4. ASSERT_STREQ 直接传 strcmp(a,b):
+   如果 a 或 b 是表达式会被多次求值，先存到局部变量。
+
+5. ASSERT_STREQ NULL 处理错误:
+   if (_aa == NULL || _bb == NULL || strcmp(...) != 0)  ← 双 NULL 也失败！
+   正确: if ((_aa==NULL) != (_bb==NULL) || (_aa && _bb && strcmp(...)!=0))
+
+6. TEST 宏忘记 static:
+   多个 .c 文件链接时可能符号冲突。
+
+7. fail_count 递增逻辑:
+   在 ASSERT 失败时才递增，不是在 TEST 层面递增。
+
+8. test_count 赋值时机:
+   在 RUN_TESTS 开始时设为 test_index （已注册数）。
+
+9. 忘记 #include <math.h>:
+   test_float 用到了浮点常量，虽然本题不直接调用数学函数但 math.h 是好习惯。
+
+═══════════════════════════════════════
+验证
+═══════════════════════════════════════
+
+编译: make  (或 gcc -Wall -Wextra -std=c11 -o test_framework test_framework.c)
+运行: ./test_framework
+比对: ./test_framework | diff - expected_output.txt
+
+预期: 5 tests, 2 passed, 3 failed
+  - test_add: 全部通过
+  - test_str: 全部通过
+  - test_fail: ASSERT_EQ(2+2,5) 失败
+  - test_null: ASSERT_STREQ(NULL, NULL) 通过, ASSERT_STREQ(NULL, "hello") 失败
+  - test_float: ASSERT_EQ((int)3.14, 3) 通过, ASSERT_EQ((int)2.718, 3) 失败
+'''

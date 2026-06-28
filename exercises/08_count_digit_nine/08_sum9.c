@@ -3,7 +3,7 @@
  *
  * 知识点：函数 Function, 形参和实参，函数返回值，逻辑分解，注释的写法
  *
- * 任务：参考原课 sum9.c 的注释风格，实现 find 函数:
+ * 任务：参考原课 sum9.c 的注释风格，实现 find 函数：
  *       1. find(num, digit) 用 do-while 循环拆位
  *       2. 每次取 num % 10 与 digit 比较，相等则 counter++
  *       3. 然后 num /= 10，直到 num == 0

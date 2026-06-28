@@ -1,11 +1,11 @@
 /* 36_binary_tree_traversal.c — 二叉树前中后序遍历（递归）
  *
- * 任务: 1. preorder(root)  — 前序: 根→左→右
- *       2. inorder(root)   — 中序: 左→根→右
- *       3. postorder(root) — 后序: 左→右→根
+ * 任务：1. preorder(root)  — 前序：根→左→右
+ *       2. inorder(root)   — 中序：左→根→右
+ *       3. postorder(root) — 后序：左→右→根
  *       4. 编写 main(): 读一行层序序列（. 表示空），构建二叉树后依次输出三种遍历
  *
- * 知识点: 递归树遍历、DFS 模型、三种遍历的唯一区别是 printf 的位置
+ * 知识点：递归树遍历、DFS 模型、三种遍历的唯一区别是 printf 的位置
  *
  * 验证：
  *   stdin: "A B C . . .\n"  → preorder: A B C
@@ -30,7 +30,7 @@ struct node *make_node(char ch) {
     return p;
 }
 
-/* 按层序构建二叉树: token 流，'.' 表示空节点 */
+/* 按层序构建二叉树：token 流，'.' 表示空节点 */
 struct node *build_tree(char *tokens) {
     if (!tokens || !*tokens) return NULL;
     char *tok = strtok(tokens, " \n");

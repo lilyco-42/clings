@@ -5,7 +5,7 @@
  * 参考原课 gomoku.c 中的 init_board() + print_board()
  * 参考 README Step 1: "画棋盘 15*15, =0"
  *
- * 任务:
+ * 任务：
  *       1. 实现 init_board(): 用 memset 将 board 初始化为 '.'
  *       2. 实现 print_board(): 打印列号 + 每行带行号
  *

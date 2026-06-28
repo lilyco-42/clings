@@ -71,7 +71,7 @@
         settings:
           add:
             - pyproject.toml
-          commitMessage: 'chore(release): ${NEXT_TAG} [skip ci]'
+          commitMessage: "chore(release): ${NEXT_TAG} [skip ci]"
           pushCurrent: true
 
       - name: Create & Push Tag
@@ -87,7 +87,7 @@ cli:
 
 # ── 方式 B: tag_push 统一发布 ──────────────────────────────────────────────
 # 无论一键发版还是手动打 tag，都走这条路: verify → build → publish → release
-'v*':
+"v*":
   tag_push:
     - name: publish
       docker:

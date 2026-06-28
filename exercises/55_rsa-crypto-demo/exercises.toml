@@ -1,0 +1,275 @@
+[[exercises]]
+name = "55_rsa-crypto-demo"
+title = "RSA 公钥加密 — RSA Cryptography"
+unit = "unit3"
+lesson = 55
+order = 103
+mode = "make"
+source = "rsa_crypto.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/55_rsa-crypto-demo"
+hint = '''
+═══════════════════════════════════════
+RSA 公钥加密演示 — uint64 玩具版
+═══════════════════════════════════════
+
+本题使用固定的小素数 p=61, q=53 实现一个玩具版 RSA 加密系统，
+完整展示：素性判定 → 密钥生成 → 加密 → 解密 → 验证 的数学原理。
+
+═══════════════════════════════════════
+背景知识：什么是 RSA ？
+═══════════════════════════════════════
+
+RSA (Rivest–Shamir–Adleman) 是 1977 年发表的第一个实用的
+公钥加密算法。它基于大整数分解的困难性：已知 n = p*q ，
+从 n 恢复出 p 和 q 在计算上不可行（当 p, q 足够大时）。
+
+核心思想是构造一个"陷门函数"：
+  - 加密方向容易计算： c = m^e mod n
+  - 解密方向只有知道私钥 d 才能高效计算： m = c^d mod n
+  - 没有 d 的攻击者必须解离散对数或分解 n ，计算上不可行
+
+═══════════════════════════════════════
+RSA 密钥生成（本题通过 gen_keys 实现）
+═══════════════════════════════════════
+
+1. 选择两个素数 p=61, q=53
+2. 用 Miller-Rabin 验证 p, q 的素性
+3. 计算模数 n = p*q = 3233
+4. 计算欧拉函数 φ(n) = (p-1)*(q-1) = 60*52 = 3120
+5. 选择公钥指数 e=17 ，验证 gcd(e, φ) == 1
+6. 通过扩展欧几里得算法计算私钥指数 d ≡ e⁻¹ mod φ
+
+═══════════════════════════════════════
+TODO 1 — gcd(): 欧几里得算法
+═══════════════════════════════════════
+
+计算两个非负整数的最大公约数 (Greatest Common Divisor)。
+
+算法: while(b != 0) { t = b; b = a % b; a = t; } return a;
+
+示例:
+  gcd(17, 3120):
+    3120 % 17 = 9  →  gcd(17, 9)
+    17 % 9 = 8     →  gcd(9, 8)
+    9 % 8 = 1      →  gcd(8, 1)
+    8 % 1 = 0      →  gcd(1, 0) = 1  ✓
+
+═══════════════════════════════════════
+TODO 2 — ext_gcd(): 扩展欧几里得算法
+═══════════════════════════════════════
+
+目的: 找到整数 x, y 使得 a*x + b*y = gcd(a, b)。
+当 gcd(a,b)=1 时， x 就是 a 模 b 的乘法逆元。
+
+递归实现思路:
+  基准情况: b == 0 → *px=1, *py=0, return a
+  递归情况: 调用 ext_gcd(b, a%b, &x1, &y1)
+            *px = y1
+            *py = x1 - (a/b) * y1
+
+手动追踪 ext_gcd(17, 3120):
+  ext_gcd(17, 3120) → ext_gcd(3120, 17) → ... → ext_gcd(1, 0) = 1
+  回溯得到 x = -367, y = 2
+  验证: 17*(-367) + 3120*2 = -6239 + 6240 = 1 ✓
+
+  私钥 d = x mod φ = -367 mod 3120 = 2753
+  验证: 17*2753 = 46801, 46801 mod 3120 = 1 ✓
+
+═══════════════════════════════════════
+TODO 3 — fast_pow(): 快速模幂运算
+═══════════════════════════════════════
+
+计算 (base^exp) % mod 的高效方法。
+朴素方法直接乘 exp 次会溢出且极慢。
+二分求幂法将时间复杂度从 O(exp) 降到 O(log exp)。
+
+算法伪代码:
+  result = 1
+  base = base % mod
+  while exp > 0:
+    if exp 的最低位为 1:         // exp & 1
+      result = (result * base) % mod
+    exp = exp >> 1                // exp /= 2
+    base = (base * base) % mod
+  return result
+
+示例: 42^17 mod 3233
+  17 = 10001b (二进制)
+  42^17 = 42^16 * 42^1
+  逐步平方: 42^2, 42^4, 42^8, 42^16 (共 O(log 17)=5 次乘法)
+  结果: 2557
+
+═══════════════════════════════════════
+TODO 4 — is_prime(): Miller-Rabin 素性判定
+═══════════════════════════════════════
+
+Miller-Rabin 是概率素性测试，使用见证人集合 {2, 3, 5, 7, 11}
+可对所有 < 2^64 的数给出确定性结果。
+
+算法步骤:
+  1. 处理小情况:
+     num < 2 → return 0 (非素数)
+     num == 2 或 num == 3 → return 1 (素数)
+     num 为偶数 → return 0 (合数)
+
+  2. 分解 num-1 = d * 2^s:
+     d = num - 1; s = 0;
+     while ((d & 1) == 0) { d >>= 1; s++; }
+
+  3. 对每个见证人 a ∈ {2, 3, 5, 7, 11}:
+     if (a >= num) continue;  // 跳过比 num 大的见证人
+     x = fast_pow(a, d, num);  // 计算 a^d mod num
+     if (x == 1 || x == num - 1) continue;  // 通过
+     for (r = 0; r < s - 1; r++):
+       x = (x * x) % num;
+       if (x == num - 1) break;  // 通过
+     if (x != num - 1) return 0;  // 合数
+
+  4. return 1;  // 素数
+
+为什么选这些见证人？
+  {2, 3, 5, 7, 11} 的确定性已由 Jim Sinclair (2011) 验证，
+  对所有 n < 2^64 有效。这是已知最小的通用见证人集合。
+
+═══════════════════════════════════════
+TODO 5 — gen_keys(): 密钥生成
+═══════════════════════════════════════
+
+从两个素数 p, q 和公钥指数 e 生成完整的 RSA 密钥对。
+
+步骤:
+  1. 计算 n = p*q, φ = (p-1)*(q-1)
+  2. 输出 n, φ, e (参考 expected_output.txt Step 2)
+  3. 验证 e: 必须 1 < e < φ 且 gcd(e, φ) == 1
+     若不满足则打印错误并 return 1
+  4. 调用 ext_gcd(e, φ, &x, &y) 得到 Bézout 系数
+  5. 输出 ext_gcd 结果、 Bézout 方程
+  6. 计算 d = x mod φ (确保 d > 0):
+     while (d < 0) d += φ; d = d % φ;
+  7. 输出 d 并验证 e*d mod φ == 1
+  8. 将 *out_n = n, *out_phi = φ, *out_d = d
+  9. return 0
+
+输出格式要点:
+  printf("Step 2 — Key Generation:\n");
+  printf("  n = p*q = %" PRIu64 "*%" PRIu64 " = %" PRIu64 "\n", p, q, n);
+  printf("  φ(n) = (p-1)*(q-1) = %" PRIu64 "*%" PRIu64 " = %" PRIu64 "\n",
+         p-1, q-1, phi);
+  printf("  Select e = %" PRIu64 " (public exponent)\n", e);
+  printf("  Verify gcd(e, φ) = gcd(%" PRIu64 ", %" PRIu64 ") = %" PRIu64 "\n",
+         e, phi, g);
+  printf("  [OK — e and φ are coprime]\n");
+  printf("  ext_gcd(e=%" PRId64 ", φ=%" PRId64 ") → gcd=%" PRId64
+         ", x=%" PRId64 ", y=%" PRId64 "\n", ...);
+  printf("  Equation: e*x + φ*y = gcd  →  ...\n");
+  printf("  Private key d = x mod φ = %" PRId64 "\n", d);
+  printf("  Verify: e*d mod φ = %" PRIu64 " %s\n", ...);
+
+═══════════════════════════════════════
+TODO 6 — encrypt(): RSA 加密
+═══════════════════════════════════════
+
+加密公式: c = m^e mod n
+
+直接调用 fast_pow(msg, pub_exp, modulus) 即可。
+本题中: c = 42^17 mod 3233 = 2557
+
+═══════════════════════════════════════
+TODO 7 — decrypt(): RSA 解密
+═══════════════════════════════════════
+
+解密公式: m' = c^d mod n
+
+直接调用 fast_pow(cipher, priv_exp, modulus) 即可。
+本题中: m' = 2557^2753 mod 3233 = 42
+
+═══════════════════════════════════════
+TODO 8 — main(): 主流程
+═══════════════════════════════════════
+
+按照 expected_output.txt 的格式输出 5 个步骤。
+
+Step 1: 参数与素性验证
+  - 打印 p 的值，调用 is_prime(p) 验证，打印 "prime ✓" 或 "composite ✗"
+  - 打印 q 的值，调用 is_prime(q) 验证
+  - 打印 n, φ, e, m
+
+Step 2: 密钥生成
+  - 调用 gen_keys(p, q, e, &gen_n, &gen_phi, &d)
+  - 检查返回值，失败则 return 1
+
+Step 3: 加密
+  - c = encrypt(m, e, n)
+  - 打印加密过程与结果
+
+Step 4: 解密
+  - mp = decrypt(c, (uint64_t)d, n)
+  - 打印解密过程与结果
+
+Step 5: 验证
+  - 比较 m 与 mp ，打印 RSA works! ✓
+
+关键格式要求:
+  - 使用 PRIu64 格式化 uint64_t (例如 printf("%" PRIu64, val))
+  - 使用 PRId64 格式化 int64_t (例如 printf("%" PRId64, val))
+  - is_prime 返回 int: 1=素数, 0=合数
+  - 确保 d 为正数: while(d < 0) d += phi; d = d % phi;
+  - Step 5 最后一行以 ✓ (Unicode U+2713) 结尾
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+
+填写 6 处 ???:
+  - CC = gcc (或其他编译器)
+  - CFLAGS = -Wall -Wextra -std=c11
+  - TARGET = rsa_crypto
+  - SRC = rsa_crypto.c
+  - 编译命令: $(CC) $(CFLAGS) $< -o $@
+  - test 目标: ./$(TARGET) | diff - expected_output.txt
+  - clean: rm -f $(TARGET)
+
+═══════════════════════════════════════
+知识补充： Miller-Rabin 素性测试
+═══════════════════════════════════════
+
+RSA 的安全性依赖于大素数的生成。实际 RSA 密钥生成中，
+需要用素性测试验证候选数是否为素数。
+
+Miller-Rabin 是最常用的概率素性测试：
+  - 基于费马小定理的加强版
+  - 对 k 个随机见证人，错误概率 < 4^(-k)
+  - 本题用 5 个固定见证人可确定性判定所有 < 2^64 的数
+  - 复杂度 O(k log³ n)，非常高效
+
+对称加密 vs 非对称加密:
+  对称加密 (如 AES, DES):
+    - 加密和解密使用同一把密钥
+    - 速度快，适合大量数据加密
+    - 密钥分发困难：双方需要安全地共享密钥
+
+  非对称加密 (如 RSA, ECC):
+    - 公钥加密，私钥解密（公钥可公开分发）
+    - 速度慢 100-1000 倍，通常只加密对称密钥或小数据
+    - 解决了密钥分发问题
+
+═══════════════════════════════════════
+安全性讨论
+═══════════════════════════════════════
+
+本题 n=3233 是玩具规模，可被立即分解。
+真实 RSA 使用 ≥2048 位的 n (约 617 个十进制位)。
+推荐阅读: PKCS#1 标准、 OAEP 填充方案、 RSA 签名。
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- 所有中间结果必须用 uint64_t ，避免溢出
+- ext_gcd 中的 x 可能为负，需要用 int64_t
+- d 必须调整为正数 (d = (x % phi + phi) % phi)
+- printf 格式串中 PRIu64/PRId64 是宏，需要写为 "%" PRIu64
+- 输出格式必须与 expected_output.txt 逐字符一致
+- is_prime 内部调用 fast_pow ，注意参数类型匹配
+- gen_keys 中使用 int64_t 转换调用 ext_gcd
+'''

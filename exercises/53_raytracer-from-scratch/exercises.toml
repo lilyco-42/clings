@@ -1,0 +1,102 @@
+[[exercises]]
+name = "53_raytracer-from-scratch"
+title = "基础光线追踪 — Ray Tracer"
+unit = "unit3"
+lesson = 53
+order = 101
+mode = "make"
+source = "raytracer.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/53_raytracer-from-scratch"
+hint = '''
+从零实现基础光线追踪器: 用 C 语言手写光线-球体求交 + Phong 光照模型，输出 PPM P3 文本图像。
+
+═══════════════════════════════════════
+场景描述
+═══════════════════════════════════════
+  红球: center=(0, 0, -5), radius=1, color=(1,0,0)
+  蓝球: center=(1, -0.5, -4), radius=0.8, color=(0,0,1)
+  点光源: position=(0, 10, -3), color=(1,1,1) 白色
+  相机: 原点 (0,0,0), 朝向 -Z, 像平面 z=-1, 视口 2×1
+  分辨率: 64×32 (小图便于测试)
+  输出: PPM P3 文本格式, 通过 diff 与 expected_output.txt 比对
+
+═══════════════════════════════════════
+Makefile (5 个变量 + 3 条命令)
+═══════════════════════════════════════
+填写 CC/CFLAGS/TARGET/SRC/LDLIBS + all/test/clean 规则。
+注意: 链接数学库需要 LDLIBS = -lm。
+test 目标用管道 | diff 比对 expected_output.txt。
+
+═══════════════════════════════════════
+C 代码 — 3 个 TODO 区 (~55 行)
+═══════════════════════════════════════
+
+TODO 1 — 向量运算 (约 15 行):
+  实现 Vec3 的 7 个函数:
+    v3_add(a,b): 分量相加
+    v3_sub(a,b): 分量相减
+    v3_mul(a,s): 标量乘
+    v3_div(a,s): 标量除
+    v3_dot(a,b): 点积 a.x*b.x + a.y*b.y + a.z*b.z
+    v3_len(v):   长度 sqrt(v·v)
+    v3_norm(v):  归一化 (长度>0 时除以长度, 否则返回零向量)
+  提示: v3_len 需要 sqrt() 来自 math.h; 编译时加 -lm。
+
+TODO 2 — 光线-球体求交 (约 15 行):
+  hit_sphere(Ray r, Sphere s):
+    光线方程: P(t) = orig + t * dir
+    球体方程: |P - center|^2 = radius^2
+    代入得二次方程: a*t^2 + b*t + c = 0
+    其中 a = dir·dir, b = 2*(orig-center)·dir, c = |orig-center|^2 - radius^2
+    判别式 disc = b^2 - 4ac
+    disc < 0 → 无交点, 返回 -1.0
+    否则求 t0 = (-b - sqrt(disc)) / (2a), t1 = (-b + sqrt(disc)) / (2a)
+    返回两个正根中较小者; 若均 ≤0 则返回 -1.0
+
+TODO 3 — 主循环与 Phong 光照 (约 25 行):
+  对每个像素 (y, x):
+    ① 生成光线: 像素坐标 → 世界坐标 → 单位方向
+       u = (x+0.5)/WIDTH, v = (y+0.5)/HEIGHT
+       px = (u-0.5)*viewport_w, py = (0.5-v)*viewport_h, pz = -focal
+       dir = normalize(px, py, pz)
+    ② 遍历球体找最近交点 (最小正 t)
+    ③ 无交点 → 黑色 "0 0 0"
+    ④ 有交点 → Phong 光照:
+       ambient  = obj_color * 0.1
+       diffuse  = obj_color * 0.7 * max(0, N·L)
+       specular = white * 0.5 * pow(max(0, R·V), 32)
+       其中 R = 2*(N·L)*N - L (反射向量)
+       color = ambient + diffuse + specular
+    ⑤ to_byte() 钳位到 [0,255] 输出
+
+───────────────────────────────
+Phong 光照三要素:
+  Ambient (环境光):  模拟间接光照，防止阴影区域全黑
+  Diffuse (漫反射):  与视角无关，正比于 N·L (Lambert 余弦定律)
+  Specular (高光):   镜面反射方向的亮点，pow(R·V, shininess)
+                     高光指数越大，亮点越集中 (本题用 32)
+───────────────────────────────
+
+═══════════════════════════════════════
+向量数学复习
+═══════════════════════════════════════
+  向量 v = (x, y, z)
+  向量加法: a + b = (ax+bx, ay+by, az+bz)
+  标量乘法: a * s = (ax*s, ay*s, az*s)
+  点积:     a · b = ax*bx + ay*by + az*bz
+  长度:     |v| = sqrt(v·v)
+  归一化:   normalize(v) = v / |v|  (单位长度向量)
+  反射:     R = I - 2*(I·N)*N  (或 R = 2*(N·L)*N - L, 等价)
+
+═══════════════════════════════════════
+PPM P3 格式
+═══════════════════════════════════════
+  第 1 行: P3 (表示 ASCII 彩色图像)
+  第 2 行: width height
+  第 3 行: 255 (最大颜色值)
+  之后每行一个像素的 R G B (空格分隔, 0-255 整数)
+  像素顺序: 从左到右, 从上到下 (PPM 约定顶行在前)
+
+参考: README.md 中的详细推导与示意图
+'''

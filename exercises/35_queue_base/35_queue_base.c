@@ -1,13 +1,13 @@
 /* 35_queue_base.c — 环形队列基础
  *
- * 任务: 1. enqueue(val) — 入队：在 rear 放值，rear 取模后移
+ * 任务：1. enqueue(val) — 入队：在 rear 放值，rear 取模后移
  *       2. dequeue()    — 出队：从 front 取值，front 取模后移
  *       3. 编写 main(): 读一行数字入队，再全部出队打印
  *
- * 环形队列: 用数组 + front/rear 双指针 + 取模实现环绕
+ * 环形队列：用数组 + front/rear 双指针 + 取模实现环绕
  *           广泛用于内核环形缓冲区、音频/网络环形 buffer
  *
- * 知识点: 取模环绕 (ptr+1)%MAX、队空判断 (front==rear)、FIFO 语义
+ * 知识点：取模环绕 (ptr+1)%MAX、队空判断 (front==rear)、FIFO 语义
  *
  * 验证：
  *   stdin: "10 20 30\n" → 10 20 30

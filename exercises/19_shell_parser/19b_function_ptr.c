@@ -4,7 +4,7 @@
  * 知识点：函数指针 int (*pf)(int, int), 全局函数指针，strcmp 命令分发
  * 参考原课 shell.c 中的全局 pf + math_main 设计
  *
- * 任务:
+ * 任务：
  *       1. 实现 add(a, b) 和 sub(a, b): 返回 a+b 和 a-b
  *       2. main 中用 strcmp 匹配 argv[0]，设置全局 pf 和 opchar
  *       3. 调用 math_main(argc, argv) 完成计算和输出

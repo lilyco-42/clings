@@ -60,11 +60,11 @@
     -------------> main( param_type_list )	函数声明符
 
     param_type_list		: param_list		形式参数表
-    形式参数类型表		| param_list ',' '...'	形式参数表, ...
+    形式参数类型表		| param_list ',' '...'	形式参数表，...
     			;
 
     param_list		: param_decl		形式参数声明
-    形式参数表		| param_list ',' param_decl	形式参数表, 形式参数声明
+    形式参数表		| param_list ',' param_decl	形式参数表，形式参数声明
 
     param_decl		: decl_specs declarator		声明说明符 声明符
     形式参数声明		| decl_specs abstract_declarator 声明说明符 抽象声明符

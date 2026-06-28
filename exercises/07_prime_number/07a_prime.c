@@ -3,7 +3,7 @@
  *
  * 知识点：math.h, sqrt, 强制类型转换 (int), 三层逻辑嵌套
  *
- * 任务：参考原课 prime.c，完成素数判定:
+ * 任务：参考原课 prime.c，完成素数判定：
  *       1. 外层 for num 从 1 到 100
  *       2. 计算 tmp = (int)sqrt((double)num)
  *       3. 内层 for i 从 2 到 tmp，判断 num % i == 0 则 break

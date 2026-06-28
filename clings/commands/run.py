@@ -138,7 +138,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     config = load_config()
     selector = args.exercise
 
-    # 批量模式: selector 为 unit0/unit1/unit2 或 lesson 号
+    # 批量模式：selector 为 unit0/unit1/unit2 或 lesson 号
     if selector and _is_selector(selector):
         selected = select_exercises(config, selector)
         total = len(selected)

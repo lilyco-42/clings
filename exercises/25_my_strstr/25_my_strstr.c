@@ -1,18 +1,18 @@
 /* 25_my_strstr.c — 实现 my_strstr：暴力字符串匹配
  *
- * 任务: 实现 my_strstr(haystack, needle)
+ * 任务：实现 my_strstr(haystack, needle)
  *       在 haystack 中查找 needle 第一次出现的位置
  *       返回指向该位置的指针；若未找到返回 NULL
  *       如果 needle 是空字符串，返回 haystack
  *
- * 知识点: 双重循环、滑动窗口、边界条件（<= n-m）、空串处理
+ * 知识点：双重循环、滑动窗口、边界条件（<= n-m）、空串处理
  *         为后续 KMP 算法打底
  *
  * 验证：
  *   stdin: "hello world\nworld\n"  → found: world
  *   stdin: "hello world\nxyz\n"    → not found
  *   stdin: "aaaa\naa\n"            → found: aaaa
- *   stdin: "hello\n\n"             → found: hello  （空 needle）
+ *   stdin: "hello\n\n"             → found: hello（空 needle）
  */
 #include <stdio.h>
 #include <string.h>

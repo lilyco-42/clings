@@ -1,0 +1,69 @@
+[[exercises]]
+name = "50_rdt-stop-and-wait"
+title = "可靠数据传输 — Stop-and-Wait"
+unit = "unit3"
+lesson = 50
+order = 98
+mode = "make"
+source = "rdt_stop_wait.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/50_rdt-stop-and-wait"
+hint = '''
+可靠数据传输: 停等协议 (Stop-and-Wait) — 在不可靠信道上实现可靠传输。
+
+数据结构（已提供）:
+  msgs[4]: 待发送的 4 则消息 {"HELLO","OpenCamp","NCCL","2026"}
+  seq_snd: 发送方当前序号 (0 或 1 交替)
+  seq_exp: 接收方期望序号
+  send_count / retrans_cnt / deliv_cnt: 统计计数器
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+Makefile 是 C 工程化的基石。填写 4 个变量 + 3 条命令。
+
+变量: CC (编译器), CFLAGS (编译选项), TARGET (产物名), SRC (源文件)
+规则: 用 $< (第一个依赖) 和 $@ (目标) 编写编译命令
+      test 目标用管道 | diff 比对 expected_output.txt
+
+═══════════════════════════════════════
+C 代码 — 6 个 TODO
+═══════════════════════════════════════
+
+TODO 1 — log_event(num, tag, seq, data): 格式化事件日志
+  格式: "[NN] TAG   seq=N "DATA"" (TAG 占 5 列左对齐)
+  data 为空时不输出双引号部分，末尾换行
+
+TODO 2 — sender_send(): 发包
+  调用 log_event 记录 SEND，send_count 加 1
+
+TODO 3 — sender_ack(ack_seq, arrived): 处理 ACK 或超时
+  超时 (arrived==0): 记录 TOUT → 重传
+  收到 ACK: 序号正确 → 翻转 seq (0↔1) 并推进 msg_idx
+  序号错误 → 忽略 (旧 ACK 重放)
+
+TODO 4 — receiver_recv(pkt_seq, data, ok, send_ack, ack_seq):
+  损坏: 记录 CORR → 不发 ACK
+  序号匹配: 记录 RECV → 交付+翻转 seq_exp → 发 ACK
+  序号不匹配: 记录 DUPL → 重发 ACK (不重复交付)
+  核心思想: 用序号区分新包和重传包
+
+TODO 5 — init(): srand(42) + 变量置零
+
+TODO 6 — main(): 打印头部 + 主循环 + 统计输出:
+  ① sender_send → ② channel() → ③ 若 LOST 记录+重传
+  ④ receiver_recv → ⑤ 若需发 ACK，模拟 ack_lost() → sender_ack
+  最后输出统计
+
+───────────────────────────────
+停等协议为什么叫"停等"？
+  发送方发完一个包就停止，等待 ACK 到达后才发下一个。
+  简单可靠，但信道利用率低——大量时间花在等待上。
+  后续演进: 滑动窗口 (Go-Back-N / 选择性重传)
+
+序号为什么只需要 0 和 1？
+  停等协议中同一时刻只有一个未确认的包在飞，
+  1 比特足够区分新包 (seq≠上一次) 和重传包 (seq=上一次)。
+───────────────────────────────
+参考: README.md 中的协议时序图和状态机
+'''

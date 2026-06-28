@@ -1,0 +1,159 @@
+[[exercises]]
+name = "71_simple-proof-of-work"
+title = "简化工作量证明 — Proof of Work (SHA-256)"
+unit = "unit3"
+lesson = 71
+order = 119
+mode = "make"
+source = "pow_chain.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/71_simple-proof-of-work"
+hint = '''
+简化工作量证明区块链 (SHA-256): 用简化但完整的 SHA-256 实现 3 区块区块链挖矿与验证。
+
+═══════════════════════════════════════
+背景: 区块链、 SHA-256 与工作量证明
+═══════════════════════════════════════
+
+区块链是一种去中心化的分布式账本技术，由中本聪 (Satoshi Nakamoto)
+在 2008 年提出。核心思想是将数据组织成区块，每个区块通过密码学
+hash 指向前一个区块，形成不可篡改的链条。
+
+SHA-256 是比特币使用的密码学 hash 函数，属于 SHA-2 家族，
+由 NSA 设计、 NIST 标准化 (FIPS 180-4)。它是 Merkle-Damgård
+结构的迭代 hash ，将任意长度消息处理为 256 位 (32 字节) 摘要。
+
+工作量证明 (Proof-of-Work, PoW) 是比特币使用的共识机制:
+  - 矿工通过不断尝试不同的 nonce 值来寻找满足难度目标的 hash
+  - 找到后广播给全网验证
+  - 最长链原则决定哪个版本被接受
+
+本题实现的是简化但完整的 SHA-256 + PoW:
+  - 3 个区块，固定数据
+  - SHA-256: 消息填充 + 64 轮压缩 + 标准 IV + K 表
+  - 难度目标是 hash 前 4 hex 字符为 "0000"
+  - 输出 64 字符十六进制 hash
+
+═══════════════════════════════════════
+SHA-256 消息填充 (Padding)
+═══════════════════════════════════════
+
+SHA-256 将消息按 512 位 (64 字节) 块处理。最后一块需要填充:
+
+填充规则 (FIPS 180-4 §5.1.1):
+  1. 追加 0x80 (二进制 10000000) — 表示"1"后跟"0"的开始
+  2. 追加 k 个 0x00 ，使得 (消息长度 + 1 + k) % 64 == 56
+     即总位数模 512 等于 448
+  3. 在最后 8 字节以大端序写入 64 位原始消息长度 (位数)
+
+  ┌─────────────────────────────────────────────────────────┐
+  │  原始消息  │0x80│  00..00 (k 字节)  │ 64 位长度 (大端)  │
+  │  N 字节    │1   │  k = 55 - (N%64)  │ 8 字节            │
+  └─────────────────────────────────────────────────────────┘
+  ◀────────────────── 64 字节的倍数 ─────────────────────────▶
+
+特殊情况: 如果 N % 64 >= 56 (即 block_idx > 56 追加 0x80 后),
+当前块剩余空间不足 8 字节存放长度，需要:
+  1. 用 0x00 填满当前 64 字节块 → sha256_transform
+  2. 新块: 56 字节 0x00 + 8 字节长度 → sha256_transform
+
+═══════════════════════════════════════
+SHA-256 64 轮压缩 (sha256_transform)
+═══════════════════════════════════════
+
+此函数已完整提供，学员无需修改。理解其结构即可:
+
+  阶段 1 — 消息调度 (Message Schedule):
+    W[0..15]  = 当前 512 位块按 32 位大端拆分为 16 个字
+    W[16..63] = W[i-16] + σ0(W[i-15]) + W[i-7] + σ1(W[i-2])
+    其中 σ0(x) = ROTR(x,7) ^ ROTR(x,18) ^ SHR(x,3)
+         σ1(x) = ROTR(x,17) ^ ROTR(x,19) ^ SHR(x,10)
+
+  阶段 2 — 64 轮迭代:
+    for i = 0..63:
+      Σ0(a) = ROTR(a,2) ^ ROTR(a,13) ^ ROTR(a,22)
+      Σ1(e) = ROTR(e,6) ^ ROTR(e,11) ^ ROTR(e,25)
+      Ch(e,f,g)  = (e & f) ^ (~e & g)
+      Maj(a,b,c) = (a & b) ^ (a & c) ^ (b & c)
+      temp1 = h + Σ1(e) + Ch(e,f,g) + K[i] + W[i]
+      temp2 = Σ0(a) + Maj(a,b,c)
+      h=g, g=f, f=e, e=d+temp1, d=c, c=b, b=a, a=temp1+temp2
+
+  阶段 3 — Davies-Meyer 更新:
+    state[0..7] += (a..h)
+
+═══════════════════════════════════════
+七个 TODO 引导
+═══════════════════════════════════════
+
+TODO 1 — sha256_init:
+  用 for 循环将 SHA256_IV[0..7] 复制到 ctx->state[0..7]。
+  设置 ctx->bitlen = 0, ctx->block_idx = 0 。
+
+TODO 2 — sha256_update:
+  遍历 data 的每个字节，放入 ctx->block[block_idx++]。
+  bitlen 每次加 8 。 block_idx == 64 时调用 sha256_transform
+  然后 block_idx = 0 。
+
+TODO 3 — sha256_final:
+  严格按照填充规则: 0x80 → 判断是否跨块 → 0x00 填充 →
+  64 位大端长度 → 最后 sha256_transform → 输出 state 到大端 digest 。
+
+TODO 4 — sha256_string:
+  组合 init/update/final ，遍历 digest 用 sprintf %02x 输出 hex 。
+
+TODO 5 — mine_block:
+  while(1) 循环， nonce 从 0 递增。
+  调用 build_block_input + sha256_string 构造 hash 。
+  hash_meets_target 返回真时记录 nonce/hash/attempts 并返回。
+
+TODO 6 — print_block:
+  按精确格式打印 5 行: Block N, prev_hash, data, nonce, hash, attempts 。
+  注意缩进 2 空格， nonce 和 attempts 用 %lu 。
+
+TODO 7 — main:
+  声明 chain[3]，循环挖矿 3 个区块，打印摘要，验证链完整性。
+  Block 0 的 prev_hash 为 64 个 '0'。后续区块 prev_hash 来自前一个。
+
+═══════════════════════════════════════
+常见错误
+═══════════════════════════════════════
+
+1. sha256_final 填充长度用错字节序:
+   长度必须是 64 位大端序 (big-endian)。
+   从高字节写到低字节: for (i = 7; i >= 0; i--)
+
+2. sha256_final 忘记处理 block_idx > 56 的跨块情况:
+   追加 0x80 后如果 block_idx > 56 ，必须先填满当前块并
+   做一次 transform ，再在新块中放长度。
+
+3. sha256_final 输出摘要字节序错误:
+   digest 输出也必须是大端序: state[i] 的 MSB 在前。
+
+4. sha256_update 中 bitlen 忘记更新:
+   每个字节使 bitlen 增加 8 (不是 1)。
+
+5. mine_block 中 nonce 使用 uint64_t:
+   输入格式用 %lu 配合 (unsigned long) 转换。
+   nonce 不会回绕，可能需要数万次尝试。
+
+6. 创世区块 prev_hash:
+   必须是 64 个 '0' 字符，不是 64 字节的 0x00 。
+   使用 memset(prev_hash, '0', 64) 而非 memset(prev_hash, 0, 64)。
+
+7. 打印格式:
+   hash/prev_hash 用 %s (已是 hex 字符串)。
+   nonce/attempts 用 %lu 。
+
+8. 验证逻辑中的 [VALID] 标签:
+   注意 expected_output.txt 中验证通过显示 [VALID]。
+   不是 [OK] 或 [PASS]。
+
+═══════════════════════════════════════
+验证
+═══════════════════════════════════════
+
+编译: make  (或 gcc -Wall -Wextra -std=c11 -o pow_chain pow_chain.c)
+运行: ./pow_chain
+比对: ./pow_chain | diff - expected_output.txt
+'''

@@ -1,14 +1,14 @@
 /* 30_singly_list_insert.c — 单链表动态插入：头插法与尾插法
  *
- * 任务: 1. 实现 insert_head(head, val) — 头插 O(1), 返回新 head
+ * 任务：1. 实现 insert_head(head, val) — 头插 O(1), 返回新 head
  *       2. 实现 insert_tail(head, val) — 尾插 O(n), 返回 head
  *       3. 编写 main(): 根据输入模式（head/tail）插入数字并打印链表
  *
- * 知识点: malloc/free、结构体指针、头插/尾插、空链表边界
+ * 知识点：malloc/free、结构体指针、头插/尾插、空链表边界
  *
  * 验证：（头插 1 2 3 → 3 2 1，尾插 1 2 3 → 1 2 3）
- *   stdin: "head 1 2 3\n"  → 3 2 1   （头插逆序）
- *   stdin: "tail 1 2 3\n"  → 1 2 3   （尾插保持原序）
+ *   stdin: "head 1 2 3\n"  → 3 2 1（头插逆序）
+ *   stdin: "tail 1 2 3\n"  → 1 2 3（尾插保持原序）
  *   stdin: "head 5\n"      → 5
  */
 #include <stdio.h>

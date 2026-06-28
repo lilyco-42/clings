@@ -1,21 +1,21 @@
 /* 34_bracket_match.c — 栈实现括号匹配
  *
- * 任务: 1. 实现 is_match(open, close) — 判断左右括号是否配对（() [] {} 三种）
+ * 任务：1. 实现 is_match(open, close) — 判断左右括号是否配对（() [] {} 三种）
  *       2. 实现 check_brackets(s) — 用栈判断括号是否全部正确配对
  *
- * 栈的四个操作已提供: push / pop / is_empty（但 is_match 需要你自己写）
+ * 栈的四个操作已提供：push / pop / is_empty（但 is_match 需要你自己写）
  *
- * 算法: 遍历字符串，左括号入栈，右括号与栈顶匹配
+ * 算法：遍历字符串，左括号入栈，右括号与栈顶匹配
  *       栈空且遍历完 = yes，否则 = no
  *
- * 知识点: 栈 LIFO、括号配对映射、配对失败（不匹配+栈空+多余的左括号）
+ * 知识点：栈 LIFO、括号配对映射、配对失败（不匹配 + 栈空 + 多余的左括号）
  *
  * 验证：
  *   stdin: "()\n"       → yes
  *   stdin: "()[]{}\n"   → yes
- *   stdin: "([)]\n"     → no   （交叉嵌套！）
- *   stdin: "(\n"        → no   （缺少右括号）
- *   stdin: ")\n"        → no   （缺少左括号）
+ *   stdin: "([)]\n"     → no（交叉嵌套！）
+ *   stdin: "(\n"        → no（缺少右括号）
+ *   stdin: ")\n"        → no（缺少左括号）
  */
 #include <stdio.h>
 #define MAX 1024

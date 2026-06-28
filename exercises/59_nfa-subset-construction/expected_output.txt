@@ -1,0 +1,36 @@
+=== NFA: a*b | ab* ===
+States: 0-3, Alphabet: {a,b}, Start: 0, Accept: 3
+Epsilon transitions: 0->1, 0->2
+Transitions: 1-a->1, 1-b->3, 2-a->3, 3-b->3
+
+=== Epsilon-Closures ===
+e-closure({0}) = {0,1,2}
+e-closure({1}) = {1}
+e-closure({2}) = {2}
+e-closure({3}) = {3}
+
+=== NFA Simulation ===
+NFA simulation for "aab":
+  Start ε-closure({0}) = {0,1,2}
+  Read 'a': {0,1,2} --a--> {1,3}
+  Read 'a': {1,3} --a--> {1}
+  Read 'b': {1} --b--> {3}
+  Final states: {3} → ACCEPT
+
+NFA simulation for "aba":
+  Start ε-closure({0}) = {0,1,2}
+  Read 'a': {0,1,2} --a--> {1,3}
+  Read 'b': {1,3} --b--> {3}
+  Read 'a': {3} --a--> {}
+  Final states: {} → REJECT
+
+=== Subset Construction (NFA -> DFA) ===
+DFA Transition Table (from Subset Construction):
+DFA_State  NFA_Subset           a        b        Accept? 
+---------- -------------------- -------- -------- --------
+D0         {0,1,2}            D1       D2       No
+D1         {1,3}              D3       D2       Yes
+D2         {3}                -        D2       Yes
+D3         {1}                D3       D2       No
+
+Total DFA states: 4

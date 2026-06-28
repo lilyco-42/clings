@@ -4,7 +4,7 @@
  * 知识点：状态机编程，get_input_type 函数，指针 p 记录单词起始，counter 计长度
  * 参考原课 wordsum.c — 4 个状态转换分支 + 打印每个单词
  *
- * 任务：实现状态机主循环:
+ * 任务：实现状态机主循环：
  *       1. state==0 && input==0: 保持 state=0 (连续空白)
  *       2. state==0 && input==1: state=1, p=&buf[i], counter=0, counter++
  *       3. state==1 && input==0: state=0, words++, 打印 "word %d found!\n"

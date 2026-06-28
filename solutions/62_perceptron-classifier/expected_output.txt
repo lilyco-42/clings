@@ -1,0 +1,112 @@
+=== Perceptron Binary Classifier (AND logic) ===
+
+Dataset:
+  x=(0,0) y=-1  x=(0,1) y=-1  x=(1,0) y=-1  x=(1,1) y=+1
+Learning rate α = 0.1, max epochs = 100
+Initial: w = {0.0000, 0.0000}, b = 0.0000
+
+=== Training Rounds ===
+--- Epoch 1 ---
+Before: w = {0.0000, 0.0000}, b = 0.0000
+After:  w = {0.1000, 0.1000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✗  (1,0)→+1✗  (1,1)→+1✓
+--- Epoch 2 ---
+Before: w = {0.1000, 0.1000}, b = 0.0000
+After:  w = {0.2000, 0.1000}, b = -0.1000
+Classification: (0,0)→-1✓  (0,1)→+1✗  (1,0)→+1✗  (1,1)→+1✓
+--- Epoch 3 ---
+Before: w = {0.2000, 0.1000}, b = -0.1000
+After:  w = {0.2000, 0.1000}, b = -0.2000
+Classification: (0,0)→-1✓  (0,1)→-1✓  (1,0)→-1✓  (1,1)→+1✓
+--- Epoch 4 ---
+Before: w = {0.2000, 0.1000}, b = -0.2000
+After:  w = {0.2000, 0.1000}, b = -0.2000
+Classification: (0,0)→-1✓  (0,1)→-1✓  (1,0)→-1✓  (1,1)→+1✓
+All points correctly classified — converged!
+
+=== Final Decision Boundary ===
+Equation: w0*x0 + w1*x1 + b = 0
+  0.2000 * x0 + 0.1000 * x1 + -0.2000 = 0
+  x1 = -2.0000 * x0 + 2.0000
+Converged in 4 epochs.
+
+=== Perceptron Binary Classifier (XOR logic) ===
+
+Dataset:
+  x=(0,0) y=-1  x=(0,1) y=+1  x=(1,0) y=+1  x=(1,1) y=-1
+Learning rate α = 0.1, max epochs = 100
+Initial: w = {0.0000, 0.0000}, b = 0.0000
+
+=== Training Rounds ===
+--- Epoch 1 ---
+Before: w = {0.0000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = -0.1000
+Classification: (0,0)→-1✓  (0,1)→-1✗  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 2 ---
+Before: w = {-0.1000, 0.0000}, b = -0.1000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 3 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 4 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 5 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+  ... (epochs 6–9: oscillating, 2 mistakes each) ...
+--- Epoch 10 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+  ... (epochs 11–19: oscillating, 2 mistakes each) ...
+--- Epoch 20 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 30 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 40 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 50 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 60 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 70 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 80 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 90 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+--- Epoch 100 ---
+Before: w = {-0.1000, 0.0000}, b = 0.0000
+After:  w = {-0.1000, 0.0000}, b = 0.0000
+Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
+
+Warning: Did not converge within 100 epochs.
+XOR is not linearly separable — a single perceptron cannot learn it.
+This demonstrates the fundamental limitation that led to the first AI winter.
+
+=== Final Decision Boundary ===
+Equation: w0*x0 + w1*x1 + b = 0
+  -0.1000 * x0 + 0.0000 * x1 + 0.0000 = 0
+  x0 = 0.0000  (vertical line)
+Did not converge — dataset is not linearly separable.

@@ -1,18 +1,18 @@
-/* 27_my_memmove.c — 实现 my_memmove：内存重叠拷贝 【重点】
+/* 27_my_memmove.c — 实现 my_memmove：内存重叠拷贝【重点】
  *
- * 任务: 实现 my_memmove(dest, src, n)
+ * 任务：实现 my_memmove(dest, src, n)
  *       将 n 字节从 src 拷贝到 dest，返回 dest
  *       与 memcpy 不同：必须正确处理 src 与 dest 内存重叠的情况
  *       考察源与目的地址前后关系的逻辑判断
  *
- * 知识点: 内存重叠、正向/反向拷贝、void* 到 char* 转换、指针比较（d < s）
+ * 知识点：内存重叠、正向/反向拷贝、void* 到 char* 转换、指针比较（d < s）
  *
- * 算法要点:
+ * 算法要点：
  *   - 当 dest < src：正向拷贝（从前往后），安全
  *   - 当 dest > src：反向拷贝（从后往前），否则正向会覆盖尚未读取的数据
  *
  * 验证：
- *   stdin: "abcd\n"   → aabc   （dest > src 场景，验证反向拷贝）
+ *   stdin: "abcd\n"   → aabc（dest > src 场景，验证反向拷贝）
  *   stdin: "hello\n"  → hhell
  *   stdin: "xy\n"     → xx
  */

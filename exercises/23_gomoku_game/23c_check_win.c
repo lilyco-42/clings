@@ -4,7 +4,7 @@
  * 知识点：二维数组，方向扫描 (dr,dc), 函数封装
  * 参考原课 gomoku.c 的判赢逻辑
  *
- * 任务:
+ * 任务：
  *       1. check_dir(r, c, dr, dc, player):
  *          从 (r,c) 沿 (dr,dc) 方向检查连续 5 个同色棋子
  *          - for k=0..4: nr = r+k*dr, nc = c+k*dc

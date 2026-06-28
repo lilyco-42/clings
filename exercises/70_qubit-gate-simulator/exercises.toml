@@ -1,0 +1,243 @@
+[[exercises]]
+name = "70_qubit-gate-simulator"
+title = "量子比特与门电路 — Qubit Gate Simulator"
+unit = "unit3"
+lesson = 70
+order = 118
+mode = "make"
+source = "qubit.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/70_qubit-gate-simulator"
+hint = '''
+量子比特与门电路模拟器: 用 C 语言模拟单量子比特状态演化和测量。
+
+═══════════════════════════════════════
+背景: 量子比特 (Qubit)
+═══════════════════════════════════════
+
+经典比特: 只能是 0 或 1 。
+量子比特: 可以是 |0⟩, |1⟩, 或两者的叠加态 (superposition)。
+
+量子比特状态用二维复向量表示:
+  |ψ⟩ = α|0⟩ + β|1⟩ = [α, β]ᵀ
+
+其中 α 和 β 是复数振幅 (complex amplitudes), 满足归一化条件:
+  |α|² + |β|² = 1
+
+|α|² 是测量得到 |0⟩ 的概率, |β|² 是测量得到 |1⟩ 的概率。
+
+Bloch 球表示:
+  任何单量子比特状态可以映射到单位球面上的一点。
+  
+            ┌──────────────┐
+            │      |0⟩ (北极)│
+            │      ▲       │
+            │     /│\      │
+            │    / │ \     │
+            │   /  │  \    │
+            │  /   ●   \   │  ← 任意状态 |ψ⟩
+            │ /    │    \  │
+            │/     │     \ │
+            └──────────────┘
+                   │
+                  |1⟩ (南极)
+
+  |ψ⟩ = cos(θ/2)|0⟩ + e^(iφ) sin(θ/2)|1⟩
+
+其中 θ∈[0,π] 是极角, φ∈[0,2π) 是方位角。
+
+═══════════════════════════════════════
+量子门 (Quantum Gates)
+═══════════════════════════════════════
+
+量子门用 2×2 酉矩阵 (unitary matrix) 表示。酉矩阵满足 U†U = I,
+保证量子操作可逆且保持归一化。
+
+本题使用的三个门:
+
+1. Hadamard 门 (H):
+   H = 1/√2 [[1,  1],
+            [1, -1]]
+
+   作用: 将计算基态变为叠加态。
+     H|0⟩ = (|0⟩ + |1⟩)/√2 = |+⟩
+     H|1⟩ = (|0⟩ - |1⟩)/√2 = |-⟩
+   
+   性质: H² = I (自逆), H 在 Bloch 球上对应绕 (x+z)/√2 轴旋转 π。
+
+2. Pauli-X 门 (X / NOT 门):
+   X = [[0, 1],
+        [1, 0]]
+
+   作用: 翻转比特。
+     X|0⟩ = |1⟩
+     X|1⟩ = |0⟩
+   
+   性质: X² = I, 在 Bloch 球上对应绕 X 轴旋转 π。
+
+3. Pauli-Z 门 (Z / 相位翻转):
+   Z = [[1,  0],
+        [0, -1]]
+
+   作用: 翻转 |1⟩ 的相位 (符号)。
+     Z|0⟩ = |0⟩
+     Z|1⟩ = -|1⟩
+   
+   性质: Z² = I, 在 Bloch 球上对应绕 Z 轴旋转 π。
+
+═══════════════════════════════════════
+状态演化追踪: H → X → Z → H
+═══════════════════════════════════════
+
+初始状态: |ψ₀⟩ = |0⟩ = [1, 0]ᵀ
+
+Step 1 — H 门: 产生叠加态
+  |ψ₁⟩ = H|0⟩ = 1/√2 (|0⟩ + |1⟩) = [1/√2, 1/√2]ᵀ
+  振幅: α = β = 1/√2 ≈ 0.707107
+  概率: P(|0⟩) = P(|1⟩) = 0.5 (各 50%)
+
+Step 2 — X 门: 交换 |0⟩ 和 |1⟩ 的振幅
+  |ψ₂⟩ = X|ψ₁⟩ = X[1/√2, 1/√2]ᵀ = [1/√2, 1/√2]ᵀ
+  因为 α=β, 交换后不变 (仍为 |+⟩ 态)
+
+Step 3 — Z 门: 翻转 |1⟩ 分量的相位
+  |ψ₃⟩ = Z|ψ₂⟩ = [1/√2, -1/√2]ᵀ = (|0⟩ - |1⟩)/√2 = |-⟩
+  振幅: α = 1/√2, β = -1/√2
+
+Step 4 — H 门: 回到计算基态
+  |ψ₄⟩ = H|ψ₃⟩ = H(|0⟩ - |1⟩)/√2 = |1⟩ = [0, 1]ᵀ
+  因为 H|+⟩ = |0⟩, H|-⟩ = |1⟩
+
+═══════════════════════════════════════
+测量 (Measurement)
+═══════════════════════════════════════
+
+量子测量是概率性的:
+- 测量 |ψ⟩ = α|0⟩ + β|1⟩, 以概率 |α|² 得到 |0⟩, 以概率 |β|² 得到 |1⟩
+- 测量后状态坍缩 (collapse) 到对应的基态
+- 本题最终状态 |ψ₄⟩ = |1⟩, 所以 |α|²=0, |β|²=1, 每次测量必得 |1⟩
+
+在本题中, 使用伪随机数生成器 (LCG) 模拟测量过程:
+  seed = (1103515245 * seed + 12345) & 0x7FFFFFFF
+  r = seed / 2³¹
+  若 r < |α|² 则结果为 |0⟩, 否则为 |1⟩
+
+重复 100 次测量并统计频率。
+
+═══════════════════════════════════════
+六个 TODO 任务
+═══════════════════════════════════════
+
+TODO 1 — complex_mult():
+  复数乘法公式: (a+bi)(c+di) = (ac-bd) + (ad+bc)i
+  直接计算 real 和 imag 分量, 返回 Complex 结构体。
+  注意: 不要忘记 imag 部分!
+
+TODO 2 — complex_add():
+  复数加法公式: (a+bi)+(c+di) = (a+c)+(b+d)i
+  分别将实部和虚部相加即可。
+
+TODO 3 — apply_gate():
+  矩阵-向量乘法: |ψ'⟩ = G|ψ⟩
+    new0 = G[0][0] * state[0] + G[0][1] * state[1]
+    new1 = G[1][0] * state[0] + G[1][1] * state[1]
+  关键: 必须用临时变量保存 new0 和 new1,
+        计算完两个分量后再写回 state[0] 和 state[1]。
+        否则计算 new1 时 state[0] 已被覆盖!
+  每个乘法用 complex_mult, 每个加法用 complex_add 。
+
+TODO 4 — print_state():
+  输出格式必须精确匹配 (包括空格和标点):
+    printf("%s\n", label);
+    printf("( %+f %+fi )|0⟩ + ( %+f %+fi )|1⟩\n", ...);
+    printf("\n");
+  使用 %+f 格式说明符 (总是显示正负号)。
+  4 个参数依次: state[0].real, state[0].imag, state[1].real, state[1].imag
+
+TODO 5 — measure():
+  步骤:
+    1. 计算 |α|² = state[0].real² + state[0].imag²
+    2. 推进 LCG: *seed = (1103515245u * (*seed) + 12345u) & 0x7FFFFFFFu
+    3. 生成 [0,1) 随机数: double r = (double)(*seed) / (double)0x80000000u
+    4. 若 r < prob0, return 0; 否则 return 1
+  注意: 0x80000000u = 2³¹ (无符号), 必须用 unsigned int 类型。
+
+TODO 6 — main():
+  流程:
+    1. 声明 Complex state[2]; state[0] = {1.0, 0.0}; state[1] = {0.0, 0.0}
+    2. print_state("Initial state |0⟩:", state)
+    3. apply_gate(H, state); print_state("After H gate (superposition):", state)
+    4. apply_gate(X, state); print_state("After X gate (Pauli-X/NOT):", state)
+    5. apply_gate(Z, state); print_state("After Z gate (Pauli-Z):", state)
+    6. apply_gate(H, state); print_state("After second H gate:", state)
+    7. 声明 int counts[2] = {0, 0}; unsigned int seed = 42u
+    8. for (int i = 0; i < 100; i++) { int o = measure(state, &seed); counts[o]++; }
+    9. 打印统计结果 (格式见下方)
+  注意: seed 初始值必须是 42u (与 expected_output 一致)。
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+
+填写 5 个变量(CC/CFLAGS/LDFLAGS/TARGET/SRC)+1 条编译命令。
+  CC=gcc
+  CFLAGS=-Wall -std=c99
+  LDFLAGS=-lm       ← 必须链接数学库!
+  TARGET=qubit
+  SRC=qubit.c
+  编译命令: $(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- complex_mult 中注意符号: imag = a.real*b.imag + a.imag*b.real (不是减!)
+- apply_gate 中必须用临时变量, 否则 state[0] 被覆盖后 state[1] 计算错误
+- print_state 用 %+f 自动显示正负号, 格式必须与 expected_output 完全一致
+- measure 中的 0x80000000u 是 2³¹, 不要写成 0x80000000 (signed int 会溢出)
+- seed 初始值必须是 42u, 否则测量结果不同
+- 编译必须加 -lm 链接数学库 (虽然本题未直接调用 sqrt, 但 math.h 被包含)
+- LCG 公式中的 1103515245u 和 12345u 是经典 glibc 参数
+- 输出中的 i 前面没有空格: "+0.000000i" 而不是 "+0.000000 i"
+- 最终状态 |ψ₄⟩ = |1⟩, 所以测量 100 次结果全是 |1⟩ (概率 100%)
+
+═══════════════════════════════════════
+量子计算基础概念
+═══════════════════════════════════════
+
+叠加 (Superposition):
+  量子比特可同时处于 |0⟩ 和 |1⟩ 的线性组合。
+  这是量子并行性的来源 — n 个量子比特可同时表示 2ⁿ 个状态。
+
+纠缠 (Entanglement):
+  两个或多个量子比特的状态不可分解为各自状态的张量积。
+  例如 Bell 态: (|00⟩+|11⟩)/√2, 测量一个立即决定另一个。
+
+量子门 (Quantum Gate):
+  酉矩阵操作, 可逆且保范数。
+  与经典逻辑门不同, 量子门是线性和可逆的。
+
+测量坍缩 (Wavefunction Collapse):
+  测量使叠加态坍缩到一个确定的本征态。
+  结果概率由 Born 规则给出: P(i) = |⟨i|ψ⟩|²。
+
+不可克隆定理 (No-Cloning Theorem):
+  未知量子态不能被完美复制。
+  这是量子密码学 (如 BB84) 安全性的基础。
+
+量子优势 (Quantum Advantage):
+  某些问题量子计算机比经典计算机有指数级加速:
+  - Shor 算法: 大整数分解 (RSA 密码破解)
+  - Grover 算法: 无序搜索 O(√N) vs O(N)
+  - 量子模拟: 模拟分子和材料
+
+═══════════════════════════════════════
+常见错误
+═══════════════════════════════════════
+- 忘记在 apply_gate 中使用临时变量 → state[0] 被覆盖
+- complex_mult 的 imag 算成 a*b - c*d 或 a.real*b.imag - a.imag*b.real → 结果错误
+- measure 中 0x80000000 不带 u 后缀 → signed overflow (UB!)
+- print_state 格式不精确 → diff 失败
+- seed 初始值不对 → 随机序列不同, 测量统计不同
+- Makefile 忘记 -lm → 链接错误
+- 复数结构体的 imag 字段忘记初始化 → 垃圾值
+'''

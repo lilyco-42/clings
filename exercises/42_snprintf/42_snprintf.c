@@ -1,13 +1,13 @@
 /* 42_snprintf.c — snprintf 格式化安全
  *
- * 任务: 1. 实现 is_truncated(): 用 snprintf 向 buf[10] 写入 "Count: %d",
+ * 任务：1. 实现 is_truncated(): 用 snprintf 向 buf[10] 写入 "Count: %d",
  *          判断是否发生截断，通过 ret 参数返回 snprintf 的返回值
  *       2. 编写 main(): 读整数 n，调用 is_truncated，打印四行结果
  *
- * 核心知识点: snprintf 返回值 = 企图写入的长度（不含 \0）
+ * 核心知识点：snprintf 返回值 = 企图写入的长度（不含 \0）
  *             ≠ 实际截断后写入的长度！
  *   "Count: 100" 共 10 字符，buf[10] 只能装 9 字符 + \0
- *   → 返回值 = 10（想写10个），strlen(buf) = 9（只写了9个）
+ *   → 返回值 = 10（想写 10 个），strlen(buf) = 9（只写了 9 个）
  *
  * 为什么大厂严禁 sprintf？→ 无边界检查，缓冲区溢出
  *

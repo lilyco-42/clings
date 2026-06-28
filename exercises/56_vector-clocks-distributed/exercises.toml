@@ -1,0 +1,229 @@
+[[exercises]]
+name = "56_vector-clocks-distributed"
+title = "向量时钟 — Vector Clocks"
+unit = "unit3"
+lesson = 56
+order = 104
+mode = "make"
+source = "vector_clocks.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/56_vector-clocks-distributed"
+hint = '''
+向量时钟: 在 3 节点分布式系统中实现向量时钟并判断 Happens-Before 关系。
+
+═══════════════════════════════════════
+分布式系统中的时间问题
+═══════════════════════════════════════
+
+在单机上， gettimeofday() 能告诉你"之前"和"之后"。
+在分布式系统中，没有全局时钟——每台机器有自己的物理时钟，
+NTP 同步有误差，时钟漂移不可避免。
+
+1978 年， Leslie Lamport 发表了划时代论文《 Time, Clocks, and
+the Ordering of Events in a Distributed System 》，提出:
+
+  如果事件 a 能因果影响事件 b (a 发送消息被 b 接收，或
+  a 和 b 在同一进程且 a 先发生)，则 a "Happens-Before" b ，
+  记作 a → b 。
+
+  Happens-Before 是一个严格的偏序关系 (partial order):
+    - 传递性: a→b 且 b→c ⇒ a→c
+    - 非对称性: a→b ⇒ ¬(b→a)
+    - 非自反性: ¬(a→a)
+
+═══════════════════════════════════════
+Lamport 逻辑时钟的局限
+═══════════════════════════════════════
+
+Lamport 时钟规则:
+  - 每个进程维护一个整数计数器 C
+  - 本地事件/发送: C++
+  - 接收消息: C = max(C_local, C_msg) + 1
+
+问题: C(a) < C(b) 不能推出 a → b ！
+
+例如两个并发事件:
+  P0 本地事件: C0=1
+  P1 本地事件: C1=1
+  C0(1) < C1(1)? 不成立。但即使我们让 C0=1, C1=2 ，
+  也无法判断它们是否并发。
+
+Lamport 时钟给出的是"可能因果"而非"必然因果"——
+这就是为什么需要向量时钟。
+
+═══════════════════════════════════════
+向量时钟原理
+═══════════════════════════════════════
+
+向量时钟由 Colin Fidge (1988) 和 Friedemann Mattern (1989)
+独立提出。每个节点维护一个长度为 N 的整数向量 VC[0..N-1]，
+其中 VC[i] 是节点 i 上已知发生的事件计数。
+
+规则:
+  1. 本地事件: VC[self] += 1
+  2. 发送消息: VC[self] += 1, 然后将整个 VC 向量附在消息上
+  3. 接收消息: VC[k] = max(VC[k], msg.VC[k]) for all k
+                然后 VC[self] += 1
+
+Happens-Before 判定:
+  a → b 当且仅当:
+    (1) 对所有 k: VC_a[k] <= VC_b[k]
+    (2) 存在 k: VC_a[k] < VC_b[k]
+
+  如果两者都不成立 (既有 VC_a[i] < VC_b[i] 又有 VC_a[j] > VC_b[j])，
+  则 a 和 b 是并发的 (concurrent)，记作 a || b 。
+
+═══════════════════════════════════════
+固定事件序列
+═══════════════════════════════════════
+
+3 个节点 P0/P1/P2 ， 6 个固定事件:
+
+  E1: P0 SEND to P1    — P0 发送消息给 P1
+  E2: P1 RECV from P0  — P1 接收来自 P0 的消息
+  E3: P1 LOCAL         — P1 本地计算
+  E4: P2 RECV from P1  — P2 接收来自 P1 的消息
+  E5: P2 LOCAL         — P2 本地计算
+  E6: P0 RECV from P2  — P0 接收来自 P2 的消息
+
+消息链: P0 → P1 → P2 → P0 (环形通信)
+
+═══════════════════════════════════════
+Makefile
+═══════════════════════════════════════
+
+填写 4 个变量 (CC/CFLAGS/TARGET/SRC) + 3 条命令。
+test 目标用管道 | diff 比对 expected_output.txt 。
+
+变量:
+  CC     — C 编译器 (gcc)
+  CFLAGS — 编译选项，建议 -Wall -Wextra -std=c11
+  TARGET — 可执行文件名 (vector_clocks)
+  SRC    — 源文件名 (vector_clocks.c)
+
+规则:
+  $(TARGET): $(SRC)  — $(CC) $(CFLAGS) $< -o $@
+  test: $(TARGET)    — ./$(TARGET) | diff - expected_output.txt
+  clean:             — rm -f $(TARGET)
+
+═══════════════════════════════════════
+C 代码 — 7 个 TODO
+═══════════════════════════════════════
+
+TODO 1 — init_clocks(): 初始化向量时钟
+  双重循环: 外层遍历 N_NODES 个节点，内层遍历 N_NODES 个分量。
+  设置 nodes[i].id = i ， nodes[i].clock[j] = 0 。
+  所有时钟从零开始——这代表"因果历史为空"。
+
+TODO 2 — local_event(node_id): 本地事件
+  只需一行: nodes[node_id].clock[node_id]++。
+  本地事件只增加自己分量的计数，不影响其他分量的认知。
+
+TODO 3 — send_event(from, to, msg_clock): 发送事件
+  第一步: nodes[from].clock[from]++ (发送本身是一个事件)。
+  第二步: 用 for 循环把 nodes[from].clock 全部复制到 msg_clock 。
+  msg_clock 就是随消息发送的向量时钟快照。
+
+TODO 4 — recv_event(to, msg_clock): 接收事件
+  第一步 (合并): for i in 0..N_NODES-1:
+    if msg_clock[i] > nodes[to].clock[i]:
+      nodes[to].clock[i] = msg_clock[i]
+  第二步: nodes[to].clock[to]++ (接收本身也是一个事件)。
+  
+  合并的含义: 接收方通过消息获知发送方所知的因果历史，
+  将自己的认知更新为两者的并集 (逐元素 max)。
+
+TODO 5 — print_clocks(event_num, desc): 格式化输出
+  先输出事件头: printf("E%d: %s\\n", event_num, desc);
+  再输出每个节点的时钟:
+    printf("  P%d: [%d, %d, %d]\\n", i, nodes[i].clock[0], ...);
+  
+  注意格式必须与 expected_output.txt 完全一致。
+
+TODO 6 — happens_before(a, b): Happens-Before 判定
+  算法:
+    lt = 0
+    for k in 0..N_NODES-1:
+      if a[k] > b[k]: return 0   ← 发现逆序，绝不可能是 a→b
+      if a[k] < b[k]: lt = 1     ← 记录至少一个严格小于
+    return lt
+  
+  为什么需要 lt 标志? —— 如果所有分量都相等 (a[k]==b[k] for all k)，
+  说明是同一个事件，自己不能 Happens-Before 自己。
+
+TODO 7 — main() 事件循环
+  用 for 循环遍历 events 数组 (0 到 N_EVENTS-1)。
+  
+  switch(events[e].type):
+    case 0 (SEND):
+      声明 int msg_clock[N_NODES];
+      调用 send_event(events[e].from, events[e].to, msg_clock);
+    
+    case 1 (RECV):
+      声明 int msg_clock[N_NODES];
+      先从发送方获取当前时钟:
+        for i: msg_clock[i] = nodes[events[e].from].clock[i];
+      再调用 recv_event(events[e].to, msg_clock);
+      注意: msg_clock 来自发送方"此刻"的时钟，
+      不是之前某个 SEND 事件保存的旧值。
+    
+    case 2 (LOCAL):
+      调用 local_event(events[e].to);
+  
+  每次事件后:
+    - 调用 print_clocks(e+1, events[e].desc);
+    - 双重循环保存快照: snapshots[e+1][i][j] = nodes[i].clock[j];
+
+───────────────────────────────
+快照的作用
+───────────────────────────────
+
+snapshots 数组保存了每个事件后各节点的时钟状态。
+Happens-Before 测试中:
+  - c1 = snapshots[1][0]  → P0 在 E1 后的时钟
+  - c2 = snapshots[2][1]  → P1 在 E2 后的时钟
+  - c3 = snapshots[3][1]  → P1 在 E3 后的时钟
+  ...以此类推
+
+为什么取不同节点的快照? —— 因为每个事件发生在不同节点上。
+E1 是 P0 的事件，所以取 P0 的时钟； E2 是 P1 的事件，取 P1 的时钟。
+
+───────────────────────────────
+9 个 Happens-Before 测试解读
+───────────────────────────────
+
+  E1→E2 (YES): P0 发送消息被 P1 接收，直接因果关系。
+  E2→E3 (YES): 同一节点 P1 ， E2 先于 E3 ，进程内顺序。
+  E1→E3 (YES): 传递性——E1→E2 且 E2→E3 ，故 E1→E3 。
+  E3→E4 (YES): P1→P2 的消息传递。
+  E3→E5 (YES): E3→E4→E5 传递链。
+  E1→E5 (YES): 完整因果链 E1→E2→E3→E4→E5 。
+  E5→E1 (NO):  反向不成立。 E5 的时钟 [1,2,2] vs E1 的 [1,0,0]，
+                P1 分量 2 > 0 ，但 P2 分量 2 > 0 ，不满足全 ≤。
+  E3→E6 (YES): 完整环形因果链 E3→E4→E5→E6 。
+  E4→E6 (YES): E4(P2 收到)→E5(P2 本地)→E6(P2 发给 P0)→P0 收到。
+
+───────────────────────────────
+为什么向量时钟能检测并发而 Lamport 时钟不能?
+───────────────────────────────
+
+考虑两个并发本地事件:
+  P0 本地: VC_P0 = [1, 0]  Lamport: C=1
+  P1 本地: VC_P1 = [0, 1]  Lamport: C=1
+
+Lamport: 两者 C 相同，无法比较。
+向量时钟: VC_P0[0]=1 > VC_P1[0]=0 ，但 VC_P0[1]=0 < VC_P1[1]=1
+  → 既非 VC_P0 ≤ VC_P1 ，也非 VC_P1 ≤ VC_P0 → 并发!
+
+向量时钟的代价: O(N) 空间和通信开销 (N 为节点数)。
+在 Dynamo 、 Riak 等分布式数据库中，向量时钟用于检测
+并发写入冲突 (sibling 检测)。
+
+───────────────────────────────
+参考
+───────────────────────────────
+- Lamport, "Time, Clocks, and the Ordering of Events" (1978)
+- Fidge, "Timestamps in Message-Passing Systems" (1988)
+- Mattern, "Virtual Time and Global States of Distributed Systems" (1989)
+- README.md 中的时间线图和逐事件追踪表
+'''

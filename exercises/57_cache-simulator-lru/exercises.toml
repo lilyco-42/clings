@@ -1,0 +1,190 @@
+[[exercises]]
+name = "57_cache-simulator-lru"
+title = "缓存模拟器 — Cache Simulator (LRU)"
+unit = "unit3"
+lesson = 57
+order = 105
+mode = "make"
+source = "cache_sim.c"
+make_targets = ["test"]
+lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/57_cache-simulator-lru"
+hint = '''
+缓存模拟器 LRU 替换: 2 路组相联(2-way set-associative)缓存, 4 组, 总 8 行, 块大小 16B, 地址 8 位(0-255)。
+
+═══════════════════════════════════════
+背景: CPU 缓存原理
+═══════════════════════════════════════
+CPU 缓存是位于 CPU 和主存之间的高速小容量存储器。利用程序的
+**时间局部性**(最近访问的数据很可能再次被访问)和**空间局部性**
+(附近的数据很可能被访问),缓存可以大幅减少平均内存访问时间。
+
+缓存的三个关键设计维度:
+  1. 映射方式: 直接映射/全相联/组相联
+  2. 替换策略: LRU/FIFO/Random/LFU
+  3. 写策略: Write-through/Write-back
+
+本题实现 2 路组相联 + LRU 替换策略的缓存模拟器。
+
+═══════════════════════════════════════
+地址划分图解 (8 位地址)
+═══════════════════════════════════════
+
+  8 位地址:  ┌─────┬─────┬──────────┐
+            │ tag │ set │  offset  │
+            └─────┴─────┴──────────┘
+  位数:       2b    2b      4b
+
+  offset (4b): 块内偏移, 16B/块 → 2^4=16, 地址低 4 位
+  set    (2b): 组索引,   4 组   → 2^2=4,  地址中间 2 位
+  tag    (2b): 标记,     剩余   → 8-4-2=2, 地址高 2 位
+
+  计算公式:
+    块号(block number) = addr / BLOCK_SIZE  (即 addr >> 4)
+    set  = 块号 % NUM_SETS                   (即 (addr>>4) & 0b11)
+    tag  = 块号 / NUM_SETS                   (即 addr >> 6)
+
+  示例:
+    addr=0:   00000000 → tag=00 set=00 offset=0000
+    addr=64:  01000000 → tag=01 set=00 offset=0000
+    addr=128: 10000000 → tag=10 set=00 offset=0000
+    addr=16:  00010000 → tag=00 set=01 offset=0000
+    addr=32:  00100000 → tag=00 set=10 offset=0000
+    addr=48:  00110000 → tag=00 set=11 offset=0000
+    addr=80:  01010000 → tag=01 set=01 offset=0000
+    addr=144: 10010000 → tag=10 set=01 offset=0000
+
+  关键观察: 地址 0 、 64 、 128 映射到同一组(set 0)!
+           它们 tag 不同(0,1,2),但只有 2 路 → 必然产生冲突缺失。
+
+═══════════════════════════════════════
+缓存结构 ASCII 图
+═══════════════════════════════════════
+
+  Set 0:  ┌──────────┬──────────┐
+          │  Way 0   │  Way 1   │
+          │ v=? t=?  │ v=? t=?  │
+          │ ts=?     │ ts=?     │
+          └──────────┴──────────┘
+  Set 1:  ┌──────────┬──────────┐
+          │  Way 0   │  Way 1   │
+          │ ...      │ ...      │
+          └──────────┴──────────┘
+  Set 2:  (同上)
+  Set 3:  (同上)
+
+  每组独立管理自己的 2 路, LRU 在组内独立运作。
+
+═══════════════════════════════════════
+LRU (Least Recently Used) 替换策略
+═══════════════════════════════════════
+
+  LRU 核心思想: 替换"最久没有被访问过"的那一行。
+
+  实现方式: 每个缓存行维护一个 lru_ts (时间戳)。
+  每次访问(命中或填充)时更新该行的时间戳为当前全局时间。
+  需要替换时,选择组内 lru_ts 最小的有效行。
+
+  全局 timestamp 每次访问递增 1:
+    访问 1: ts=1 → 填充行
+    访问 2: ts=2 → 填充行
+    访问 3: ts=3 → 命中, 更新该行 ts=3
+    ...
+    访问 9: ts=9 → 组满, 找 ts 最小者替换
+
+═══════════════════════════════════════
+缺失的三种类型
+═══════════════════════════════════════
+
+  miss  (冷缺失/强制缺失): 组内还有空行(valid=false), 直接填充
+  evict (冲突缺失): 组已满, 需要替换一个有效行
+  容量缺失: 缓存总容量不足(本题不区分, 统一计入 miss/evict)
+
+═══════════════════════════════════════
+Makefile (5 个变量 + 3 条命令)
+═══════════════════════════════════════
+填写 CC/CFLAGS/TARGET/SRC/LDLIBS + all/test/clean 规则。
+CC = gcc, CFLAGS = -Wall -Wextra -std=c11
+TARGET = cache_sim, SRC = cache_sim.c
+$(TARGET) 规则: $(CC) $(CFLAGS) -o $(TARGET) $(SRC)
+test 规则: ./$(TARGET) | diff - expected_output.txt
+clean 规则: rm -f $(TARGET)
+
+═══════════════════════════════════════
+C 代码 — 6 个 TODO 区 (~55 行)
+═══════════════════════════════════════
+
+TODO 1 — init_cache() (约 8 行):
+  初始化所有缓存行为无效状态。
+  双重循环遍历 NUM_SETS × WAYS:
+    cache[s][w].valid = false
+    cache[s][w].tag = 0
+    cache[s][w].lru_ts = 0
+  最后 timestamp = 0
+
+TODO 2 — find_lru(set) (约 10 行):
+  在指定组内找 LRU 行, 返回 way 索引。
+  1. 先检查无效行: 若 !cache[set][w].valid → 直接返回 w
+  2. 再比较有效行的 lru_ts: 找最小时间戳的行
+  提示: 用变量 min_ts 记录最小时间戳, victim 记录索引
+
+TODO 3 — access(addr) (约 15 行):
+  模拟一次缓存访问, 返回 "hit" / "miss" / "evict"。
+  1. set = get_set(addr), tag = get_tag(addr)
+  2. timestamp++ (全局时间戳递增)
+  3. 查找命中: 遍历组内 WAYS, 若 valid && tag 匹配:
+       → 更新 lru_ts = timestamp; return "hit"
+  4. 缺失: 调用 find_lru(set) 获取 victim way
+       → 判断: 若 victim 行 valid → 返回 "evict"
+               若 victim 行 !valid  → 返回 "miss"
+       → 填充: valid=true, tag=tag, lru_ts=timestamp
+
+TODO 4 — 调用 init_cache() (约 1 行):
+  在主循环前调用 init_cache() 初始化缓存。
+
+TODO 5 — 主循环 (约 8 行):
+  int hits = 0;
+  for (int i = 0; i < n; i++) {
+      获取 set/tag, 调用 access(addr)
+      printf 输出每次访问的 set/tag/result
+      若 result[0] == 'h' → hits++
+  }
+
+TODO 6 — 命中率计算 (约 5 行):
+  输出最终统计:
+    Total accesses: 12
+    Hits: 3
+    Misses: 9
+    Hit rate: 25.0%
+
+═══════════════════════════════════════
+访问序列预期结果
+═══════════════════════════════════════
+
+  #1  addr=0   set=0 tag=0 miss   ← set0 way0 填充
+  #2  addr=16  set=1 tag=0 miss   ← set1 way0 填充
+  #3  addr=32  set=2 tag=0 miss   ← set2 way0 填充
+  #4  addr=48  set=3 tag=0 miss   ← set3 way0 填充
+  #5  addr=0   set=0 tag=0 hit    ← set0 way0 命中
+  #6  addr=64  set=0 tag=1 miss   ← set0 way1 填充
+  #7  addr=16  set=1 tag=0 hit    ← set1 way0 命中
+  #8  addr=80  set=1 tag=1 miss   ← set1 way1 填充
+  #9  addr=128 set=0 tag=2 evict  ← set0 满， LRU=way0(ts5), 替换
+  #10 addr=0   set=0 tag=0 evict  ← set0 满， LRU=way1(ts6), 替换
+  #11 addr=32  set=2 tag=0 hit    ← set2 way0 命中
+  #12 addr=144 set=1 tag=2 evict  ← set1 满， LRU=way0(ts7), 替换
+
+  命中: 3/12 = 25.0%
+
+═══════════════════════════════════════
+关键提示
+═══════════════════════════════════════
+- 时间戳递增必须在每次 access() 调用时执行, 不要忘记
+- find_lru() 优先返回无效行, 因为填充空行优于替换有效行
+- result 字符串比较: "hit" 以 'h' 开头, 用 result[0]=='h' 判断
+- "evict" 与 "miss" 的区别: evict 替换了一个有效行, miss 填充空行
+- 打印格式: printf("Access #%2d: addr=%3d  set=%d  tag=%d  %s\n", ...)
+  注意 %2d 和 %3d 的对齐宽度
+- 命中率: (100.0 * hits) / n, 用 100.0 而非 100 保证浮点除法
+- 地址分解函数 get_set/get_tag 已提供, 直接调用即可
+- 参考: README.md 中的完整缓存结构图和访问追踪表
+'''

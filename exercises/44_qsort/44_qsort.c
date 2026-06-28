@@ -1,11 +1,11 @@
 /* 44_qsort.c — qsort 泛型排序：int 与字符串数组
  *
- * 任务: 调用 qsort 分别完成两组排序
+ * 任务：调用 qsort 分别完成两组排序
  *       1. 实现 cmp_str — 字符串比较器
- *       2. int 数组排序: 使用给定的 cmp_int
- *       3. 字符串数组排序: 使用你自己写的 cmp_str
+ *       2. int 数组排序：使用给定的 cmp_int
+ *       3. 字符串数组排序：使用你自己写的 cmp_str
  *
- * 核心知识点: 为什么字符串数组的 cmp 参数要强转为 *(const char **)a？
+ * 核心知识点：为什么字符串数组的 cmp 参数要强转为 *(const char **)a？
  *   qsort 传给 cmp 的参数是"数组中元素的地址"
  *   对于 int 数组 arr[10]: 元素是 int → 地址是 int* → cmp 收到 int*
  *   对于字符串数组 strs[10]: 元素是 char* → 地址是 char** → cmp 收到 char**
@@ -37,7 +37,7 @@ int main(void) {
     int len = strlen(line);
     if (len > 0 && line[len - 1] == '\n') line[len - 1] = '\0';
 
-    /* 第一个 token 是模式: "int" 或 "str" */
+    /* 第一个 token 是模式："int" 或 "str" */
     char *mode = strtok(line, " ");
 
 #error TODO: Finish this exercise. Run "clings hint" for help.
