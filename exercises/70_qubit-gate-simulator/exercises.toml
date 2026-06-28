@@ -242,3 +242,24 @@ Makefile
 - Makefile 忘记 -lm → 链接错误
 - 复数结构体的 imag 字段忘记初始化 → 垃圾值
 '''
+
+[[exercises.cases]]
+stdout = '''Initial state |0⟩:
+( +1.000000 +0.000000i )|0⟩ + ( +0.000000 +0.000000i )|1⟩
+
+After H gate (superposition):
+( +0.707107 +0.000000i )|0⟩ + ( +0.707107 +0.000000i )|1⟩
+
+After X gate (Pauli-X/NOT):
+( +0.707107 +0.000000i )|0⟩ + ( +0.707107 +0.000000i )|1⟩
+
+After Z gate (Pauli-Z):
+( +0.707107 +0.000000i )|0⟩ + ( -0.707107 +0.000000i )|1⟩
+
+After second H gate:
+( +0.000000 +0.000000i )|0⟩ + ( +1.000000 +0.000000i )|1⟩
+
+Measurement results (100 trials):
+|0⟩: 0 (0.00%)
+|1⟩: 100 (100.00%)
+'''

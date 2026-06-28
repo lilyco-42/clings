@@ -63,12 +63,24 @@ def normalize(text: str) -> str:
 
 
 def _collect_cases(ex: dict, include_hidden: bool) -> list[dict]:
-    """Collect test cases from inline exercise data and/or external test files."""
-    cases = list(ex.get("cases", []))
+    """Collect test cases: prefer external tests/ files, fall back to inline.
+
+    Priority:
+      1. External test files (tests/<name>.toml in package or repo root)
+      2. Hidden test files (if include_hidden and CLINGS_HIDDEN_TEST_DIR set)
+      3. Inline [[exercises.cases]] from exercises.toml (fallback)
+
+    This means exercises.toml may carry a copy of cases for student reference
+    (via `clings tests`), but the authoritative source for grading is tests/.
+    """
+    external_cases = []
     for test_file in test_files_for(ex, include_hidden):
         data = load_toml(test_file)
-        cases.extend(data.get("cases", []))
-    return cases
+        external_cases.extend(data.get("cases", []))
+    if external_cases:
+        return external_cases
+    # Fallback: inline cases from exercises.toml
+    return list(ex.get("cases", []))
 
 
 def run_cases(ex: dict, binary: Path, include_hidden: bool) -> None:

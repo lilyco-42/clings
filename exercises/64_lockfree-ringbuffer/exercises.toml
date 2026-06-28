@@ -203,3 +203,37 @@ Phase 4 — 消费 7 个 (3..9):
 - 使用 atomic_store_explicit 和 atomic_load_explicit, 不要直接用 = 赋值
 - 参考: README.md 中的环形缓冲区结构图和原子操作对比表
 '''
+
+[[exercises.cases]]
+stdout = '''=== Lock-Free Ring Buffer (SPSC) ===
+Capacity: 8, Total items: 10
+
+--- Interleaved Timeline ---
+  [P] write 0 at slot 0[ after write] buf=[0 . . . . . . .]  w=1 r=0
+  [P] write 1 at slot 1[ after write] buf=[0 1 . . . . . .]  w=2 r=0
+  [P] write 2 at slot 2[ after write] buf=[0 1 2 . . . . .]  w=3 r=0
+  [P] write 3 at slot 3[ after write] buf=[0 1 2 3 . . . .]  w=4 r=0
+  [P] write 4 at slot 4[ after write] buf=[0 1 2 3 4 . . .]  w=5 r=0
+  [C] read  0 at slot 0[ after read ] buf=[. 1 2 3 4 . . .]  w=5 r=1
+  [C] read  1 at slot 1[ after read ] buf=[. . 2 3 4 . . .]  w=5 r=2
+  [C] read  2 at slot 2[ after read ] buf=[. . . 3 4 . . .]  w=5 r=3
+  [P] write 5 at slot 5[ after write] buf=[. . . 3 4 5 . .]  w=6 r=3
+  [P] write 6 at slot 6[ after write] buf=[. . . 3 4 5 6 .]  w=7 r=3
+  [P] write 7 at slot 7[ after write] buf=[. . . 3 4 5 6 7]  w=8 r=3
+  [P] write 8 at slot 0[ after write] buf=[8 . . 3 4 5 6 7]  w=9 r=3
+  [P] write 9 at slot 1[ after write] buf=[8 9 . 3 4 5 6 7]  w=10 r=3
+  [C] read  3 at slot 3[ after read ] buf=[8 9 . . 4 5 6 7]  w=10 r=4
+  [C] read  4 at slot 4[ after read ] buf=[8 9 . . . 5 6 7]  w=10 r=5
+  [C] read  5 at slot 5[ after read ] buf=[8 9 . . . . 6 7]  w=10 r=6
+  [C] read  6 at slot 6[ after read ] buf=[8 9 . . . . . 7]  w=10 r=7
+  [C] read  7 at slot 7[ after read ] buf=[8 9 . . . . . .]  w=10 r=8
+  [C] read  8 at slot 0[ after read ] buf=[. 9 . . . . . .]  w=10 r=9
+  [C] read  9 at slot 1[ after read ] buf=[. . . . . . . .]  w=10 r=10
+
+--- Final Results ---
+Produced: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+Consumed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+Final write_idx: 10
+Final read_idx: 10
+Buffer empty: yes
+'''
