@@ -33,6 +33,7 @@ cli:
           imports:
             - https://cnb.cool/opencamp/learning-nccl/secret/-/blob/main/clings.yml
           script: |
+            apt-get update -qq && apt-get install -y -qq git
             git config --global url."https://cnb:${SOLUTIONS_DEPLOY_TOKEN}@cnb.cool/".insteadOf "https://cnb.cool/"
             cd /workspace && git submodule update --init
             pip3 install --break-system-packages -e .
@@ -71,6 +72,7 @@ cli:
           imports:
             - https://cnb.cool/opencamp/learning-nccl/secret/-/blob/main/clings.yml
           script: |
+            apt-get update -qq && apt-get install -y -qq git
             git config --global url."https://cnb:${SOLUTIONS_DEPLOY_TOKEN}@cnb.cool/".insteadOf "https://cnb.cool/"
             cd /workspace && git submodule update --init
             pip3 install --break-system-packages -e .
@@ -109,6 +111,7 @@ cli:
           imports:
             - https://cnb.cool/opencamp/learning-nccl/secret/-/blob/main/clings.yml
           script: |
+            apt-get update -qq && apt-get install -y -qq git
             git config --global url."https://cnb:${SOLUTIONS_DEPLOY_TOKEN}@cnb.cool/".insteadOf "https://cnb.cool/"
             cd /workspace && git submodule update --init
             pip3 install --break-system-packages -e .
