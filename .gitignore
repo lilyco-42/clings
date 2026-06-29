@@ -66,31 +66,19 @@ Thumbs.db
 
 # ─── Project-specific: compiled binaries without extension ───
 # C exercises produce extension-less ELF binaries (e.g. dining_philosophers,
-# rdt_stop_wait). Since hatchling sdist includes exercises/ and solutions/,
-# we cannot use a blanket "exercises/*" rule. Instead, ignore any file in
-# exercises/ or solutions/ that is NOT a known source file.
+# rdt_stop_wait). Use whitelist strategy: ignore all, then un-ignore known sources.
 #
-# Strategy: whitelist source files, ignore everything else in exercise dirs.
-#
-# Known source extensions in exercise directories:
-#   .c .h .md .toml Makefile expected_output.txt
-#
-# Use negation: ignore all, then un-ignore known sources.
+# Known source extensions: .c .h .md .toml Makefile expected_output.txt
 exercises/*/*
-solutions/*/*
 !exercises/*/*.c
 !exercises/*/*.h
 !exercises/*/*.md
 !exercises/*/*.toml
 !exercises/*/Makefile
 !exercises/*/expected_output.txt
-!solutions/*/*.c
-!solutions/*/*.h
-!solutions/*/*.md
-!solutions/*/*.toml
-!solutions/*/Makefile
-!solutions/*/expected_output.txt
 
-# Keep directory structure (git doesn't track empty dirs, but this helps)
+# Keep directory structure (git doesn't track empty dirs)
 !exercises/lessons/
 !exercises/nccl-cc/
+
+# solutions/ is a git submodule — ignore rules are managed by its own repo
