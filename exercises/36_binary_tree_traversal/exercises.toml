@@ -6,7 +6,7 @@ lesson = 36
 order = 84
 mode = "stdout"
 source = "36_binary_tree_traversal.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/36_binary_tree_traversal"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/36_binary_tree_traversal"
 hint = '''
 三种遍历只是"访问根节点"的时机不同，只差一行代码的顺序。
 

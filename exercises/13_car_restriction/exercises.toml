@@ -6,7 +6,7 @@ lesson = 13
 order = 19
 mode = "stdout"
 source = "13a_get_last_char.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
 hint = '''
 如何获取一个字符串的最后一个字符？
 
@@ -42,7 +42,7 @@ lesson = 13
 order = 20
 mode = "stdout"
 source = "13b_is_restricted.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
 hint = '''
 车辆限行规则: 根据车牌尾号和今天的星期，判断是否限行。
 
@@ -81,7 +81,7 @@ lesson = 13
 order = 21
 mode = "stdout"
 source = "restrict.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/13_car_restriction"
 hint = '''
 这道综合题要你把三个函数组装起来:
 1. get_last_char(): 取车牌最后一位 (已在 13a 实现)

@@ -71,4 +71,4 @@
     ../../nccl-cc/codegen_arm.c    — ARMv7 后端 (movw/movt, arm_imm_ok 旋转编码)
     ../../nccl-cc/runtime_arm.s    — ARM Linux 平台层
 
-> 课文源：[NCCL/Unit-4/Lesson-94.md](https://cnb.cool/q.qq/opencamp-c-2026-summer/NCCL/-/blob/master/Unit-4/Lesson-94.md) — 如有更新以书仓为准
+> 课文源：[NCCL/Unit-4/Lesson-94.md](https://cnb.cool/opencamp/learning-nccl/NCCL/-/blob/master/Unit-4/Lesson-94.md) — 如有更新以书仓为准

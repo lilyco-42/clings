@@ -51,7 +51,7 @@ footer = """
 """
 trim = true
 postprocessors = [
-  { pattern = '<REPO>', replace = "https://cnb.cool/q.qq/opencamp-c-2026-summer/clings" },
+  { pattern = '<REPO>', replace = "https://cnb.cool/opencamp/learning-nccl/clings" },
 ]
 render_always = true
 

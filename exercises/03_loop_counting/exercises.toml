@@ -6,7 +6,7 @@ lesson = 3
 order = 5
 mode = "stdout"
 source = "03a_while_loop.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/03_loop_counting"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/03_loop_counting"
 hint = '''
 while 循环的基本结构: while (条件) { 循环体 }
 
@@ -44,7 +44,7 @@ lesson = 3
 order = 6
 mode = "stdout"
 source = "03b_for_loop.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/03_loop_counting"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/03_loop_counting"
 hint = '''
 for 循环的三个部分: for (初始化; 条件; 更新) { ... }
 

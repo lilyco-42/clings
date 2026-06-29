@@ -8,7 +8,7 @@ mode = "make+stdout"
 source = "terminal_calc.c"
 binary = "terminal_calc"
 make_targets = ["all"]
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/72_ansi-terminal-calc"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/72_ansi-terminal-calc"
 hint = '''
 ANSI 终端计算器: 用 C 语言实现双栈表达式求值并用 ANSI 颜色美化输出。
 

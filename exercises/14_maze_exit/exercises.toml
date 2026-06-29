@@ -6,7 +6,7 @@ lesson = 14
 order = 22
 mode = "stdout"
 source = "14a_print_board.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/14_maze_exit"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/14_maze_exit"
 hint = '''
 用二维数组表示一个 5x5 的棋盘，并打印它。
 
@@ -39,7 +39,7 @@ lesson = 14
 order = 23
 mode = "stdout"
 source = "solution.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/14_maze_exit"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/14_maze_exit"
 hint = '''
 判断棋盘上某个位置有几个方向可以走。
 

@@ -6,7 +6,7 @@ lesson = 16
 order = 27
 mode = "stdout"
 source = "16a_strcpy_delta.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/16_my_strcpy"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/16_my_strcpy"
 hint = '''
 这是 strcpy 的一个优化版本——delta 技巧。
 
@@ -46,7 +46,7 @@ lesson = 16
 order = 28
 mode = "stdout"
 source = "mystrcpy.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/16_my_strcpy"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/16_my_strcpy"
 hint = '''
 实现自己的字符串复制函数 mystrcpy。
 

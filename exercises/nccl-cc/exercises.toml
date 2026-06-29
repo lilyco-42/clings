@@ -7,7 +7,7 @@ order = 98
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/73_return_constant"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/73_return_constant"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -22,7 +22,7 @@ order = 99
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/74_unary_operators"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/74_unary_operators"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -37,7 +37,7 @@ order = 100
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/75_binary_arithmetic"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/75_binary_arithmetic"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -52,7 +52,7 @@ order = 101
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/76_comparison_logic"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/76_comparison_logic"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -67,7 +67,7 @@ order = 102
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/77_local_variables"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/77_local_variables"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -82,7 +82,7 @@ order = 103
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/78_assignment"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/78_assignment"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -97,7 +97,7 @@ order = 104
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/79_if_else"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/79_if_else"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -112,7 +112,7 @@ order = 105
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/80_while_for"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/80_while_for"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -127,7 +127,7 @@ order = 106
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/81_do_while_break"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/81_do_while_break"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -142,7 +142,7 @@ order = 107
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/82_function_definitions"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/82_function_definitions"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -157,7 +157,7 @@ order = 108
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/83_function_parameters"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/83_function_parameters"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -172,7 +172,7 @@ order = 109
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/84_recursive_programs"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/84_recursive_programs"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -187,7 +187,7 @@ order = 110
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/85_global_variables"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/85_global_variables"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -202,7 +202,7 @@ order = 111
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/86_char_strings"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/86_char_strings"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -217,7 +217,7 @@ order = 112
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/87_arrays"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/87_arrays"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -232,7 +232,7 @@ order = 113
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/88_pointers"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/88_pointers"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -247,7 +247,7 @@ order = 114
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/89_pointer_arithmetic"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/89_pointer_arithmetic"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -262,7 +262,7 @@ order = 115
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/90_bubble_sort"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/90_bubble_sort"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -277,7 +277,7 @@ order = 116
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/91_struct_support"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/91_struct_support"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -292,7 +292,7 @@ order = 117
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/92_preprocessor"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/92_preprocessor"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -307,7 +307,7 @@ order = 118
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/93_stdlib_stubs"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/93_stdlib_stubs"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -322,7 +322,7 @@ order = 119
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/94_arm_backend"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/94_arm_backend"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -337,7 +337,7 @@ order = 120
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/95_cross_compilation"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/95_cross_compilation"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]
@@ -352,7 +352,7 @@ order = 121
 mode = "make"
 make_targets = ["test-all"]
 timeout = 900
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-4-C-Compiler/-/tree/main/lessons/96_josephus_ring_final"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-4-C-Compiler/-/tree/main/lessons/96_josephus_ring_final"
 hint = '''?????????? exercises/unit_4/nccl-cc?????????? test-all?'''
 
 [[exercises.cases]]

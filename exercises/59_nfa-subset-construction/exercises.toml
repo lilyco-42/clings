@@ -8,7 +8,7 @@ mode = "make+stdout"
 source = "nfa_dfa.c"
 binary = "nfa_dfa"
 make_targets = ["all"]
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/59_nfa-subset-construction"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/59_nfa-subset-construction"
 hint = '''
 NFA 模拟与子集构造: 固定 NFA 识别语言 a*b | ab*，实现ε-闭包计算、 NFA 模拟和子集构造(→DFA)。
 

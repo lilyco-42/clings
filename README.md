@@ -662,7 +662,7 @@ PKG_CONFIG    = _resolve_pkg_path("clings.toml") or _resolve_repo_path("clings.t
 ### 环境搭建
 
 ```bash
-git clone https://cnb.cool/q.qq/opencamp-c-2026-summer/clings.git
+git clone https://cnb.cool/opencamp/learning-nccl/clings.git
 cd clings/                       # 默认在 cli 分支
 pip install -e .                  # editable 安装（修改代码立即生效）
 ```

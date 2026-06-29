@@ -6,7 +6,7 @@ lesson = 47
 order = 95
 mode = "stdout"
 source = "47_setjmp_longjmp.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/47_setjmp_longjmp"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/47_setjmp_longjmp"
 hint = '''
 setjmp/longjmp 实现跨函数跳转。
 

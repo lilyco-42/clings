@@ -6,7 +6,7 @@ lesson = 23
 order = 44
 mode = "compile"
 source = "23a_print_board.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
 hint = '''
 初始化并打印五子棋棋盘。
 
@@ -27,7 +27,7 @@ lesson = 23
 order = 45
 mode = "stdout"
 source = "23c_check_win.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
 hint = '''
 判断五子棋是否有人获胜——需要检查四个方向的五连。
 
@@ -71,7 +71,7 @@ lesson = 23
 order = 46
 mode = "stdout"
 source = "gomoku.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/23_gomoku_game"
 hint = '''
 实现五子棋完整游戏循环。
 

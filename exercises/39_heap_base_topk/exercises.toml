@@ -6,7 +6,7 @@ lesson = 39
 order = 87
 mode = "stdout"
 source = "39_heap_base_topk.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/39_heap_base_topk"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/39_heap_base_topk"
 hint = '''
 Top-K 用小顶堆维护 K 个最大值。
 小顶堆 + Top-K 算法:

@@ -78,4 +78,4 @@
     ../../nccl-cc/runtime_rv.s     — Linux 平台层: _start / putchar (syscall)
     ../../nccl-cc/runtime_rv_io.s  — 平台无关层: print_int / printf
 
-> 课文源：[NCCL/Unit-4/Lesson-93.md](https://cnb.cool/q.qq/opencamp-c-2026-summer/NCCL/-/blob/master/Unit-4/Lesson-93.md) — 如有更新以书仓为准
+> 课文源：[NCCL/Unit-4/Lesson-93.md](https://cnb.cool/opencamp/learning-nccl/NCCL/-/blob/master/Unit-4/Lesson-93.md) — 如有更新以书仓为准

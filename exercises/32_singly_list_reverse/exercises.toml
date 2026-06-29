@@ -6,7 +6,7 @@ lesson = 32
 order = 80
 mode = "stdout"
 source = "32_singly_list_reverse.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/32_singly_list_reverse"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/32_singly_list_reverse"
 hint = '''
 反转用三指针，环检测用快慢指针。
 

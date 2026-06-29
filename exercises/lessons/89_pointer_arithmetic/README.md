@@ -60,4 +60,4 @@
     riscv64-linux-gnu-gcc -march=rv32im -mabi=ilp32 -nostdlib -static /tmp/t.s runtime_rv_io.s runtime_rv.s -o /tmp/t
     qemu-riscv32 /tmp/t; echo $?
 
-> 课文源：[NCCL/Unit-4/Lesson-89.md](https://cnb.cool/q.qq/opencamp-c-2026-summer/NCCL/-/blob/master/Unit-4/Lesson-89.md) — 如有更新以书仓为准
+> 课文源：[NCCL/Unit-4/Lesson-89.md](https://cnb.cool/opencamp/learning-nccl/NCCL/-/blob/master/Unit-4/Lesson-89.md) — 如有更新以书仓为准

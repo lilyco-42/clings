@@ -6,7 +6,7 @@ lesson = 31
 order = 79
 mode = "stdout"
 source = "31_singly_list_modify.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/31_singly_list_modify"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/31_singly_list_modify"
 hint = '''
 查找很简单，删除是难点——要维护前驱指针。
 

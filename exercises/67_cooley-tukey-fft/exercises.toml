@@ -8,7 +8,7 @@ mode = "make+stdout"
 source = "fft.c"
 binary = "fft"
 make_targets = ["all"]
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/67_cooley-tukey-fft"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/67_cooley-tukey-fft"
 hint = '''
 快速傅里叶变换: 用 C 语言实现 Cooley-Tukey FFT 算法 (N=8)。
 

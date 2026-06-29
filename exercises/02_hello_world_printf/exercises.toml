@@ -6,7 +6,7 @@ lesson = 2
 order = 3
 mode = "stdout"
 source = "02a_hello_printf.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/02_hello_world_printf"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/02_hello_world_printf"
 hint = '''
 要在屏幕上打印东西，你需要用到 printf 函数。
 
@@ -35,7 +35,7 @@ lesson = 2
 order = 4
 mode = "stdout"
 source = "02b_format_print.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/02_hello_world_printf"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/02_hello_world_printf"
 hint = '''
 printf 可以用"格式说明符"把变量的值嵌入字符串中打印。
 

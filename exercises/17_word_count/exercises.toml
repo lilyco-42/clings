@@ -6,7 +6,7 @@ lesson = 17
 order = 29
 mode = "stdout"
 source = "wordsum.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/17_word_count"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/17_word_count"
 hint = '''
 统计文本中有多少个单词。
 

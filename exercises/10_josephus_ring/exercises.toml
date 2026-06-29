@@ -6,7 +6,7 @@ lesson = 10
 order = 15
 mode = "stdout"
 source = "10a_init_ring.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/10_josephus_ring"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/10_josephus_ring"
 hint = '''
 约瑟夫环的第一步: 用数组模拟循环链表。
 
@@ -46,7 +46,7 @@ lesson = 10
 order = 16
 mode = "stdout"
 source = "josephus.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/10_josephus_ring"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/10_josephus_ring"
 hint = '''
 约瑟夫环: n 个人围成圈，每数到第 m 个人出局。
 

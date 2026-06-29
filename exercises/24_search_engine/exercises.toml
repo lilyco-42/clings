@@ -6,7 +6,7 @@ lesson = 24
 order = 47
 mode = "stdout"
 source = "24a_find_istr.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
 hint = '''
 实现大小写不敏感的字符串查找。
 
@@ -48,7 +48,7 @@ lesson = 24
 order = 48
 mode = "stdout"
 source = "24b_extract_links.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
 hint = '''
 从 HTML 中提取链接——解析 href="..." 属性。
 
@@ -93,7 +93,7 @@ lesson = 24
 order = 49
 mode = "stdout"
 source = "search.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/24_search_engine"
 hint = '''
 综合题: 完整的 HTML 链接提取器。
 
