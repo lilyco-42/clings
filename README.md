@@ -7,7 +7,7 @@
 
 > **C 语言版 [Rustlings](https://github.com/rust-lang/rustlings)** — 通过修复编译错误、补全代码来学习 C 语言。
 >
-> 🏕️ **[Learning C Camp 2026](https://opencamp.cn/C/camp/2026)** 练习工具 &nbsp;|&nbsp; 📅 2026.06.28 – 07.26 &nbsp;|&nbsp; 6 个 Unit · 120 课 · 121+ 道练习
+> 🏕️ **[Learning C Camp 2026](https://opencamp.cn/C/camp/2026)** 练习工具 &nbsp;|&nbsp; 📅 2026.06.28 – 07.26 &nbsp;|&nbsp; 4 个 Unit · 72 课 · 约 97 道练习
 
 ---
 
@@ -48,7 +48,7 @@
 - **零基础学员**：从 `int main(void) { return 0; }` 开始，一步步建立编程心智模型
 - **有基础开发者**：通过实现数据结构、经典算法、系统编程来巩固 C 语言功底
 - **计算机专业学生**：覆盖 CS 17 个子领域的经典问题，建立全局视野
-- **嵌入式/系统程序员**：从编译器到内核，完整的系统级编程训练
+- **进阶学员**：为编译器项目（Unit 4）和内核项目（Unit 5）建立坚实基础
 
 ### 与 Rustlings 的对比
 
@@ -58,7 +58,7 @@
 | 安装方式 | `cargo install rustlings` | `uvx clings` / `pipx install clings` |
 | 运行时 | Rust 工具链 | Python 3.11+ + GCC |
 | 依赖 | Cargo 生态 | **零第三方依赖**（纯 Python stdlib） |
-| 练习规模 | ~94 题 | **121+ 题**（6 个 Unit） |
+| 练习规模 | ~94 题 | **约 97 题**（4 个 Unit） |
 | 评测模式 | 编译 + 测试 | return / stdout / compile / make+stdout |
 | 配套课程 | Rust Book | OpenCamp C 2026 Summer 训练营 |
 
@@ -91,7 +91,7 @@ my-clings/
 └── .clings-state.txt          # 自动生成的进度文件（完成练习后）
 ```
 
-> 也可以一次初始化全部 Unit：`uvx clings init all`（73 个目录，121 道练习，331 个文件）
+> 也可以一次初始化全部 Unit：`uvx clings init all`（72 个目录，约 97 道练习，覆盖 Unit 0-3）
 
 ---
 
@@ -137,7 +137,7 @@ uvx clings@latest init unit0   # 始终使用最新版
 
 ## 课程路线图
 
-Learning C Camp 2026 采用 **"四阶段 + 双项目"** 成长路径，从零基础到亲手实现编译器与操作系统内核：
+Learning C Camp 2026 训练营共 6 个 Unit。其中 **Unit 0-3（4 个阶段）通过 clings 完成**，Unit 4-5 为独立项目阶段（需要 QEMU + 交叉编译工具链，详见训练营对应仓库）：
 
 | Unit | 名称 | 阶段 | Lessons | 题数 | 直播时间 | 核心内容 |
 |:----:|------|:----:|:-------:|:----:|----------|----------|
@@ -145,15 +145,17 @@ Learning C Camp 2026 采用 **"四阶段 + 双项目"** 成长路径，从零基
 | 1 | C Fundamentals | 基础 | 06–24 | 40 | 06/29 + 07/01 | 嵌套循环、函数、数组、指针、结构体、联合体、位运算、状态机、词法分析器 |
 | 2 | C Essentials | 进阶 | 25–48 | 24 | 07/03 + 06 + 08 + 10 | 链表、栈、队列、树、堆、排序、查找、回溯、C 标准库深入 |
 | 3 | C Classicals | 专业 | 49–72 | 24 | 07/13 + 15 + 17 | 17 个 CS 子领域经典问题（OS/网络/编译/AI/密码学/量子计算…） |
-| 4 | C Compiler | 项目 | 73–96 | — | 待定 | 从零实现 C 编译器 nccl-cc（4 后端 + 5 运行环境） |
-| 5 | C Kernel | 项目 | — | — | 待定 | 操作系统内核 Avatar OS（跨架构、裸机环境） |
+| 4 | C Compiler | 项目 | 73–96 | — | 待定 | 从零实现 C 编译器 nccl-cc（独立仓库，需 QEMU） |
+| 5 | C Kernel | 项目 | — | — | 待定 | 操作系统内核 Avatar OS（独立仓库，需 QEMU） |
 
 ```
-导学              基础              进阶              专业              项目
-Unit 0 ──→ Unit 1 ──→ Unit 2 ──→ Unit 3 ──→ Unit 4 + Unit 5
-(热身)   (语法全貌)  (数据结构)  (CS全景)   (编译器 + 内核)
-
-"语言 → 算法 → 系统 → 编译器 → 内核" 完整知识闭环
+   clings 覆盖                          独立项目（需 QEMU + 交叉编译工具链）
+┌──────────────────────────────┐    ┌──────────────────────────────┐
+│ Unit 0 ──→ Unit 1 ──→       │    │                              │
+│             Unit 2 ──→ Unit 3│    │  Unit 4 (编译器) + Unit 5 (内核) │
+│ (入门 → 基础 → 进阶 → 专业)  │    │  (独立仓库, 独立工具链)        │
+└──────────────────────────────┘    └──────────────────────────────┘
+   "语言 → 算法 → 系统" 知识闭环       "编译器 → 内核" 系统级实践
 ```
 
 ### 各 Unit 知识点速览
@@ -778,7 +780,7 @@ Clings 在交互模式、练习组织方式上借鉴了 Rustlings 的设计理�
 - 评测模式更丰富（return / stdout / compile / make+stdout）
 - 与 OpenCamp 训练营课程深度绑定
 - 纯 Python 实现，零依赖
-- 练习规模更大（121+ 题 vs 94 题）
+- 练习规模更大（约 97 题 vs 94 题）
 
 </details>
 
