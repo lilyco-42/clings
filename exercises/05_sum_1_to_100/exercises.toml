@@ -6,7 +6,7 @@ lesson = 5
 order = 8
 mode = "stdout"
 source = "05a_sum.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/05_sum_1_to_100"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/05_sum_1_to_100"
 hint = '''
 这道题要你计算 1+2+3+...+100 的和。
 
@@ -33,7 +33,7 @@ lesson = 5
 order = 9
 mode = "stdout"
 source = "05b_sum_even.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/05_sum_1_to_100"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/05_sum_1_to_100"
 hint = '''
 这道题在求和的基础上加了一个条件: 只加偶数。
 

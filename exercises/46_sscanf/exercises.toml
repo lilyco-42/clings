@@ -6,7 +6,7 @@ lesson = 46
 order = 94
 mode = "stdout"
 source = "46_sscanf.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/46_sscanf"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/46_sscanf"
 hint = '''
 sscanf 的高级格式 %[^:] 是关键。
 

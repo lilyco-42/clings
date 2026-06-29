@@ -145,7 +145,7 @@ cli:
           image: docker.cnb.cool/wwvo/cnb-rs/cnb-rs:alpine
           script: |
             cnb-rs release create \
-              --repo q.qq/opencamp-c-2026-summer/clings \
+              --repo opencamp/learning-nccl/clings \
               -t "${CNB_BRANCH}" \
               -n "clings ${CNB_BRANCH}" \
               -F release-notes.md \
@@ -153,4 +153,4 @@ cli:
             || cnb-rs release edit "${CNB_BRANCH}" \
               -b "$(cat release-notes.md)" \
               --make-latest true
-            cnb-rs release upload -t "${CNB_BRANCH}" dist/ --clobber --repo q.qq/opencamp-c-2026-summer/clings
+            cnb-rs release upload -t "${CNB_BRANCH}" dist/ --clobber --repo opencamp/learning-nccl/clings

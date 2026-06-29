@@ -6,7 +6,7 @@ lesson = 45
 order = 93
 mode = "stdout"
 source = "45_realloc.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/45_realloc"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/45_realloc"
 hint = '''
 realloc 的安全用法是重点。
 

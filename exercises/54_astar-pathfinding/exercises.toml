@@ -8,7 +8,7 @@ mode = "make+stdout"
 source = "astar.c"
 binary = "astar"
 make_targets = ["all"]
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/54_astar-pathfinding"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/54_astar-pathfinding"
 hint = '''
 A*寻路算法: 在 6×5 网格上从 (0,0) 寻路到 (5,4)，绕过障碍物。
 

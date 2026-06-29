@@ -7,7 +7,7 @@ order = 1
 mode = "return"
 expected_return = 0
 source = "01a_return_zero.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/01_simplest_c_program"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/01_simplest_c_program"
 hint = '''
 最简单的 C 程序只需要一个 main 函数。
 编译器报错了吗？读读错误信息——它告诉你缺少什么。
@@ -32,7 +32,7 @@ order = 2
 mode = "return"
 expected_return = 3
 source = "01b_return_expression.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/01_simplest_c_program"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/01_simplest_c_program"
 hint = '''
 这道题要求你定义变量并计算表达式。
 

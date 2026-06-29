@@ -6,7 +6,7 @@ lesson = 25
 order = 73
 mode = "stdout"
 source = "25_my_strstr.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/25_my_strstr"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/25_my_strstr"
 hint = '''
 暴力匹配的核心思路: 双重循环滑动窗口。
 

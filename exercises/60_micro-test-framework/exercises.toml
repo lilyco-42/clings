@@ -8,7 +8,7 @@ mode = "make+stdout"
 source = "test_framework.c"
 binary = "test_framework"
 make_targets = ["all"]
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/60_micro-test-framework"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/60_micro-test-framework"
 hint = '''
 微型 C 单元测试框架: 用纯 C 宏实现 ASSERT_EQ / ASSERT_STREQ / TEST / RUN_TESTS 。
 包含 5 个测试用例 (3 通过, 2 失败): test_add, test_str, test_fail, test_null, test_float 。

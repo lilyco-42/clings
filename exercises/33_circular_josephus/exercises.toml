@@ -6,7 +6,7 @@ lesson = 33
 order = 81
 mode = "stdout"
 source = "33_circular_josephus.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/33_circular_josephus"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/33_circular_josephus"
 hint = '''
 循环链表的特殊之处: 尾节点指向头，形成环。
 

@@ -6,7 +6,7 @@ lesson = 30
 order = 78
 mode = "stdout"
 source = "30_singly_list_insert.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/30_singly_list_insert"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/30_singly_list_insert"
 hint = '''
 头插法和尾插法的区别在于新节点放在哪里。
 

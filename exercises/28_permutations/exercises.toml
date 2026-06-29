@@ -6,7 +6,7 @@ lesson = 28
 order = 76
 mode = "stdout"
 source = "28_permutations.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/28_permutations"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/28_permutations"
 hint = '''
 全排列的回溯模板: 选择 → 递归 → 撤销。
 

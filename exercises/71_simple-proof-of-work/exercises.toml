@@ -8,7 +8,7 @@ mode = "make+stdout"
 source = "pow_chain.c"
 binary = "pow_chain"
 make_targets = ["all"]
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/71_simple-proof-of-work"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/71_simple-proof-of-work"
 hint = '''
 简化工作量证明区块链 (SHA-256): 用简化但完整的 SHA-256 实现 3 区块区块链挖矿与验证。
 

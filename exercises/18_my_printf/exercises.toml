@@ -6,7 +6,7 @@ lesson = 18
 order = 30
 mode = "stdout"
 source = "18a_itoa.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
 hint = '''
 实现 itoa: 把整数按指定进制转换为字符串。
 
@@ -47,7 +47,7 @@ lesson = 18
 order = 31
 mode = "stdout"
 source = "18b_myprintf.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
 hint = '''
 实现你自己的 printf! 这是一个精简版。
 
@@ -80,7 +80,7 @@ lesson = 18
 order = 32
 mode = "stdout"
 source = "myprintf.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/18_my_printf"
 hint = '''
 综合题: 同时实现 itoa 和 myprintf。
 

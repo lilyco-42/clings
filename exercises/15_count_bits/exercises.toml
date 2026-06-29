@@ -6,7 +6,7 @@ lesson = 15
 order = 24
 mode = "stdout"
 source = "15a_count_bits_loop.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
 hint = '''
 统计一个整数的二进制表示中有多少个 1。
 
@@ -45,7 +45,7 @@ lesson = 15
 order = 25
 mode = "stdout"
 source = "15b_count_bits_clear.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
 hint = '''
 统计二进制中 1 的个数——更聪明的方法。
 
@@ -84,7 +84,7 @@ lesson = 15
 order = 26
 mode = "stdout"
 source = "bits.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/15_count_bits"
 hint = '''
 统计二进制中 1 的个数——分治法 (popcount)。
 

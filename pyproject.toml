@@ -24,8 +24,8 @@ classifiers = [
 clings = "clings:main"
 
 [project.urls]
-Homepage = "https://cnb.cool/q.qq/opencamp-c-2026-summer/clings"
-Repository = "https://cnb.cool/q.qq/opencamp-c-2026-summer/clings"
+Homepage = "https://cnb.cool/opencamp/learning-nccl/clings"
+Repository = "https://cnb.cool/opencamp/learning-nccl/clings"
 
 [build-system]
 requires = ["hatchling"]

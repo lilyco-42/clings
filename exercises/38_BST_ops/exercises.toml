@@ -6,7 +6,7 @@ lesson = 38
 order = 86
 mode = "stdout"
 source = "38_BST_ops.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/38_BST_ops"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/38_BST_ops"
 hint = '''
 BST 三个操作: 插入、查找、删除(难点)。
 

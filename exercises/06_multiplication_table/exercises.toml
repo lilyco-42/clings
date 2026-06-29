@@ -6,7 +6,7 @@ lesson = 6
 order = 10
 mode = "stdout"
 source = "table99.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/06_multiplication_table"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/06_multiplication_table"
 hint = '''
 九九乘法表需要两层嵌套循环——一个循环控制行，一个控制列。
 

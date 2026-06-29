@@ -6,7 +6,7 @@ lesson = 42
 order = 90
 mode = "stdout"
 source = "42_snprintf.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/42_snprintf"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/42_snprintf"
 hint = '''
 snprintf 的安全用法和返回值语义。
 

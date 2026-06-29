@@ -6,7 +6,7 @@ lesson = 20
 order = 37
 mode = "stdout"
 source = "20a_delcomment.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
 hint = '''
 用状态机去除 C 代码中的注释。
 
@@ -53,7 +53,7 @@ lesson = 20
 order = 38
 mode = "stdout"
 source = "20b_getword.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
 hint = '''
 实现一个词法切分函数 getword()。
 
@@ -85,7 +85,7 @@ lesson = 20
 order = 39
 mode = "stdout"
 source = "20c_expdefine.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/20_preprocessor"
 hint = '''
 用表驱动状态机实现宏展开。
 

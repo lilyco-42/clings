@@ -6,7 +6,7 @@ lesson = 26
 order = 74
 mode = "stdout"
 source = "26_my_memcpy.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/26_my_memcpy"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/26_my_memcpy"
 hint = '''
 memcpy 的核心: void* 不能直接做算术运算，需要转换。
 

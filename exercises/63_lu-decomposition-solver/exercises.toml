@@ -8,7 +8,7 @@ mode = "make+stdout"
 source = "lu_solver.c"
 binary = "lu_solver"
 make_targets = ["all"]
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/63_lu-decomposition-solver"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/63_lu-decomposition-solver"
 hint = '''
 矩阵 LU 分解求解器: 用带部分主元的 LU 分解求解 3×3 线性方程组 Ax = b 。
 

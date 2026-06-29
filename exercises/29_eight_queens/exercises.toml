@@ -6,7 +6,7 @@ lesson = 29
 order = 77
 mode = "stdout"
 source = "29_eight_queens.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/29_eight_queens"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/29_eight_queens"
 hint = '''
 八皇后: 逐行放置 + 冲突检测 + 回溯。
 

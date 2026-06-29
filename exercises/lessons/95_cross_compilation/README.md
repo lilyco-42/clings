@@ -71,4 +71,4 @@
     ../../nccl-cc/test/invalid/     — 必须被拒绝的负面用例
     ../../nccl-cc/fuzz/gen_prog.c   — 随机程序生成器 (UB 按构造排除)
 
-> 课文源：[NCCL/Unit-4/Lesson-95.md](https://cnb.cool/q.qq/opencamp-c-2026-summer/NCCL/-/blob/master/Unit-4/Lesson-95.md) — 如有更新以书仓为准
+> 课文源：[NCCL/Unit-4/Lesson-95.md](https://cnb.cool/opencamp/learning-nccl/NCCL/-/blob/master/Unit-4/Lesson-95.md) — 如有更新以书仓为准

@@ -8,7 +8,7 @@ mode = "make+stdout"
 source = "mark_sweep.c"
 binary = "mark_sweep"
 make_targets = ["all"]
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-3-C-Panorama/-/tree/main/lessons/65_mark-sweep-gc"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/65_mark-sweep-gc"
 hint = '''
 标记-清除垃圾回收器 (Mark-Sweep GC): 用数组模拟堆和对象图，实现标记和清除两阶段 GC 。
 

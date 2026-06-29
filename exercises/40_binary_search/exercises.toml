@@ -6,7 +6,7 @@ lesson = 40
 order = 88
 mode = "stdout"
 source = "40_binary_search.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/40_binary_search"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/40_binary_search"
 hint = '''
 二分查找: 每次把搜索范围缩小一半。
 迭代二分查找:

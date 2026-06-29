@@ -6,7 +6,7 @@ lesson = 22
 order = 41
 mode = "stdout"
 source = "22a_generate.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
 hint = '''
 生成 4 个不重复的随机数字 (0-9)。
 
@@ -37,7 +37,7 @@ lesson = 22
 order = 42
 mode = "stdout"
 source = "22b_check.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
 hint = '''
 计算猜测结果: ?A?B。
 
@@ -78,7 +78,7 @@ lesson = 22
 order = 43
 mode = "stdout"
 source = "guess.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/22_guess_number"
 hint = '''
 综合题: 实现完整的猜数游戏循环。
 

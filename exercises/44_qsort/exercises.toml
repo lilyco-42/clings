@@ -6,7 +6,7 @@ lesson = 44
 order = 92
 mode = "stdout"
 source = "44_qsort.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/44_qsort"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/44_qsort"
 hint = '''
 qsort 的核心是 comparator 函数。
 

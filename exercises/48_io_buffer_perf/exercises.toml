@@ -6,7 +6,7 @@ lesson = 48
 order = 96
 mode = "stdout"
 source = "48_io_buffer_perf.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/48_io_buffer_perf"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/48_io_buffer_perf"
 hint = '''
 对比两种文件拷贝方式的性能差异。
 

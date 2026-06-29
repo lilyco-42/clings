@@ -6,7 +6,7 @@ lesson = 27
 order = 75
 mode = "stdout"
 source = "27_my_memmove.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/27_my_memmove"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/27_my_memmove"
 hint = '''
 memmove 与 memcpy 的区别: 要处理内存重叠。
 

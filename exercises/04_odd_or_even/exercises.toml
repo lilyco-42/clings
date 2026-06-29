@@ -6,7 +6,7 @@ lesson = 4
 order = 7
 mode = "stdout"
 source = "judge.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/04_odd_or_even"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/04_odd_or_even"
 hint = '''
 如何判断一个数是奇数还是偶数？
 

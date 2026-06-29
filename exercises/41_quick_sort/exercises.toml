@@ -6,7 +6,7 @@ lesson = 41
 order = 89
 mode = "stdout"
 source = "41_quick_sort.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-2-C-Essentials/-/tree/main/lessons/41_quick_sort"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/41_quick_sort"
 hint = '''
 快排 = Lomuto 分区 + 递归快排。
 

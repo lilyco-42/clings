@@ -1,6 +1,6 @@
 # =============================================================================
 # CNB CI: clings CLI
-# 仓库: q.qq/opencamp-c-2026-summer/clings (cli 分支)
+# 仓库: opencamp/learning-nccl/clings (cli 分支)
 # 发布: https://pypi.org/project/clings/
 # 镜像: opencamp-c-env/ci（含 gcc/ncurses/32位支持/python3）
 #

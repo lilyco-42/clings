@@ -6,7 +6,7 @@ lesson = 9
 order = 13
 mode = "stdout"
 source = "09a_itoa_hex.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/09_integer_to_string"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/09_integer_to_string"
 hint = '''
 整数转十六进制字符串——和十进制的 itoa 思路一样，
 只是基数从 10 变成了 16。
@@ -55,7 +55,7 @@ lesson = 9
 order = 14
 mode = "stdout"
 source = "itoa.c"
-lesson_url = "https://cnb.cool/q.qq/opencamp-c-2026-summer/Unit-1-C-Fundamentals/-/tree/main/lessons/09_integer_to_string"
+lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-1-C-Fundamentals/-/tree/main/lessons/09_integer_to_string"
 hint = '''
 把一个整数转换成字符串——这就是 itoa 函数的工作。
 
