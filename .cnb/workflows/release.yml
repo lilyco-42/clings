@@ -23,9 +23,13 @@
       image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
     stages:
       - name: Install & Verify
+        imports:
+          - https://cnb.cool/opencamp/learning-nccl/secret/-/blob/main/clings.yml
         script: |
           set -eu
           apt-get update -qq && apt-get install -y -qq git > /dev/null
+          git config --global url."https://cnb:${SOLUTIONS_DEPLOY_TOKEN}@cnb.cool/".insteadOf "https://cnb.cool/"
+          cd /workspace && git submodule update --init
           pip3 install --break-system-packages -e .
           clings doctor
           cd /tmp && mkdir -p clings-release-verify && cd clings-release-verify
@@ -94,9 +98,13 @@ cli:
         image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
       stages:
         - name: Install & Verify
+          imports:
+            - https://cnb.cool/opencamp/learning-nccl/secret/-/blob/main/clings.yml
           script: |
             set -eu
             apt-get update -qq && apt-get install -y -qq git > /dev/null
+            git config --global url."https://cnb:${SOLUTIONS_DEPLOY_TOKEN}@cnb.cool/".insteadOf "https://cnb.cool/"
+            cd /workspace && git submodule update --init
             pip3 install --break-system-packages -e .
             clings doctor
             cd /tmp && mkdir -p clings-tag-verify && cd clings-tag-verify
@@ -116,7 +124,7 @@ cli:
 
         - name: Publish to PyPI
           imports:
-            - https://cnb.cool/q.qq/opencamp-c-2026-summer/secrets/-/blob/main/values.yml
+            - https://cnb.cool/opencamp/learning-nccl/secret/-/blob/main/clings.yml
           script: |
             set -eu
             export TWINE_USERNAME="__token__"
