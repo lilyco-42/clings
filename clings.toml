@@ -20,8 +20,3 @@ lessons = "25-48"
 id = "unit3"
 title = "C Classicals"
 lessons = "49-72"
-
-[[units]]
-id = "unit4"
-title = "C Compiler"
-lessons = "73-96"
