@@ -289,7 +289,18 @@ clings watch unit1        # 从 Unit 1 开始
 | `l` | 打开交互式练习列表（可跳转） |
 | `t` | 显示当前练习的测试用例（TDD 开发） |
 | `r` | 手动重新运行当前练习 |
+| `n` | 切换到下一题（当前题通过后可用） |
+| `c` | 检查所有练习，完成后自动跳到第一个未完成的题 |
+| `x` | 重置当前练习文件到初始状态 |
 | `q` | 退出 watch 模式 |
+
+**Watch 模式选项**：
+
+```bash
+clings watch --manual-run     # 关闭文件变化自动重跑，按 r 手动触发
+clings watch --auto-advance   # 当前题通过后自动切到下一题（默认关闭，需手动按 n）
+clings watch --edit-cmd code  # 启动时自动用 VS Code 打开练习文件
+```
 
 ### 多模式评测体系
 
