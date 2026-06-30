@@ -83,6 +83,9 @@ def main() -> int:
     p.add_argument("--hidden", action="store_true")
     p.add_argument("--manual-run", action="store_true",
                    help="disable auto-rerun on file change; press r to rerun")
+    p.add_argument("--auto-advance", action="store_true",
+                   help="automatically advance to the next pending exercise after "
+                        "the current one passes (shows a brief success screen first)")
     p.add_argument("--edit-cmd", metavar="CMD",
                    help="command to open exercise file (e.g. 'code' or 'vim')")
     p.set_defaults(func=cmd_watch)
@@ -107,6 +110,7 @@ def main() -> int:
         args.solutions = False
         args.hidden = False
         args.manual_run = False
+        args.auto_advance = False
         args.func = cmd_watch
 
     try:

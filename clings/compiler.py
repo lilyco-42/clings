@@ -14,8 +14,34 @@ from .config import (
     test_files_for,
 )
 
-# Cache for make targets already verified in this session
-MAKE_CACHE: set[tuple[str, str, bool]] = set()
+# Cache for make targets already verified in this session.
+# Key: (src_dir, target, use_solutions, mtime_signature)
+# mtime_signature = max mtime of build-relevant files (*.c, *.h, Makefile, *.mk)
+# in the source directory. When any build input changes, the signature changes,
+# invalidating the cache entry so make is re-run.
+#
+# In watch mode, use_cache=False is passed to bypass this cache entirely: watch
+# already detects file changes via mtime polling, and make itself handles
+# incremental builds correctly. Caching at the tool layer would only cause
+# stale-build bugs (see: Unit 3 make exercises not rebuilding after edits).
+MAKE_CACHE: set[tuple[str, str, bool, float]] = set()
+
+
+def _make_source_mtime_signature(src_dir: Path) -> float:
+    """Compute a mtime signature for make-mode build inputs.
+
+    Covers all files that affect a make build: C sources, headers, the
+    Makefile itself, and any included .mk fragments. Returns the max mtime
+    so that any single file change invalidates the cache.
+    """
+    max_mtime = 0.0
+    for pattern in ("*.c", "*.h", "Makefile", "makefile", "GNUmakefile", "*.mk"):
+        for f in src_dir.glob(pattern):
+            try:
+                max_mtime = max(max_mtime, f.stat().st_mtime)
+            except OSError:
+                pass
+    return max_mtime
 
 
 def compile_exercise(ex: dict, use_solutions: bool) -> Path:
@@ -143,14 +169,22 @@ def check_return(ex: dict, binary: Path) -> None:
         )
 
 
-def check_one(ex: dict, use_solutions: bool, include_hidden: bool) -> None:
-    """Verify a single exercise (dispatch by mode)."""
+def check_one(
+    ex: dict, use_solutions: bool, include_hidden: bool, use_cache: bool = True
+) -> None:
+    """Verify a single exercise (dispatch by mode).
+
+    ``use_cache`` controls whether make-mode exercises consult the session-level
+    MAKE_CACHE. Watch mode passes ``False`` so that every rerun triggers a real
+    ``make`` invocation (make's own incremental build handles efficiency).
+    Batch commands (``check``, ``score``) leave it ``True`` for acceleration.
+    """
     mode = ex.get("mode", "stdout")
     if mode == "make":
-        check_make(ex, use_solutions)
+        check_make(ex, use_solutions, use_cache)
         return
     if mode == "make+stdout":
-        check_make_stdout(ex, use_solutions, include_hidden)
+        check_make_stdout(ex, use_solutions, include_hidden, use_cache)
         return
     if mode == "compile":
         compile_exercise(ex, use_solutions)
@@ -163,7 +197,7 @@ def check_one(ex: dict, use_solutions: bool, include_hidden: bool) -> None:
     run_cases(ex, binary, include_hidden)
 
 
-def check_make(ex: dict, use_solutions: bool) -> None:
+def check_make(ex: dict, use_solutions: bool, use_cache: bool = True) -> None:
     """Verify a make-based exercise by running its make targets."""
     src_dir = source_dir_for(ex, use_solutions)
     if not src_dir.exists():
@@ -171,9 +205,10 @@ def check_make(ex: dict, use_solutions: bool) -> None:
     targets = ex.get("make_targets", ["test"])
     env = os.environ.copy()
     env.setdefault("CC", find_compiler() or "cc")
+    mtime_sig = _make_source_mtime_signature(src_dir)
     for target in targets:
-        cache_key = (str(src_dir.resolve()), target, use_solutions)
-        if cache_key in MAKE_CACHE:
+        cache_key = (str(src_dir.resolve()), target, use_solutions, mtime_sig)
+        if use_cache and cache_key in MAKE_CACHE:
             continue
         cmd = ["make", target]
         proc = subprocess.run(
@@ -190,11 +225,12 @@ def check_make(ex: dict, use_solutions: bool) -> None:
                 f"$ {' '.join(cmd)} (cwd {src_dir})\n"
                 f"{proc.stdout[-4000:]}\n{proc.stderr[-4000:]}"
             )
-        MAKE_CACHE.add(cache_key)
+        if use_cache:
+            MAKE_CACHE.add(cache_key)
 
 
 def check_make_stdout(
-    ex: dict, use_solutions: bool, include_hidden: bool
+    ex: dict, use_solutions: bool, include_hidden: bool, use_cache: bool = True
 ) -> None:
     """Hybrid mode: student Makefile builds; clings runs + compares stdout.
 
@@ -216,9 +252,11 @@ def check_make_stdout(
     targets = ex.get("make_targets", ["build"])
     env = os.environ.copy()
     env.setdefault("CC", find_compiler() or "cc")
+    mtime_sig = _make_source_mtime_signature(src_dir)
+    make_ran = False
     for target in targets:
-        cache_key = (str(src_dir.resolve()), target, use_solutions)
-        if cache_key in MAKE_CACHE:
+        cache_key = (str(src_dir.resolve()), target, use_solutions, mtime_sig)
+        if use_cache and cache_key in MAKE_CACHE:
             continue
         cmd = ["make", target]
         proc = subprocess.run(
@@ -235,17 +273,28 @@ def check_make_stdout(
                 f"$ {' '.join(cmd)} (cwd {src_dir})\n"
                 f"{proc.stdout[-4000:]}\n{proc.stderr[-4000:]}"
             )
-        MAKE_CACHE.add(cache_key)
+        if use_cache:
+            MAKE_CACHE.add(cache_key)
+        make_ran = True
 
     # Phase 2: locate the produced binary.
     binary_name = ex.get("binary") or ex["name"]
     suffix = ".exe" if os.name == "nt" else ""
     binary = src_dir / f"{binary_name}{suffix}"
     if not binary.exists():
+        if make_ran:
+            raise ClingsError(
+                f"make completed but did not produce expected binary: {binary_name}\n"
+                f"looked at: {binary.relative_to(ROOT)}\n"
+                f"check that your Makefile's TARGET matches the `binary` field "
+                f"in exercises.toml."
+            )
         raise ClingsError(
-            f"make build did not produce expected binary: {binary_name}\n"
+            f"expected binary not found: {binary_name}\n"
             f"looked at: {binary.relative_to(ROOT)}\n"
-            f"set the `binary` field in exercises.toml to match your Makefile's TARGET."
+            f"make was skipped (cached from a previous run); the binary may have "
+            f"been deleted externally.\n"
+            f"Run `make clean` or press x to reset the exercise, then rerun."
         )
 
     # Phase 3: clings authoritative run + stdout comparison.

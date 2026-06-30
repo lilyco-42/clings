@@ -76,6 +76,28 @@ def source_files_for(ex: dict, use_solutions: bool) -> list[Path]:
         return sorted(src_dir.glob("*.c"))
 
 
+def watch_files_for(ex: dict, use_solutions: bool) -> list[Path]:
+    """Get files to watch for changes in watch mode.
+
+    For make/make+stdout mode, this includes ALL build-relevant files in the
+    source directory: *.c, *.h, Makefile, *.mk. This ensures that editing the
+    Makefile or a header file triggers a rerun (a common blind spot — the
+    previous implementation only watched the single ``source`` .c file).
+
+    For other modes, falls back to ``source_files_for`` (just the .c files).
+    """
+    mode = ex.get("mode", "stdout")
+    if mode not in ("make", "make+stdout"):
+        return source_files_for(ex, use_solutions)
+    src_dir = source_dir_for(ex, use_solutions)
+    if not src_dir.exists():
+        return []
+    files: list[Path] = []
+    for pattern in ("*.c", "*.h", "Makefile", "makefile", "GNUmakefile", "*.mk"):
+        files.extend(sorted(src_dir.glob(pattern)))
+    return files
+
+
 def get_mtime(files: list[Path]) -> float:
     """Get the most recent modification time among a list of files."""
     mtime = 0.0

@@ -21,6 +21,7 @@ from ..utils import (
     read_key_nonblocking,
     reset_exercise,
     source_files_for,
+    watch_files_for,
 )
 
 
@@ -36,7 +37,9 @@ def cmd_watch(args: argparse.Namespace) -> int:
     use_solutions = args.solutions
     include_hidden = args.hidden
     manual_run = getattr(args, "manual_run", False)
+    auto_advance = getattr(args, "auto_advance", False)
     edit_cmd = getattr(args, "edit_cmd", None) or os.environ.get("CLINGS_EDITOR")
+    renderer.auto_advance = auto_advance
 
     def _open_in_editor(ex: dict) -> None:
         if not edit_cmd:
@@ -76,7 +79,7 @@ def cmd_watch(args: argparse.Namespace) -> int:
     def _run_current() -> tuple[bool, str]:
         ex = state.current_exercise()
         try:
-            check_one(ex, use_solutions, include_hidden)
+            check_one(ex, use_solutions, include_hidden, use_cache=False)
             return True, ""
         except Exception as exc:
             return False, str(exc)
@@ -84,8 +87,9 @@ def cmd_watch(args: argparse.Namespace) -> int:
     def _check_file_changed() -> bool:
         nonlocal last_mtime
         ex = state.current_exercise()
-        src_files = source_files_for(ex, use_solutions)
-        current_mtime = get_mtime(src_files)
+        # Use watch_files_for to cover Makefile/.h in make mode (not just .c).
+        watch_files = watch_files_for(ex, use_solutions)
+        current_mtime = get_mtime(watch_files)
         if current_mtime > last_mtime:
             last_mtime = current_mtime
             return True
@@ -241,6 +245,15 @@ def cmd_watch(args: argparse.Namespace) -> int:
                 last_mtime = 0.0
                 _do_run()
                 needs_render = True
+            elif key == "t":
+                from ..utils import clear_screen as _cls
+                from ..commands.tests import _show_one
+                _cls()
+                _show_one(state.current_exercise())
+                print(f"\n  {ANSI_DIM}Press any key to return...{ANSI_RESET}", flush=True)
+                while read_key_nonblocking() is None:
+                    time.sleep(0.05)
+                needs_render = True
             elif key == "x":
                 ex = state.current_exercise()
                 if reset_exercise(ex):
@@ -256,20 +269,58 @@ def cmd_watch(args: argparse.Namespace) -> int:
                 for i, (ex, _) in enumerate(state.exercises_with_status()):
                     label = f"[{i+1}/{total}]"
                     try:
-                        check_one(ex, use_solutions, include_hidden)
+                        check_one(ex, use_solutions, include_hidden, use_cache=False)
                         state._done.add(ex["name"])
                         print(f"  {ANSI_GREEN}{label} \u2714 {ex['name']}{ANSI_RESET}")
                     except Exception as exc:
+                        state._done.discard(ex["name"])
                         print(f"  {ANSI_RED}{label} \u2718 {ex['name']}{ANSI_RESET}")
                 state.save()
                 print(f"\n  {progress_bar(state.n_done, state.total)}")
+                # Align with rustlings: after check-all, jump to the first pending
+                # exercise if the current one is done. This mirrors rustlings'
+                # check_all_exercises which sets current_exercise_ind to the
+                # first_pending_exercise_ind.
+                current_ex = state.current_exercise()
+                if state.is_done(current_ex) and not state.all_done():
+                    state.advance_next()
+                    last_mtime = 0.0
                 print(f"\n  {ANSI_DIM}Press any key to return...{ANSI_RESET}", flush=True)
                 while read_key_nonblocking() is None:
                     time.sleep(0.05)
+                # Re-run the (possibly new) current exercise so the watch UI
+                # shows correct pass/fail status and error message, rather than
+                # stale state from the previous exercise.
+                _do_run()
                 needs_render = True
 
             if not manual_run and not exercise_passed:
                 if _check_file_changed():
+                    _do_run()
+                    needs_render = True
+
+            # Auto-advance: if the current exercise just passed and
+            # --auto-advance is enabled, briefly show the success screen,
+            # then move to the next pending exercise. The brief pause lets
+            # the user see the result and press any key to stay on the
+            # current exercise if they want to experiment further.
+            if exercise_passed and auto_advance and not state.all_done():
+                needs_render = True
+                _render()
+                print(
+                    f"\n  {ANSI_DIM}Auto-advancing to next exercise... "
+                    f"(press any key to stay){ANSI_RESET}",
+                    flush=True,
+                )
+                stayed = False
+                for _ in range(12):  # ~1.2s pause
+                    time.sleep(0.1)
+                    if read_key_nonblocking() is not None:
+                        stayed = True
+                        break
+                if not stayed and state.advance_next():
+                    _open_in_editor(state.current_exercise())
+                    last_mtime = 0.0
                     _do_run()
                     needs_render = True
 
