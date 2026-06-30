@@ -67,3 +67,55 @@ commands/* → compiler / state / renderer / utils → config
 ### ClingsError
 
 唯一的自定义异常类，定义在 `config.py` 中。所有用户可见的错误都抛此异常，由 `cli.py` 的 `main()` 统一捕获输出。
+
+## 测试体系（tests_py/）
+
+clings 自身的 pytest 测试位于 `tests_py/`（与 `tests/` 严格隔离——后者是 C 练习题的测试数据，被 force-include 进 wheel；前者不打包）。
+
+### 目录结构
+
+```
+tests_py/
+├── conftest.py           # 共享 fixture（isolated_workspace 隔离模块级常量）
+├── test_compiler.py      # normalize / _collect_cases / _make_source_mtime_signature
+├── test_config.py        # select_exercises / find_exercise / discover / load_toml / test_files_for
+├── test_state.py         # WatchState 全类 / next_pending_exercise
+├── test_utils.py         # progress_bar / get_mtime / terminal_hyperlink / source_files_for
+├── test_score.py         # _detect_status
+└── test_integration.py   # 端到端：真实编译 C + run_cases 全断言 + check_one dispatch
+```
+
+### 开发命令
+
+```bash
+pip install -e ".[dev]"                  # 安装 pytest（dev 依赖，不进发布包）
+pytest tests_py/ -v                      # 跑全部测试
+pytest tests_py/test_compiler.py -v      # 跑单个模块
+pytest tests_py/ --cov=clings            # 覆盖率报告
+pytest tests_py/ -k normalize            # 按关键字筛选
+```
+
+### 关键设计：模块级常量值拷贝陷阱
+
+`config.py` 顶部的模块级常量（`ROOT`/`STATE_FILE`/`BUILD_DIR`/`PUBLIC_TEST_DIR` 等）被 `state.py`/`utils.py`/`compiler.py`/`reset.py` 通过 `from .config import X` **值拷贝**（绑定了 import 时的 Path 对象）。
+
+测试用 `monkeypatch` 替换这些常量时，**必须 patch 每个消费者模块的本地引用**，仅 patch `clings.config` 模块不够。`conftest.py` 的 `isolated_workspace` fixture 统一处理此问题——新增依赖这些常量的模块时，若测试报"路径不对"，检查是否需要在 conftest 补 patch。
+
+### 测试分层
+
+| 层级 | 文件 | 特点 |
+|------|------|------|
+| 单元测试（纯函数） | test_compiler/test_config/test_utils/test_score | 秒级，无 IO |
+| 文件系统测试 | test_config(续)/test_state/test_compiler(续) | 秒级，用 tmp_path |
+| 集成测试（真实编译） | test_integration | 分钟级，需 gcc |
+
+### Known Gaps（暂未覆盖）
+
+- `renderer.py` / `commands/watch.py`：TUI 交互，需 pty + 模拟按键，ROI 不足
+- `compiler.py` 的 `check_make` / `check_make_stdout`：make 流程需真实 Makefile 集成测试
+- Windows 特定路径（MinGW 检测、`.exe` 后缀）：CI 在 Linux
+
+### 约束
+
+- **pytest 是 dev 依赖**：`[project.optional-dependencies] dev`，`pip install clings`（终端用户）不装 pytest，零运行时依赖原则不受影响
+- **`tests_py/` 不打包**：`pyproject.toml` 的 `force-include` 只含 `tests`（C 数据），`tests_py` 不进 wheel
