@@ -2,7 +2,7 @@
 # CNB CI: clings CLI
 # 仓库: opencamp/learning-nccl/clings (cli 分支)
 # 发布: https://pypi.org/project/clings/
-# 镜像: opencamp-c-env/ci（含 gcc/ncurses/32位支持/python3）
+# 镜像: opencamp-c-env/ci（含 gcc/ncurses/32 位支持/python3）
 #
 # 策略:
 #   push          → unit0 + unit1 + unit2 并行测试 + Build（日常验证）
@@ -150,3 +150,29 @@ cli:
           script: |
             pip3 install --break-system-packages build
             python3 -m build
+
+# ===== 云原生开发环境 =====
+$:
+  vscode:
+    - docker:
+        image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/dev:latest
+      runner:
+        tags: cnb:arch:amd64
+      services:
+        - vscode
+        - docker
+      stages:
+        - name: setup
+          script: |
+            echo "=== C Fundamentals Development Environment ==="
+            gcc --version | head -n1
+            python3 --version
+            clings -v
+            echo ""
+            echo "📚 开始做题:"
+            echo "   clings           # 进入交互式 watch 模式"
+            echo "   clings list      # 查看练习列表"
+            echo "   clings hint      # 查看当前题目提示"
+            echo "   clings score     # 查看当前得分"
+            echo ""
+            echo "✅ 环境就绪，开始编程吧！"
