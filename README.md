@@ -698,6 +698,18 @@ python -m clings score unit0 --json
 
 > 修改包代码（`clings/` 目录）后，提交前务必运行 Unit 0 + Unit 1 + Unit 2 全量 check。
 
+### CLI 自身测试（pytest）
+
+clings 作为 Python CLI 工具，自身有 pytest 测试套件（位于 `tests_py/`，与 `tests/` 的 C 练习题数据隔离）：
+
+```bash
+pip install -e ".[dev]"            # 安装 pytest（dev 依赖，不进发布包）
+pytest tests_py/ -v                # 跑全部测试（秒级）
+pytest tests_py/ --cov=clings      # 带覆盖率报告
+```
+
+测试分三层：单元测试（纯函数）→ 文件系统测试（tmp_path 隔离）→ 集成测试（真实编译 C）。覆盖 `normalize`/`select_exercises`/`WatchState`/`run_cases` 等核心逻辑。详见 [`clings/AGENTS.md`](clings/AGENTS.md) 测试体系章节。
+
 ### Commit 规范
 
 格式：`<emoji> <type>(<scope>): <中文主题>`
@@ -742,7 +754,7 @@ lessons = "25-48"
 
 ## CI/CD
 
-push 到 `cli` 分支自动触发 CNB 流水线，包含三层并行验证：
+push 到 `cli` 分支自动触发 CNB 流水线，包含四层并行验证：
 
 ```
 push → cli 分支
@@ -750,6 +762,7 @@ push → cli 分支
 ├── Unit 0 流水线 (Init → List → Run → Check → Score)
 ├── Unit 1 流水线 (Init → List → Run → Check → Score)   ← 并行
 ├── Unit 2 流水线 (Init → List → Run → Check → Score)   ← 并行
+├── Test 流水线 (pytest tests_py/ --cov)                ← 并行（CLI 自身测试）
 └── Build (python -m build → wheel + sdist)              ← 并行
 ```
 

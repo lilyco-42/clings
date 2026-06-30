@@ -31,6 +31,28 @@ Repository = "https://cnb.cool/opencamp/learning-nccl/clings"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests_py"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["clings"]
+branch = true
+
+[tool.coverage.report]
+# CI 门槛：核心逻辑模块已达标（config 82% / state 95% / utils 76%），
+# commands/* 与 renderer/watch 属 TUI 交互层（known gap），拉低总数。
+# 30% 总覆盖率门槛是当前阶段的合理底线，随测试扩展逐步上调。
+fail_under = 30
+show_missing = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["clings"]
 

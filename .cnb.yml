@@ -151,6 +151,19 @@ cli:
             pip3 install --break-system-packages build
             python3 -m build
 
+    # --- Test 流水线（clings 自身 pytest 测试，与 Unit/Build 并行）---
+    # 验证 clings Python CLI 工具自身的代码质量（非 C 练习题测试）。
+    # tests_py/ 目录与 tests/（C 练习题数据）严格隔离，不打包进 wheel。
+    # pytest 作为 [project.optional-dependencies] dev 安装，不违反零运行时依赖。
+    - name: test
+      <<: *ci-docker
+      stages:
+        - name: Test
+          script: |
+            cd /workspace
+            pip3 install --break-system-packages -e ".[dev]"
+            pytest tests_py/ -v --cov=clings --cov-report=term-missing --cov-fail-under=30
+
 # ===== 云原生开发环境 =====
 $:
   vscode:
