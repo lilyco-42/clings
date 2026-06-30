@@ -10,7 +10,7 @@
  *          - 用 m[12]={31,28,31,30,...} 累加前 month-1 个月天数
  *          - alldays += day - 1
  *          - switch ((alldays + origin_day) % 7) 返回对应 enum day
- *       2. main(): 读入车牌号和日期 → 组合调用三个函数 → 输出结果
+ *       2. main(): 读入车牌号和日期 → 组合调用三个函数 → 输出结果 ("restricted!\n" / "NOT restricted!\n")
  *
  * 验证："A23456\n2013 1 1\n" → "restricted!\n" (周二限 1/6，尾号 6)
  */
