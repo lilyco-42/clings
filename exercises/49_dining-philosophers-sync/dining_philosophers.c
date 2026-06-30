@@ -1,137 +1,246 @@
-/* 49_dining-philosophers-sync.c — 哲学家就餐问题：状态机模拟 + 非对称防死锁【标杆题】
+/* 49_dining-philosophers-sync.c — 哲学家就餐问题：真实多线程 + 可观测死锁【标杆题】
  *
- * 任务：1. 补全 init() 中的定时器初始化
- *       2. 实现 can_eat() — 非对称筷子检测
- *       3. 实现 pickup()  — 拿筷子
- *       4. 实现 putdown() — 放筷子
- *       5. 实现 all_done() — 判定全员完成
- *       6. 实现 print_state() — 格式化输出
- *       7. 补全 main() 中的三阶段模拟循环
+ * 任务：1. 实现 pickup()  — 按 strategy 拿筷子（naive 会触发死锁）
+ *       2. 实现 putdown() — 释放两根筷子
+ *       3. 实现 philosopher() — 线程函数：think → pickup → eat → putdown 循环
+ *       4. 实现 watchdog()   — 超时哨兵：检测死锁并打印诊断
+ *       5. 实现 build_wait_cycle() — 构建等待环字符串
+ *       6. 实现 coffman_check()   — 自检 Coffman 四条件是否全部命中
+ *       7. 补全 main()   — 创建 barrier / 线程 / join
  *
- * 背景：五位哲学家围坐圆桌，需左右两根筷子才能进餐。
- *       全左手优先 → 循环等待 → 死锁。
- *       让 P4 右手优先打破循环等待，杜绝死锁。
+ * 背景：五位哲学家围坐圆桌，需左右两根筷子才能进餐。每根筷子是一把
+ *       pthread_mutex_t 互斥锁。strategy=naive 时五人全左手优先，
+ *       会形成"持有并等待"的循环等待环 → 死锁真实发生，watchdog
+ *       超时后打印等待环与 Coffman 四条件自检。
  *
- * 知识点：死锁四条件、循环等待、非对称策略、状态机模拟
+ * 运行：./dining_philosophers <naive|asymmetric|ordered>
  *
- * 验证：srand(42) 固定种子 → make test 比对 expected_output.txt
+ * 退出码协议（判分锚点）：
+ *   0 = 全员吃完 TARGET 顿，无死锁（asymmetric / ordered 期望）
+ *   2 = watchdog 触发，检测到死锁（naive 期望）
+ *
+ * 知识点：Coffman 四条件、pthread 互斥锁、持有并等待、循环等待、
+ *         死锁检测、非对称/资源排序预防策略
+ *
+ * 验证：make test 通过三策略组合断言（退出码 + 关键诊断行）
+ *
+ * 特性宏说明：-std=c11 -pedantic 下 glibc 默认不暴露 POSIX/BSD 接口
+ *   (pthread_barrier_t 属 POSIX.1-2001，usleep 属 BSD)，需显式开启。
  */
+#define _POSIX_C_SOURCE 200809L
+#define _DEFAULT_SOURCE
+
+#include <pthread.h>
+#include <stdatomic.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#define N 5              /* 哲学家数量 */
-#define TARGET_EAT 3     /* 每人吃满 N 次后结束 */
-#define MAX_ROUNDS 200   /* 最大轮次（安全上限） */
-#define THINK_TIME_MIN 2 /* 思考最短持续时间（轮） */
-#define THINK_TIME_MAX 5 /* 思考最长持续时间（轮） */
-#define EAT_TIME 1       /* 进餐持续时间（轮） */
+#define N 5                  /* 哲学家数量 */
+#define TARGET_EAT 100       /* 每人目标进餐次数（naive 下足够稳定触发死锁） */
+#define WATCHDOG_TIMEOUT 3   /* watchdog 超时秒数 */
+#define THINK_US_MIN 1000    /* 思考最短（微秒） */
+#define THINK_US_MAX 3000    /* 思考最长（微秒） */
+#define EAT_US 1000          /* 进餐持续（微秒） */
+#define GRAB_GAP_US 500      /* 拿左筷到拿右筷的间隔（放大持有并等待窗口） */
 
-typedef enum { THINKING, HUNGRY, EATING } State;
+typedef enum { NAIVE, ASYMMETRIC, ORDERED } Strategy;
 
-State state[N];   /* 每位哲学家的当前状态 */
-int chopstick[N]; /* -1 = 空闲，否则 = 持有者的 id */
-int eat_count[N]; /* 每位已完成进餐次数 */
-int timer[N];     /* 当前状态剩余轮数 */
-
-/* ---------- 初始化 ---------- */
-static void init(void) {
-    srand(42); /* 固定种子 → 输出可复现 */
-    for (int i = 0; i < N; i++) {
-        state[i] = THINKING;
-        chopstick[i] = -1;
-        eat_count[i] = 0;
-#error TODO: Finish this exercise. Run "clings hint" for help.
-        /* 用 rand() 生成 THINK_TIME_MIN ~ THINK_TIME_MAX 的随机思考时间
-         * 提示：rand() % 范围大小 + 最小值 */
-    }
+static const char *strategy_name(Strategy s) {
+    return s == NAIVE ? "naive" : s == ASYMMETRIC ? "asymmetric" : "ordered";
 }
 
-/* ---------- 检查哲学家 id 是否可以进餐 — 非对称策略 ---------- */
-static int can_eat(int id) {
-#error TODO: Finish this exercise. Run "clings hint" for help.
-    /* 记住筷子的编号规则：
-     *   哲学家 i 的左手是 筷 [i]，右手是 筷 [(i+1)%N]
-     *
-     * P0 ~ P3  左手优先：检查筷 [左手] 空闲 && 筷 [右手] 空闲
-     * P4       右手优先：检查筷 [右手] 空闲 && 筷 [左手] 空闲
-     *   (为什么 P4 要反过来？—— 打破循环等待)
-     *
-     * 两根都空闲返回 1，否则返回 0 */
-}
+/* 共享资源：5 根筷子 = 5 把互斥锁（Coffman 条件 1：互斥） */
+static pthread_mutex_t chopstick[N];
 
-/* ---------- 拿起筷子 — 非对称顺序 ---------- */
+/* 起跑门：让 5 个线程同时开始第一轮，提高 naive 死锁触发概率 */
+static pthread_barrier_t start_gate;
+
+/* 原子计数器：避免 eat_count 数据竞争（呼应 L64 _Atomic） */
+static atomic_int eat_count[N];
+
+/* 哲学家状态（仅供诊断输出，不参与同步逻辑） */
+static atomic_int state[N];      /* 0=THINKING 1=HUNGRY 2=EATING */
+static atomic_int holding[N];    /* 当前持有的左筷编号，-1 表示无 */
+
+/* 全局策略（main 解析后写入，线程启动前固定，无需同步） */
+static Strategy g_strategy;
+
+/* 打印互斥锁：防止多线程 printf 输出交错 */
+static pthread_mutex_t print_lock = PTHREAD_MUTEX_INITIALIZER;
+
+/* 全员完成标志：watchdog 据此判断是正常结束还是死锁 */
+static atomic_int all_done_flag = 0;
+
+/* ---------- TODO 1: pickup() — 按策略拿两根筷子 ----------
+ *
+ * 左手筷子编号 = id，右手筷子编号 = (id + 1) % N
+ *
+ * 三种策略（核心：是否破坏循环等待环）：
+ *
+ *   NAIVE       — 全部先 lock(left) 再 lock(right)
+ *                 五人同时执行 → 每人各持一根 → 互等另一根 → 循环等待 → 死锁
+ *                 这是"病灶侧"，故意触发死锁供观察
+ *
+ *   ASYMMETRIC  — id == N-1 反过来先 lock(right) 再 lock(left)；其余同 NAIVE
+ *                 打破对称性：P_{N-1} 与 P_0 在筷 0 上必有一人失败 → 环断
+ *
+ *   ORDERED     — 始终先 lock(min(left,right)) 再 lock(max(left,right))
+ *                 资源偏序 → 不可能成环（最通用的预防策略）
+ *
+ * 提示：
+ *   - 拿完左筷后 usleep(GRAB_GAP_US) 放大"持有并等待"窗口，让 naive 稳定死锁
+ *   - 用 holding[id] = left 记录持有的左筷（watchdog 诊断用）
+ *   - pthread_mutex_lock 会阻塞直到拿到，无需自己 spin
+ */
 static void pickup(int id) {
-#error TODO: Finish this exercise. Run "clings hint" for help.
-    /* 左手 = id，右手 = (id+1)%N
-     *
-     * P0 ~ P3: 先拿左手，再拿右手
-     * P4:      先拿右手，再拿左手
-     *
-     * chopstick[手] = id 表示被 id 号哲学家持有 */
+    int left = id;
+    int right = (id + 1) % N;
+    int first, second;
+
+    /* TODO: 根据 g_strategy 计算 first / second 的拿筷顺序，然后:
+     *   pthread_mutex_lock(&chopstick[first]);
+     *   atomic_store(&holding[id], first);
+     *   usleep(GRAB_GAP_US);            // 放大持有并等待窗口
+     *   pthread_mutex_lock(&chopstick[second]);
+     *   atomic_store(&state[id], 2);    // EATING
+     */
+#error TODO: implement pickup() per strategy.
 }
 
-/* ---------- 放下筷子 ---------- */
+/* ---------- TODO 2: putdown() — 释放两根筷子 ----------
+ *
+ * Coffman 条件 3（不可剥夺）的体现：筷子只能由持有者主动 unlock。
+ * 释放顺序：先 unlock 后拿的那根（second），再 unlock 先拿的那根（first），
+ * 这是锁的最佳实践（逆序释放，避免某些场景下的语义混乱）。
+ *
+ * 注意：本函数不依赖 strategy —— 无论怎么拿的，放下时两根都解锁即可。
+ *       holding[id] 置 -1 表示无持有。
+ */
 static void putdown(int id) {
-#error TODO: Finish this exercise. Run "clings hint" for help.
-    /* 将左右两根筷子都标记为 -1（空闲）*/
+#error TODO: implement putdown(). Release both chopsticks, clear holding[id].
 }
 
-/* ---------- 所有人都吃满了吗？---------- */
-static int all_done(void) {
-#error TODO: Finish this exercise. Run "clings hint" for help.
-    /* 遍历所有哲学家：
-     *   任何一位 eat_count[i] < TARGET_EAT → 返回 0
-     *   全部达标 → 返回 1 */
+/* ---------- TODO 3: philosopher() — 线程函数 ----------
+ *
+ * 循环 TARGET_EAT 次：
+ *   1. think()      — usleep 一个 THINK_US_MIN~MAX 的随机值
+ *   2. 第一轮在 start_gate 同步起跑（让 5 人几乎同时抢筷，放大死锁概率）
+ *      之后各轮不再 barrier（否则安全策略也会被强行同步成死锁）
+ *   3. atomic_store(&state[id], 1)   // HUNGRY
+ *   4. pickup(id)
+ *   5. eat()        — usleep(EAT_US)
+ *   6. putdown(id)
+ *   7. atomic_fetch_add(&eat_count[id], 1)
+ *
+ * 线程返回 NULL。
+ *
+ * 提示：用 rand_r(&seed) 生成可复现的思考时长，seed 用 id 派生。
+ */
+static void *philosopher(void *arg) {
+#error TODO: implement philosopher() thread loop.
+    return NULL;
 }
 
-/* ---------- 打印当前状态 ---------- */
-static void print_state(int round) {
-#error TODO: Finish this exercise. Run "clings hint" for help.
-    /* 输出格式示例 (round 用 %02d 补零):
-     *   02 | P0:T P1:H P2:T P3:T P4:H
-     *
-     * 状态字符映射：THINKING→'T', HUNGRY→'H', EATING→'E'
-     * 注意每项之间有空格，末尾换行 */
+/* ---------- TODO 4: watchdog() — 超时死锁哨兵 ----------
+ *
+ * 1. sleep(WATCHDOG_TIMEOUT)
+ * 2. 若 atomic_load(&all_done_flag) 为真 → 正常退出，返回 NULL
+ * 3. 否则视为死锁，调用 print_deadlock_diag() 打印诊断，然后 exit(2)
+ *
+ * 为什么用独立线程而非 alarm()/SIGALRM？
+ *   signal handler 里调 pthread 函数是已知的"会死锁的地雷"
+ *   （linuxthreads FAQ：pthread 函数非 async-signal-safe）。
+ *   独立线程 + exit() 是干净、可移植、无副作用的做法。
+ *
+ * exit(2) 是判分锚点：tests/49_*.toml 中 naive case 期望 exit_code=2。
+ */
+/* 前向声明：watchdog 调用，print_deadlock_diag 在下方已实现 */
+static void print_deadlock_diag(void);
+
+static void *watchdog(void *arg) {
+    (void)arg;
+#error TODO: implement watchdog() timeout detector.
+    return NULL;
 }
 
-/* ---------- 主模拟循环 ---------- */
-int main(void) {
-    init();
+/* ---------- TODO 5: build_wait_cycle() — 构建等待环字符串 ----------
+ *
+ * 死锁时，每个哲学家 Pi 持有筷 i，等待筷 (i+1)%N（被 P_{i+1} 持有）。
+ * 等待环形如：
+ *   P0 → chop1 → P1 → chop2 → P2 → chop3 → P3 → chop4 → P4 → chop0 → P0
+ *
+ * 把上述字符串写入 out（out 至少 256 字节）。
+ * 这是"循环等待"（Coffman 条件 4）的可视化。
+ */
+static void build_wait_cycle(char *out, size_t outsz) {
+#error TODO: implement build_wait_cycle().
+    (void)out; (void)outsz;
+}
 
-    printf("=== Dining Philosophers ===\n");
-    printf("N=5, asymmetric (P4 right-first), target=%d meals each\n", TARGET_EAT);
-    printf("T=Thinking H=Hungry E=Eating\n\n");
+/* ---------- TODO 6: coffman_check() — 自检四条件 ----------
+ *
+ * 死锁发生当且仅当 Coffman 四条件同时成立。本函数在死锁现场
+ * 把每个条件的命中情况格式化到 out：
+ *
+ *   Coffman check: 互斥✓ 持有等待✓ 不可剥夺✓ 循环等待✓
+ *
+ * 四条件说明（死锁时全部为 ✓）：
+ *   1. 互斥       — 筷子是 pthread_mutex_t，同一时刻只能被一个线程持有
+ *   2. 持有并等待 — pickup() 先拿左筷再等右筷，中间有 GRAB_GAP_US 窗口
+ *   3. 不可剥夺   — mutex 只能由持有者 unlock，别人无法抢走
+ *   4. 循环等待   — build_wait_cycle() 构造出的环
+ */
+static void coffman_check(char *out, size_t outsz) {
+#error TODO: implement coffman_check().
+    (void)out; (void)outsz;
+}
 
-    int round = 0;
-    while (round < MAX_ROUNDS) {
-        print_state(round);
+/* ---------- 死锁诊断输出（已实现，调用上面的 TODO） ---------- */
+static void print_deadlock_diag(void) {
+    char cycle[256];
+    char coffman[128];
+    build_wait_cycle(cycle, sizeof cycle);
+    coffman_check(coffman, sizeof coffman);
 
-#error TODO: Finish this exercise. Run "clings hint" for help.
-        /* ═══ 阶段 1: EATING 哲学家进餐结束 ═══
-         * 遍历所有哲学家，若状态 == EATING:
-         *   timer[i] 减 1
-         *   若 timer[i] 归零 → putdown + eat_count++ → 状态 = THINKING
-         *   → 用 rand() 设置新的思考时间（范围同 init）
-         *
-         * ═══ 退出检查 ═══
-         * 若 all_done() → break
-         *
-         * ═══ 阶段 2: HUNGRY 哲学家尝试进餐 ═══
-         * 遍历所有哲学家，若状态 == HUNGRY 且 can_eat(i):
-         *   → pickup + 状态 = EATING + timer = EAT_TIME
-         *
-         * ═══ 阶段 3: THINKING 哲学家计时到 → 变饿 ═══
-         * 遍历所有哲学家，若状态 == THINKING:
-         *   timer[i] 减 1；若归零 → 状态 = HUNGRY
-         *
-         * 注意：三个阶段顺序有讲究——
-         *   先"吃完放筷子", 再"抢筷子", 最后"思考变饿" */
-
-        round++;
+    pthread_mutex_lock(&print_lock);
+    printf("\n!!! DEADLOCK DETECTED !!!\n");
+    printf("Held: ");
+    for (int i = 0; i < N; i++) {
+        int h = atomic_load(&holding[i]);
+        printf("P%d←chop%d  ", i, h < 0 ? i : h);
     }
+    printf("\nWait: ");
+    for (int i = 0; i < N; i++) {
+        printf("P%d→chop%d  ", i, (i + 1) % N);
+    }
+    printf("\nCycle: %s\n", cycle);
+    printf("%s\n", coffman);
+    printf("exit code: 2\n");
+    fflush(stdout);
+    pthread_mutex_unlock(&print_lock);
+}
 
-    printf("\n=== Final Stats ===\n");
-    for (int i = 0; i < N; i++) printf("P%d ate %d time(s)\n", i, eat_count[i]);
-    printf("Total rounds: %d\n", round);
+/* ---------- TODO 7: main() — 初始化与线程编排 ----------
+ *
+ * 1. 解析 argv[1] → g_strategy（默认 NAIVE）
+ * 2. 打印头部 banner（包含 strategy=xxx，判分用）
+ * 3. 初始化 N 把 mutex（PTHREAD_MUTEX_DEFAULT 即可）
+ * 4. pthread_barrier_init(&start_gate, NULL, N)
+ * 5. 初始化 eat_count / state / holding
+ * 6. 创建 watchdog 线程（detached，它自己会 exit）
+ * 7. 创建 N 个 philosopher 线程
+ * 8. pthread_join 全部 philosopher
+ * 9. atomic_store(&all_done_flag, 1)  ← 告诉 watchdog 正常结束
+ * 10. 打印 Final Stats（含每个 Pi ate TARGET 次 + "all philosophers finished"）
+ * 11. 销毁 mutex / barrier，return 0
+ *
+ * 提示：watchdog 用 detached 创建，避免 main 退出时 join 它（它会先 exit(2)）。
+ */
+int main(int argc, char **argv) {
+#error TODO: implement main() thread orchestration.
+    (void)argc; (void)argv;
     return 0;
 }
