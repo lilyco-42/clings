@@ -14,9 +14,9 @@
  * 知识点：递归、回溯（swap-递归-swap 模式）、DFS 排列树
  *
  * 验证：
- *   stdin: "ABC\n"  → ABC ACB BAC BCA CBA CAB
- *   stdin: "AB\n"   → AB BA
- *   stdin: "A\n"    → A
+ *   stdin: "ABC\n"  → "ABC\nACB\nBAC\nBCA\nCBA\nCAB\n"
+ *   stdin: "AB\n"   → "AB\nBA\n"
+ *   stdin: "A\n"    → "A\n"
  */
 #include <stdio.h>
 #include <string.h>

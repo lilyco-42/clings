@@ -15,7 +15,10 @@
 #include <stdio.h>
 #include <string.h>
 
-/* 实现 my_memcpy — void* 转为 char*，逐字节拷贝 */
+/*
+ *  实现 my_memcpy — void* 转为 char* 逐字节拷贝，
+ *  并返回复制后内存的起始地址，即原来的 dest
+ */
 void *my_memcpy(void *dest, const void *src, size_t n) {
 #error TODO: Finish this exercise. Run "clings hint" for help.
     /* 将 void* 转为 char*，这样才能逐字节操作 */

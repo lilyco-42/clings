@@ -18,6 +18,7 @@
  *   stdin: ")\n"        → no（缺少左括号）
  */
 #include <stdio.h>
+#include <string.h>
 #define MAX 1024
 
 int is_empty(int top) { return top == -1; }

@@ -19,7 +19,10 @@
 #include <stdio.h>
 #include <string.h>
 
-/* 实现 my_memmove — 判断 dest 与 src 的位置关系 */
+/*
+ *  实现 my_memmove — 判断 dest 与 src 的位置关系
+ *  并返回 move 后内存的起始地址，即原来的 dest
+ */
 void *my_memmove(void *dest, const void *src, size_t n) {
 #error TODO: Finish this exercise. Run "clings hint" for help.
     /* 将 dest 和 src 转为 char* 指针，方便逐字节操作 */

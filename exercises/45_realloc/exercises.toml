@@ -21,9 +21,8 @@ realloc 安全扩容:
         int *tmp = realloc(arr, capacity * sizeof(int));
         if (tmp) {
             int moved = ((uintptr_t)tmp != old_addr);
-            printf("realloc: 0x%lx -> 0x%lx (cap %d -> %d) %s\n",
-                   (unsigned long)old_addr, (unsigned long)(uintptr_t)tmp,
-                   old_cap, capacity, moved ? "[moved]" : "[in-place]");
+            printf("#%d: cap %d -> %d %s\n",
+                   expansions + 1, old_cap, capacity, moved ? "[moved]" : "[in-place]");
             arr = tmp;
         } else {
             free(arr);

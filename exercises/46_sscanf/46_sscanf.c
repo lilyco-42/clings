@@ -13,6 +13,9 @@
  *   stdin: "192.168.1.100:8080\n" → host: 192.168.1.100  port: 8080
  *   stdin: "localhost:3000\n"     → host: localhost      port: 3000
  *   stdin: "invalid\n"            → parse error
+ *
+ * 输出格式:
+ *   host: %s\nport: %s\n
  */
 #include <stdio.h>
 #include <string.h>

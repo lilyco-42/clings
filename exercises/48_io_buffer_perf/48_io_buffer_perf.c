@@ -71,9 +71,13 @@ int main(void) {
     double t2 = copy_fread(src, dst2);
 
     printf("file size: %d bytes\n", FILE_SIZE);
-    printf("fgetc:   %.4f s\n", t1);
-    printf("fread:   %.4f s (buf=%d)\n", t2, BUF_SIZE);
-    if (t2 > 0) printf("speedup: %.1f×\n", t1 / t2);
+    printf("fgetc done\n");
+    printf("fread done (buf=4096)\n");
+    if (t1 > t2) {
+        printf("fread faster than fgetc\n");
+    } else {
+        printf("fgetc faster than fread\n");
+    }
 
     remove(src);
     remove(dst1);

@@ -12,6 +12,10 @@
  *   stdin: "ls -l -a /tmp\n"     → argc: 4  argv: ls -l -a /tmp
  *   stdin: "echo   hello\n"      → argc: 2（连续空格不产生空 token）
  *   stdin: "gcc\t-Wall\tmain.c\n" → argc: 3（tab 分隔）
+ *
+ * 输出格式:
+ *   第一行:        argc: %d\n
+ *   后续argc行:    argv[%d]: %s\n
  */
 #define _GNU_SOURCE
 #include <stdio.h>
