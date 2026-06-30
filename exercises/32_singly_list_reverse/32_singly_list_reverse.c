@@ -110,7 +110,7 @@ int main(void) {
     struct node *head = build_list(line, &tail);
 
 #error TODO: Finish this exercise. Run "clings hint" for help.
-    /* 如果有 cycle：
+    /* 如果 is_cycle：
      *   制造环（tail->next = head），调用 has_cycle 检测并打印
      * 否则：
      *   调用 reverse 反转链表，打印结果 */

@@ -17,6 +17,11 @@
  * 验证：
  *   stdin: "1 2 3 4 5\n" → 显示扩容过程 + values: 1 2 3 4 5
  *   stdin: "10 20\n"     → values: 10 20（无扩容）
+ *
+ * 扩容过程输出格式:
+ *   若移动扩容，则输出 #{id}: cap {original_cap} -> {after} [moved]\n
+ *   若原地扩容，则输出 #{id}: cap {original_cap} -> {after} [in-place]\n
+ *      例：#1: cap 2 -> 4 [in-place]\n#2: cap 4 -> 8 [moved]
  */
 #include <stdint.h>
 #include <stdio.h>
@@ -31,7 +36,6 @@ int main(void) {
 
     int cap = 2, size = 0, expansions = 0;
     int *arr = malloc(cap * sizeof(int));
-    printf("initial: %p (cap=%d)\n", (void *)arr, cap);
 
 #error TODO: Finish this exercise. Run "clings hint" for help.
     /* 用 strtok 遍历 line 中的数字：
@@ -53,7 +57,7 @@ int main(void) {
      *     arr[size++] = val */
 
     /* 打印总结 */
-    printf("%d expansions, final cap=%d\n", expansions, cap);
+    printf("expansions: %d\n", expansions);
     printf("values:");
     for (int i = 0; i < size; i++) printf(" %d", arr[i]);
     printf("\n");

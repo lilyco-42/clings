@@ -53,7 +53,7 @@ int main(void) {
      *   调用 funcA(line)
      *   打印 success
      * 如果 r != 0（从 longjmp 跳回）：
-     *   打印 caught error
+     *   打印 caught error: {line}
      * 注意：传入 longjmp 的值（这里是 1）会成为 setjmp 的返回值 */
 
     return 0;
