@@ -1,6 +1,6 @@
 [[exercises]]
 name = "49_dining-philosophers-sync"
-title = "哲学家就餐问题 — Dining Philosophers"
+title = "哲学家就餐问题 — Dining Philosophers (真实多线程)"
 unit = "unit3"
 lesson = 49
 order = 97
@@ -8,15 +8,35 @@ mode = "make+stdout"
 source = "dining_philosophers.c"
 binary = "dining_philosophers"
 make_targets = ["all"]
+cflags = ["-std=c11", "-Wall", "-Wextra", "-pedantic", "-O2", "-pthread"]
+ldflags = ["-pthread"]
 lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/49_dining-philosophers-sync"
 hint = '''
-哲学家就餐: 状态机模拟 + 非对称防死锁。
+哲学家就餐: 真实多线程 + 可观测死锁。
 
-数据结构（已提供）:
-  state[5]: 每位哲学家的状态 THINKING/HUNGRY/EATING
-  chopstick[5]: -1=空闲, 否则=持有者 id
-  eat_count[5]: 已完成进餐次数
-  timer[5]: 当前状态的剩余轮数
+═══════════════════════════════════════
+为什么用真实多线程？
+═══════════════════════════════════════
+单线程模拟里"检查两根筷子同时空闲才拿"是原子的，
+根本不存在"持有一根等另一根"的中间态 → 死锁四条件
+里的"持有并等待"无法表达 → 学员永远看不到死锁发生。
+
+真实多线程下，pthread_mutex_lock 会真正阻塞线程，
+"持有左筷等右筷"的窗口真实存在 → 循环等待环可构造、
+可观测、可检测。这才是教死锁的正道。
+
+═══════════════════════════════════════
+核心数据结构（已提供）
+═══════════════════════════════════════
+  pthread_mutex_t chopstick[5]   — 5 根筷子 = 5 把互斥锁
+  pthread_barrier_t start_gate   — 第一轮同步起跑门
+  atomic_int eat_count[5]        — 原子进餐计数（避免数据竞争）
+  atomic_int state[5]            — 状态 0/1/2 = T/H/E（仅诊断用）
+  atomic_int holding[5]          — 当前持有的左筷编号（诊断用）
+  Strategy g_strategy            — NAIVE / ASYMMETRIC / ORDERED
+
+筷子编号规则：哲学家 i 的左筷 = i，右筷 = (i+1)%5
+
 ═══════════════════════════════════════
 Makefile
 ═══════════════════════════════════════
@@ -37,81 +57,130 @@ make 检查文件时间戳，只重编译修改过的文件（增量编译），
 
 Makefile 特殊变量: $< = 第一个依赖文件  $@ = 目标文件
 
+★ 多线程特别提示: 本题用 pthreads，CFLAGS 和链接命令都必须加 -pthread
+  （编译期定义 _REENTRANT，链接期链接 pthread 库），否则报
+  undefined reference to `pthread_create'
+
 ═══════════════════════════════════════
 C 代码 — 7 个 TODO
 ═══════════════════════════════════════
 
-TODO 1 — init(): 初始化 timer
-  用 rand() 产生 THINK_TIME_MIN~THINK_TIME_MAX 的随机值
-  随机数公式: rand() % N + base
+TODO 1 — pickup(id): 按策略拿两根筷子
+  left = id, right = (id+1)%5
+  NAIVE:       全部先 left 后 right → 循环等待 → 死锁
+  ASYMMETRIC:  id==N-1 先 right 后 left；其余先 left 后 right
+  ORDERED:     先 min(left,right) 后 max(left,right)
+  拿完第一根后 usleep(GRAB_GAP_US) 放大持有并等待窗口
+  holding[id] 记录持有的第一根筷（诊断用）
 
-TODO 2 — can_eat(id): 非对称冲突检测
-  哲学家 i 的左手 = 筷[i]，右手 = 筷[(i+1)%5]
-  P0-P3 左手优先: 先检查左手再右手
-  P4   右手优先: 先检查右手再左手
-  两根都空闲才返回 1；否则返回 0
-  为什么 P4 右手优先？—— 打破循环等待环！
+TODO 2 — putdown(id): 释放两根筷子
+  逆序释放（先 unlock 第二根，再 unlock 第一根）
+  holding[id] = -1
 
-TODO 3 — pickup(id): 非对称拿筷子
-  顺序同 can_eat: P0-P3 先左后右，P4 先右后左
-  chop[手] = id 表示被该哲学家持有
+TODO 3 — philosopher(arg): 线程函数
+  循环 TARGET_EAT 次：
+    think (usleep 随机 THINK_US_MIN~MAX)
+    第一轮 pthread_barrier_wait(&start_gate) 同步起跑
+    state[id]=1 (HUNGRY)
+    pickup(id)
+    eat (usleep EAT_US)
+    putdown(id)
+    eat_count[id]++
+  用 rand_r(&seed) 生成可复现思考时长，seed 从 id 派生
 
-TODO 4 — putdown(id): 放下筷子
-  左右两根筷子都设为 -1（空闲）
+TODO 4 — watchdog(arg): 超时哨兵
+  sleep(WATCHDOG_TIMEOUT)
+  若 all_done_flag → return (正常)
+  否则 print_deadlock_diag() + exit(2)
+  ★ 不用 alarm/SIGALRM — signal handler 里调 pthread 会死锁
 
-TODO 5 — all_done(): 判定全员完成
-  遍历 N 位哲学家，任一 eat_count[i] < TARGET_EAT → 未完成
+TODO 5 — build_wait_cycle(out, outsz): 构建等待环字符串
+  死锁时每人持筷 i 等筷 (i+1)%5，环形如：
+  P0 → chop1 → P1 → chop2 → P2 → chop3 → P3 → chop4 → P4 → chop0 → P0
 
-TODO 6 — print_state(round): 格式化输出
-  格式: "RR | P0:X P1:X P2:X P3:X P4:X"
-  round 用 %02d 补零, X 为 T/H/E
+TODO 6 — coffman_check(out, outsz): 自检四条件
+  输出: "Coffman check: 互斥✓ 持有等待✓ 不可剥夺✓ 循环等待✓"
+  死锁现场四条件必然全部 ✓
 
-TODO 7 — main() 三阶段循环:
-  阶段1: EATING → timer-- → 到0则放筷+吃次数++ → THINKING
-         检查 all_done() break
-  阶段2: HUNGRY → 若 can_eat 则拿筷 → EATING
-  阶段3: THINKING → timer-- → 到0则 HUNGRY
-  顺序有讲究: 先放筷子再抢筷子，否则刚放的筷子可能被同一轮抢走
+TODO 7 — main(argc, argv): 线程编排
+  解析 argv[1] → g_strategy (默认 NAIVE)
+  打印 banner (含 "strategy=xxx")
+  初始化 N 把 mutex + barrier
+  初始化 eat_count/state/holding
+  detached 创建 watchdog 线程
+  创建 N 个 philosopher 线程
+  join 全部 philosopher
+  all_done_flag = 1
+  打印 Final Stats (含 "all philosophers finished" + 每 Pi ate TARGET)
+  销毁 mutex/barrier, return 0
+
+═══════════════════════════════════════
+退出码协议（判分锚点）
+═══════════════════════════════════════
+  0 = 全员吃完，无死锁 (asymmetric / ordered 期望)
+  2 = watchdog 检测到死锁 (naive 期望)
+
+═══════════════════════════════════════
+Coffman 四条件（死锁当且仅当同时成立）
+═══════════════════════════════════════
+  1. 互斥         — mutex 同一时刻只能被一个线程持有
+  2. 持有并等待   — pickup() 先拿左筷再等右筷，中间有 GRAB_GAP_US 窗口
+  3. 不可剥夺     — mutex 只能由持有者 unlock
+  4. 循环等待     — build_wait_cycle() 构造的环
+
+三策略分别破坏哪个条件？
+  ASYMMETRIC → 破坏循环等待（打破对称性）
+  ORDERED    → 破坏循环等待（资源偏序）
+  NAIVE      → 四条件全保留 → 死锁
 
 ───────────────────────────────
-死锁四个必要条件: 互斥、持有等待、不可剥夺、循环等待
-非对称策略破坏哪个? —— 循环等待
-
-为什么单线程能模拟并发？
-  本模拟是"交错执行模型"——每一轮，多个哲学家的动作被
-  串行化（先完成吃的，再尝试拿筷，最后思考变饿），模拟了
-  真实 OS 中时间片轮转调度的效果。当然，真正的并发还需要
-  原子操作和内存屏障（见 L64 无锁环形缓冲区）。
-───────────────────────────────
-参考: README.md 中的死锁图解和逐轮追踪
+参考: README.md 中的死锁图解、三策略对比、逐轮追踪
 '''
+
+# 测试用例：三策略组合断言（退出码 + 关键诊断行 + 禁止行）
+# 不写精确 stdout —— 多线程输出非确定，靠结构化不变量判分
+[[exercises.cases]]
+args = ["naive"]
+exit_code = 2
+timeout = 6.0
+stdout_contains = [
+    "strategy=naive",
+    "DEADLOCK DETECTED",
+    "Cycle:",
+    "Coffman check",
+    "互斥",
+    "持有等待",
+    "不可剥夺",
+    "循环等待",
+    "exit code: 2",
+]
 
 [[exercises.cases]]
-stdout = '''=== Dining Philosophers ===
-N=5, asymmetric (P4 right-first), target=3 meals each
-T=Thinking H=Hungry E=Eating
+args = ["asymmetric"]
+exit_code = 0
+timeout = 15.0
+stdout_contains = [
+    "strategy=asymmetric",
+    "all philosophers finished",
+    "P0 ate 100",
+    "P1 ate 100",
+    "P2 ate 100",
+    "P3 ate 100",
+    "P4 ate 100",
+]
+stdout_not_contains = ["DEADLOCK"]
 
-00 | P0:T P1:T P2:T P3:T P4:T
-01 | P0:T P1:T P2:T P3:T P4:T
-02 | P0:T P1:H P2:T P3:T P4:H
-03 | P0:T P1:E P2:H P3:H P4:E
-04 | P0:H P1:T P2:E P3:H P4:T
-05 | P0:E P1:T P2:T P3:E P4:T
-06 | P0:T P1:T P2:H P3:T P4:H
-07 | P0:T P1:H P2:E P3:T P4:E
-08 | P0:T P1:E P2:T P3:T P4:T
-09 | P0:T P1:T P2:T P3:T P4:T
-10 | P0:H P1:T P2:T P3:H P4:T
-11 | P0:E P1:H P2:H P3:E P4:T
-12 | P0:T P1:E P2:H P3:T P4:H
-13 | P0:H P1:T P2:E P3:H P4:E
-14 | P0:E P1:T P2:T P3:E P4:T
-
-=== Final Stats ===
-P0 ate 3 time(s)
-P1 ate 3 time(s)
-P2 ate 3 time(s)
-P3 ate 3 time(s)
-P4 ate 3 time(s)
-Total rounds: 14
-'''
+[[exercises.cases]]
+args = ["ordered"]
+exit_code = 0
+timeout = 15.0
+stdout_contains = [
+    "strategy=ordered",
+    "all philosophers finished",
+    "P0 ate 100",
+    "P1 ate 100",
+    "P2 ate 100",
+    "P3 ate 100",
+    "P4 ate 100",
+]
+stdout_not_contains = ["DEADLOCK"]
