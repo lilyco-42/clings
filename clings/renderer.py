@@ -25,6 +25,7 @@ class WatchRenderer:
 
     def __init__(self, state: WatchState) -> None:
         self._state = state
+        self.auto_advance: bool = False
 
     def render_success(self, ex: dict) -> None:
         clear_screen()
@@ -40,7 +41,8 @@ class WatchRenderer:
             print(f"\n  {ANSI_BOLD_GREEN}\U0001f389 Congratulations! All {s.total} exercises completed!{ANSI_RESET}")
             print(f"\n  {ANSI_DIM}Press q to quit.{ANSI_RESET}")
         else:
-            print(f"\n  {ANSI_DIM}Commands: n:next  h:hint  l:list  x:reset  q:quit{ANSI_RESET}")
+            mode_tag = "  (auto-advance: on)" if self.auto_advance else ""
+            print(f"\n  {ANSI_DIM}Commands: n:next  h:hint  t:tests  l:list  c:check  x:reset  q:quit{mode_tag}{ANSI_RESET}")
 
     def render_failure(self, ex: dict, error: str) -> None:
         clear_screen()
@@ -58,7 +60,8 @@ class WatchRenderer:
             print(f"  {line}")
         if len(error.splitlines()) > 30:
             print(f"  {ANSI_DIM}... (output truncated){ANSI_RESET}")
-        print(f"\n  {ANSI_DIM}Commands: h:hint  l:list  r:rerun  x:reset  q:quit{ANSI_RESET}")
+        mode_tag = "  (auto-advance: on)" if self.auto_advance else ""
+        print(f"\n  {ANSI_DIM}Commands: h:hint  t:tests  l:list  c:check  r:rerun  x:reset  q:quit{mode_tag}{ANSI_RESET}")
 
     def render_hint(self, ex: dict) -> None:
         hint = ex.get("hint", "No hint available for this exercise.")
