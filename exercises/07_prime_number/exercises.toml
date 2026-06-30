@@ -1,6 +1,6 @@
 [[exercises]]
 name = "07a_max_prime"
-title = "函数+循环: 100以内最大素数"
+title = "函数+循环: 100 以内最大素数"
 unit = "unit1"
 lesson = 7
 order = 11

@@ -14,13 +14,13 @@ hint = '''
   初始:  NULL  1 → 2 → 3 → NULL
          ↑    ↑
         prev curr
-  第1轮: NULL ← 1   2 → 3 → NULL
+  第 1 轮: NULL ← 1   2 → 3 → NULL
                ↑    ↑
               prev curr
-  第2轮: NULL ← 1 ← 2   3 → NULL
+  第 2 轮: NULL ← 1 ← 2   3 → NULL
                     ↑    ↑
                    prev curr
-  第3轮: NULL ← 1 ← 2 ← 3
+  第 3 轮: NULL ← 1 ← 2 ← 3
                          ↑
                         prev (返回)
 

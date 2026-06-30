@@ -35,7 +35,7 @@ qsort 的核心是 comparator 函数。
 - cmp 收到的是元素的地址，int 数组的元素地址是什么类型？(int*)
 - 怎么取值比较？(*(const int*)a - *(const int*)b)
 
-字符串排序思考(重点！):
+字符串排序思考 (重点！):
 - char *names[] 的元素类型是什么？(char*)
 - qsort 传给 cmp 的是元素的地址，那地址的类型是？(char**！)
 - 所以 cmp 里要怎么解引用？(*(const char**)a)

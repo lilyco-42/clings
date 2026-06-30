@@ -10,7 +10,7 @@ binary = "cache_sim"
 make_targets = ["all"]
 lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-3-C-Panorama/-/tree/main/lessons/57_cache-simulator-lru"
 hint = '''
-缓存模拟器 LRU 替换: 2 路组相联(2-way set-associative)缓存, 4 组, 总 8 行, 块大小 16B, 地址 8 位(0-255)。
+缓存模拟器 LRU 替换: 2 路组相联 (2-way set-associative) 缓存, 4 组, 总 8 行, 块大小 16B, 地址 8 位 (0-255)。
 
 ═══════════════════════════════════════
 背景: CPU 缓存原理

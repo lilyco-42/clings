@@ -180,7 +180,7 @@ TODO 6 — main():
 Makefile
 ═══════════════════════════════════════
 
-填写 5 个变量(CC/CFLAGS/LDFLAGS/TARGET/SRC)+1 条编译命令。
+填写 5 个变量 (CC/CFLAGS/LDFLAGS/TARGET/SRC) +1 条编译命令。
   CC=gcc
   CFLAGS=-Wall -std=c99
   LDFLAGS=-lm       ← 必须链接数学库!

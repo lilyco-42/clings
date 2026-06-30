@@ -18,10 +18,10 @@ Sobel 边缘检测: 用 C 语言对固定 8x8 灰度 PGM 图像做 Sobel 边缘�
 ═══════════════════════════════════════
 
 图像可以表示为二维矩阵 I(x,y), 每个元素是一个像素的灰度值。
-"边缘"(edge)是图像中亮度急剧变化的区域。
+"边缘" (edge) 是图像中亮度急剧变化的区域。
 
-卷积(Convolution):
-  用一个小的"核"(kernel, 也叫滤波器)在图像上滑动,
+卷积 (Convolution):
+  用一个小的"核" (kernel, 也叫滤波器) 在图像上滑动,
   在每个位置计算核与图像局部区域的加权和。
 
   滑动窗口示意图 (3x3 核在 8x8 图像上):
@@ -215,7 +215,7 @@ TODO 5 — main():
 ═══════════════════════════════════════
 Makefile
 ═══════════════════════════════════════
-填写 5 个变量(CC/CFLAGS/TARGET/SRC/LDLIBS)+1 条编译命令。
+填写 5 个变量 (CC/CFLAGS/TARGET/SRC/LDLIBS) +1 条编译命令。
 CC=gcc, CFLAGS=-Wall -std=c99, TARGET=sobel, SRC=sobel.c, LDLIBS=-lm
 编译命令: $(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDLIBS)
 注意 -lm 必须放在最后 (链接数学库)。

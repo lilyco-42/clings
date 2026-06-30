@@ -1,6 +1,6 @@
 [[exercises]]
 name = "22a_generate"
-title = "随机数: 生成不重复4位数"
+title = "随机数: 生成不重复 4 位数"
 unit = "unit1"
 lesson = 22
 order = 41
