@@ -8,7 +8,7 @@ mode = "stdout"
 source = "38_BST_ops.c"
 lesson_url = "https://cnb.cool/opencamp/learning-nccl/Unit-2-C-Essentials/-/tree/main/lessons/38_BST_ops"
 hint = '''
-BST 三个操作: 插入、查找、删除(难点)。
+BST 三个操作: 插入、查找、删除 (难点)。
 
 插入:
     struct node *bst_insert(struct node *root, int val) {
@@ -57,7 +57,7 @@ find_min 已提供: 沿 left 走到尽头。
 
 删除三种情况(重点！):
 - 叶子节点: 直接 free 返回 NULL
-- 只有一个子树: 返回那个子树(free 当前)
+- 只有一个子树: 返回那个子树 (free 当前)
 - 有两个子树: 怎么办？(找右子树最小值替换，再递归删除那个最小值)
 
 find_min 已提供。参考: 本课 README 中的删除三种情况。

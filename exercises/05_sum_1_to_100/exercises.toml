@@ -1,6 +1,6 @@
 [[exercises]]
 name = "05a_sum_1_to_100"
-title = "循环累加: 1到100求和"
+title = "循环累加: 1 到 100 求和"
 unit = "unit0"
 lesson = 5
 order = 8

@@ -33,7 +33,7 @@ hint = '''
 - 遍历结束后还要检查什么？(栈是否为空)
 - 什么是"配对"？( ( 和 ), [ 和 ], { 和 } )
 
-is_match 和栈基本操作(push/pop/is_empty)已提供。
+is_match 和栈基本操作 (push/pop/is_empty) 已提供。
 你只需要实现 check_brackets 的遍历逻辑。
 参考: 本课 README。
 '''

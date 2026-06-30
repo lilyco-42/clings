@@ -1,6 +1,6 @@
 [[exercises]]
 name = "08_count_digit_nine"
-title = "函数: 统计1到100中9的个数"
+title = "函数: 统计 1 到 100 中 9 的个数"
 unit = "unit1"
 lesson = 8
 order = 12

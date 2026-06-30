@@ -33,7 +33,7 @@ hint = '''
 时间复杂度: 平均 O(n log n), 最坏 O(n^2)
 空间复杂度: O(log n) 递归栈（原地排序）
 
-partition(Lomuto 方案)思考:
+partition (Lomuto 方案) 思考:
 - pivot 选谁？(arr[hi])
 - i 的初始值？(lo-1，表示"小于等于区"的右边界)
 - j 从哪到哪扫描？(lo 到 hi-1)

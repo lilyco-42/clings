@@ -1,6 +1,6 @@
 [[exercises]]
 name = "39_heap_base_topk"
-title = "堆与Top-K问题"
+title = "堆与 Top-K 问题"
 unit = "unit2"
 lesson = 39
 order = 87
@@ -33,7 +33,7 @@ Top-K — 用小顶堆维护 K 个最大值:
 - 遍历元素时，比堆顶大还是小才替换？(大)
 - 替换后要做什么？(向下调整恢复堆性质)
 
-heapify(向下调整)思考:
+heapify (向下调整) 思考:
 - 比较节点 i 和左右孩子，找最小的
 - 如果孩子更小，交换并继续下沉
 

@@ -1,6 +1,6 @@
 [[exercises]]
 name = "01a_return_zero"
-title = "最简单的C程序: 返回0"
+title = "最简单的 C 程序: 返回 0"
 unit = "unit0"
 lesson = 1
 order = 1

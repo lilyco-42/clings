@@ -14,7 +14,7 @@ hint = '''
 
 数据结构（已提供）:
   state[5]: 每位哲学家的状态 THINKING/HUNGRY/EATING
-  chopstick[5]: -1=空闲, 否则=持有者id
+  chopstick[5]: -1=空闲, 否则=持有者 id
   eat_count[5]: 已完成进餐次数
   timer[5]: 当前状态的剩余轮数
 ═══════════════════════════════════════
