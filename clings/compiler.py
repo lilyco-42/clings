@@ -1,6 +1,7 @@
 """Compilation, execution, and test verification logic."""
 
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -83,9 +84,23 @@ def compile_exercise(ex: dict, use_solutions: bool) -> Path:
     return binary
 
 
-def normalize(text: str) -> str:
-    """Normalize line endings for comparison."""
-    return text.replace("\r\n", "\n")
+def normalize(text: str, trim_trailing_ws: bool = False) -> str:
+    """Normalize text for output comparison.
+
+    - Always: normalize line endings (``\\r\\n`` → ``\\n``).
+    - Optionally: strip trailing whitespace from every line. This relieves
+      false-negative failures where the student's algorithm is correct but
+      the output carries incidental trailing spaces (a common editor artifact
+      and a known pain point in strict stdout-diff grading). The trailing
+      newline is NOT touched — POSIX text-file convention (files end with a
+      newline) is preserved as a legitimate C-engineering teaching goal.
+
+    Enable per-case via ``trim_trailing_ws = true`` in exercises.toml / tests.
+    """
+    text = text.replace("\r\n", "\n")
+    if trim_trailing_ws:
+        text = "\n".join(line.rstrip() for line in text.split("\n"))
+    return text
 
 
 def _collect_cases(ex: dict, include_hidden: bool) -> list[dict]:
@@ -110,7 +125,26 @@ def _collect_cases(ex: dict, include_hidden: bool) -> list[dict]:
 
 
 def run_cases(ex: dict, binary: Path, include_hidden: bool) -> None:
-    """Run all test cases for an exercise against the compiled binary."""
+    """Run all test cases for an exercise against the compiled binary.
+
+    Per-case assertion fields (all optional, combinable, AND semantics):
+
+      - ``exit_code`` (int, default 0): expected process exit code.
+      - ``stdout`` (str): exact stdout match (after line-ending normalization).
+      - ``stdout_b64`` (str): base64-encoded exact stdout (for control chars).
+      - ``stdout_contains`` (list[str]): every needle must appear as a substring.
+      - ``stdout_not_contains`` (list[str]): none of the needles may appear.
+      - ``stdout_regex`` (str): a regex that must match somewhere in stdout.
+        Anchors are not added; use ``^...$`` if a full-match is desired.
+      - ``trim_trailing_ws`` (bool, default false): strip trailing whitespace
+        from every line of both expected and actual before comparison. Relieves
+        false-negative failures from incidental trailing spaces without relaxing
+        the trailing-newline requirement.
+
+    When ``stdout``/``stdout_b64`` is absent, exact-match is skipped — useful
+    for non-deterministic outputs (e.g. real multithreaded programs) where
+    only structural invariants (presence of key lines, exit code) matter.
+    """
     cases = _collect_cases(ex, include_hidden)
     if not cases:
         raise ClingsError(f"no test cases found for {ex['name']}")
@@ -120,15 +154,9 @@ def run_cases(ex: dict, binary: Path, include_hidden: bool) -> None:
         if case.get("compile_only", False):
             continue
         stdin = case.get("stdin", "")
-        # Support base64-encoded stdout for cases containing control chars
-        # (e.g. ANSI escape sequences) that TOML cannot represent directly.
-        if "stdout_b64" in case:
-            import base64
-            expected = base64.b64decode(case["stdout_b64"]).decode("utf-8", errors="replace")
-        else:
-            expected = case.get("stdout", "")
         args = [str(arg) for arg in case.get("args", [])]
         timeout = float(case.get("timeout", 2.0))
+        trim_ws = bool(case.get("trim_trailing_ws", False))
         proc = subprocess.run(
             [str(binary), *args],
             input=stdin,
@@ -136,18 +164,63 @@ def run_cases(ex: dict, binary: Path, include_hidden: bool) -> None:
             capture_output=True,
             timeout=timeout,
         )
-        actual = normalize(proc.stdout)
-        if proc.returncode != int(case.get("exit_code", 0)):
+        actual = normalize(proc.stdout, trim_ws)
+
+        # 1. Exit code check (default 0).
+        expected_exit = int(case.get("exit_code", 0))
+        if proc.returncode != expected_exit:
             raise ClingsError(
-                f"{ex['name']} case {case_no} exited {proc.returncode}\n"
+                f"{ex['name']} case {case_no} exited {proc.returncode} "
+                f"(expected {expected_exit})\n"
                 f"stderr:\n{proc.stderr.strip()}"
             )
-        if actual != normalize(expected):
+
+        # 2. Exact stdout match (only when the field is present).
+        if "stdout_b64" in case:
+            import base64
+            expected = base64.b64decode(case["stdout_b64"]).decode("utf-8", errors="replace")
+            if actual != normalize(expected, trim_ws):
+                raise ClingsError(
+                    f"{ex['name']} case {case_no} output mismatch\n"
+                    f"stdin:\n{stdin}"
+                    f"expected:\n{expected}"
+                    f"actual:\n{actual}"
+                )
+        elif "stdout" in case:
+            expected = case["stdout"]
+            if actual != normalize(expected, trim_ws):
+                raise ClingsError(
+                    f"{ex['name']} case {case_no} output mismatch\n"
+                    f"stdin:\n{stdin}"
+                    f"expected:\n{expected}"
+                    f"actual:\n{actual}"
+                )
+
+        # 3. Substring presence checks (non-deterministic-friendly).
+        for needle in case.get("stdout_contains", []):
+            if needle not in actual:
+                raise ClingsError(
+                    f"{ex['name']} case {case_no} missing required line:\n"
+                    f"  expected substring: {needle!r}\n"
+                    f"  in stdout:\n{actual}"
+                )
+
+        # 4. Substring absence checks.
+        for forbidden in case.get("stdout_not_contains", []):
+            if forbidden in actual:
+                raise ClingsError(
+                    f"{ex['name']} case {case_no} found forbidden line:\n"
+                    f"  forbidden substring: {forbidden!r}\n"
+                    f"  in stdout:\n{actual}"
+                )
+
+        # 5. Regex check.
+        pattern = case.get("stdout_regex")
+        if pattern is not None and not re.search(pattern, actual):
             raise ClingsError(
-                f"{ex['name']} case {case_no} output mismatch\n"
-                f"stdin:\n{stdin}"
-                f"expected:\n{expected}"
-                f"actual:\n{actual}"
+                f"{ex['name']} case {case_no} regex not matched:\n"
+                f"  pattern: {pattern!r}\n"
+                f"  in stdout:\n{actual}"
             )
 
 
