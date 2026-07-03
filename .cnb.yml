@@ -5,7 +5,7 @@
 # 镜像: opencamp-c-env/ci（含 gcc/ncurses/32 位支持/python3）
 #
 # 策略:
-#   push          → unit0 + unit1 + unit2 并行测试 + Build（日常验证）
+#   push          → unit0 + unit1 + unit2 + unit3 并行测试 + Build（日常验证）
 #   web_trigger   → 一键发版（验证→bump→changelog→tag→publish→release）
 #
 # 每个 unit 流水线包含 5 个 stage:
@@ -23,7 +23,7 @@ x-docker: &ci-docker
     image: docker.cnb.cool/opencamp/learning-nccl/opencamp-c-env/ci:latest
 
 cli:
-  # ====== 日常 push: unit0 + unit1 + unit2 并行测试 + Build ======
+  # ====== 日常 push: unit0 + unit1 + unit2 + unit3 并行测试 + Build ======
   push:
     # --- Unit 0 流水线 ---
     - name: unit0
@@ -141,6 +141,45 @@ cli:
             cd /tmp/clings-ci-unit2
             export CLINGS_SOLUTIONS_DIR=/workspace/solutions
             clings score unit2 --solutions --json
+
+    # --- Unit 3 流水线（与 Unit 1/2 并行）---
+    - name: unit3
+      <<: *ci-docker
+      stages:
+        - name: Init
+          imports:
+            - https://cnb.cool/opencamp/learning-nccl/secret/-/blob/main/clings.yml
+          script: |
+            apt-get update -qq && apt-get install -y -qq git
+            git config --global url."https://cnb:${SOLUTIONS_DEPLOY_TOKEN}@cnb.cool/".insteadOf "https://cnb.cool/"
+            cd /workspace && git submodule update --init
+            pip3 install --break-system-packages -e .
+            clings doctor
+            cd /tmp && mkdir -p clings-ci-unit3 && cd clings-ci-unit3
+            clings init unit3
+
+        - name: List
+          script: |
+            cd /tmp/clings-ci-unit3
+            clings list unit3
+
+        - name: Run
+          script: |
+            cd /tmp/clings-ci-unit3
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings run unit3 --solutions
+
+        - name: Check
+          script: |
+            cd /tmp/clings-ci-unit3
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings check unit3 --solutions
+
+        - name: Score
+          script: |
+            cd /tmp/clings-ci-unit3
+            export CLINGS_SOLUTIONS_DIR=/workspace/solutions
+            clings score unit3 --solutions --json
 
     # --- Build 流水线（与测试并行）---
     - name: build
