@@ -26,7 +26,7 @@
  *   - Floating-point arithmetic and numerical stability
  *
  * Verification:
- *   make && ./lu_solver | diff - expected_output.txt
+ *   make  → 编译；clings 捕获程序 stdout 与内置用例逐行比对（clings tests 63 查看期望输出）
  */
 
 #include <math.h>

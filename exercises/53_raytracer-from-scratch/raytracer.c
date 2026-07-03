@@ -12,7 +12,7 @@
  *   3. 实现 Phong 光照（ambient + diffuse + specular）
  *   4. 补全主循环（生成相机光线 + 遍历球体 + 累加光照）
  *
- * 输出：PPM P3 文本格式，64×32 像素，通过 diff 与 expected_output.txt 比对
+ * 输出：PPM P3 文本格式，64×32 像素；判分由 clings 逐行比对 stdout (clings tests 53 查看期望输出)
  *
  * 提示：骨架中的注释会引导你一步步完成。先读完全文再动手！
  */
@@ -20,18 +20,18 @@
 #include <math.h>
 #include <stdio.h>
 
-/* ─── 向量 Vec3 ───
- * 所有向量运算的基础：三维向量 x, y, z。
- * 你需要实现：v3 (构造), v3_add, v3_sub, v3_mul (标量乘),
- *             v3_div (标量除), v3_dot (点积), v3_len (长度), v3_norm (归一化)
- */
-typedef struct {
-    double x, y, z;
-} Vec3;
+#include "vec3.h" /* 提供 Vec3 类型 + 全部向量运算的函数原型(与参考答案同结构) */
 
-/* 构造一个向量 */
-static inline Vec3 v3(double x, double y, double z) {
-    /* 提示：用复合字面量 {x, y, z} 返回 Vec3 */
+/* ─── 向量运算 ───
+ * Vec3 结构体与所有向量运算的【原型】都在 vec3.h 里；你在本文件内给出【定义】。
+ * 下面已提供构造函数 v3()，你需要实现 vec3.h 中声明的其余 7 个运算：
+ *   v3_add, v3_sub, v3_mul(标量乘), v3_div(标量除),
+ *   v3_dot(点积), v3_len(长度), v3_norm(归一化)
+ * 注意：不要在本文件里再重复定义 Vec3——它已在 vec3.h 中定义。
+ */
+
+/* 构造一个向量(已提供) */
+Vec3 v3(double x, double y, double z) {
     Vec3 v = {x, y, z};
     return v;
 }

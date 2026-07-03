@@ -141,19 +141,29 @@ naive 策略下，若 5 个线程启动有先后，可能某个线程已吃完�
 
 配合 `pickup()` 中拿完左筷后的 `usleep(GRAB_GAP_US)`（放大"持有并等待"窗口），naive 策略**每次必死锁**，无 flaky。
 
-#### watchdog 死锁检测
+#### watchdog 死锁检测（进度检测，而非固定墙钟超时）
+
+死锁的本质不变量是**所有哲学家都无法推进**——总进餐数 `Σ eat_count` 不再增长。因此 watchdog 不应"睡满 3 秒就判死锁"（那会把"是否死锁"和"机器是否够快"混为一谈，慢机/超卖 CI 上 `asymmetric`/`ordered` 会被**误报**死锁）；而应周期性采样进度，仅当**连续 `WATCHDOG_TIMEOUT` 秒毫无进展**时才判定死锁：
 
 ```c
 watchdog 线程:
-  sleep(WATCHDOG_TIMEOUT);          /* 等待 3 秒 */
-  if (all_done_flag) return;        /* 正常完成 */
-  else {
-      print_deadlock_diag();        /* 打印等待环 + Coffman 自检 */
-      exit(2);                      /* 退出码 2 = 死锁 */
+  last_total = -1; stall = 0;
+  for (;;) {
+      usleep(200ms);                                 /* 周期性采样 */
+      if (all_done_flag) return;                     /* 正常完成 */
+      total = Σ eat_count[i];
+      if (total != last_total) { last_total = total; stall = 0; }  /* 有进展→重置 */
+      else if (++stall >= WATCHDOG_TIMEOUT 秒对应的次数) {
+          print_deadlock_diag();                     /* 打印等待环 + Coffman 自检 */
+          exit(2);                                   /* 退出码 2 = 死锁 */
+      }
   }
 ```
 
-**为什么用独立线程而非 `alarm()`/`SIGALRM`？** 因为 signal handler 里调用 pthread 函数是**已知的死锁地雷**——linuxthreads FAQ 明确指出 pthread 函数非 async-signal-safe，在 signal handler 里调用会导致程序自身死锁。独立线程 + `exit()` 是干净、可移植、无副作用的做法。
+- `naive`：合围后无人能放下筷子 → 总数停滞 → 约 3 秒后检出死锁（与"3 秒内 exit(2)"的期望一致）。
+- `asymmetric`/`ordered`：即使很慢也在持续进餐 → 总数不断增长 → 永不误报，**根除 flaky**。
+
+**为什么用独立线程而非 `alarm()`/`SIGALRM`？** 因为 signal handler 里调用 pthread 函数是**已知的死锁地雷**——linuxthreads FAQ 明确指出 pthread 函数非 async-signal-safe，在 signal handler 里调用会导致程序自身死锁。独立线程 + `usleep()` 轮询 + `exit()` 是干净、可移植、无副作用的做法。
 
 ### 完整死锁过程逐轮追踪（naive 策略）
 
@@ -193,8 +203,8 @@ watchdog 线程:
 | naive 高并发核数 | 仍死锁 | 死锁与核数无关，只与拿筷顺序有关 |
 | asymmetric 单核 | 不死锁 | 非对称破坏循环等待，与调度无关 |
 | ordered 线程数变化 | 不死锁 | 资源偏序是数学保证 |
-| watchdog 超时设太短 | 误报死锁 | safe 策略未跑完就被判死锁 |
-| watchdog 超时设太长 | naive 卡太久 | 死锁后要等更久才退出 |
+| 慢机/超卖 CI 上 safe 跑得慢 | 不误报（进度检测的关键收益） | 只要 `Σeat_count` 仍在增长就不判死锁，与绝对耗时无关 |
+| 无进展窗口设太长 | naive 卡太久 | 死锁后要等更久（窗口内无进展累计）才退出 |
 | TARGET_EAT 太小 | naive 可能不死锁 | 轮次少，错开起跑概率增大 |
 | 不用 barrier | naive 可能 flaky | 线程启动有先后，错开拿筷 |
 | eat_count 不用原子 | 数据竞争 | 多线程并发写共享变量（UB） |

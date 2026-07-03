@@ -135,8 +135,8 @@ TODO 7 — XOR 训练段（在 AND 之后）:
      - 前 5 轮逐轮打印完整信息
      - 之后每 10 轮打印一次 (epoch 10, 20, 30 ... 100)
      - 中间轮次用摘要行替代：
-       "  ... (epochs 6–9: oscillating, 2 mistakes each) ..."
-       "  ... (epochs 11–19: oscillating, 2 mistakes each) ..."
+       "  ... (epochs 6–9: oscillating, 4 updates each) ..."
+       "  ... (epochs 11–19: oscillating, 4 updates each) ..."
   4) 100 轮后打印警告: XOR 线性不可分，感知机无法学习
   5) 打印最终决策边界和 "Did not converge" 信息
 
@@ -193,13 +193,12 @@ XOR (异或) 是感知机无法学习的经典反例:
 Makefile 填写
 ═══════════════════════════════════════
 
-填写 5 处 ???:
+填写 6 处 ???:
   - CC = gcc (C 编译器)
   - CFLAGS = -Wall -Wextra -std=c11
   - TARGET = perceptron
   - SRC = perceptron.c
   - 编译命令: $(CC) $(CFLAGS) $< -o $@
-  - test 目标: ./$(TARGET) | diff - expected_output.txt
   - clean: rm -f $(TARGET)
 
 ═══════════════════════════════════════
@@ -208,7 +207,7 @@ Makefile 填写
 
 编译: make
 运行: ./perceptron
-比对: make test  (或 ./perceptron | diff - expected_output.txt)
+比对: 判分由 clings 捕获程序 stdout 与内置用例逐行比对（clings tests 62 查看期望输出）
 '''
 
 [[exercises.cases]]
@@ -272,12 +271,12 @@ Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
 Before: w = {-0.1000, 0.0000}, b = 0.0000
 After:  w = {-0.1000, 0.0000}, b = 0.0000
 Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
-  ... (epochs 6–9: oscillating, 2 mistakes each) ...
+  ... (epochs 6–9: oscillating, 4 updates each) ...
 --- Epoch 10 ---
 Before: w = {-0.1000, 0.0000}, b = 0.0000
 After:  w = {-0.1000, 0.0000}, b = 0.0000
 Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
-  ... (epochs 11–19: oscillating, 2 mistakes each) ...
+  ... (epochs 11–19: oscillating, 4 updates each) ...
 --- Epoch 20 ---
 Before: w = {-0.1000, 0.0000}, b = 0.0000
 After:  w = {-0.1000, 0.0000}, b = 0.0000

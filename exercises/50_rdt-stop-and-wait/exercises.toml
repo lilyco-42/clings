@@ -21,11 +21,12 @@ hint = '''
 ═══════════════════════════════════════
 Makefile
 ═══════════════════════════════════════
-Makefile 是 C 工程化的基石。填写 4 个变量 + 3 条命令。
+Makefile 是 C 工程化的基石。填写 4 个变量 + 2 条规则命令。
 
 变量: CC (编译器), CFLAGS (编译选项), TARGET (产物名), SRC (源文件)
-规则: 用 $< (第一个依赖) 和 $@ (目标) 编写编译命令
-      test 目标用管道 | diff 比对 expected_output.txt
+规则: $(TARGET) 用 $< (第一个依赖) 和 $@ (目标) 编写编译命令
+      clean 用 rm -f 删除产物
+(判分由 clings 直接比对程序 stdout，无需 test 目标或 expected_output.txt)
 
 ═══════════════════════════════════════
 C 代码 — 6 个 TODO
@@ -49,7 +50,7 @@ TODO 4 — receiver_recv(pkt_seq, data, ok, send_ack, ack_seq):
   序号不匹配: 记录 DUPL → 重发 ACK (不重复交付)
   核心思想: 用序号区分新包和重传包
 
-TODO 5 — init(): srand(42) + 变量置零
+TODO 5 — init(): rng_state = RNG_SEED (复位 PRNG) + 变量置零
 
 TODO 6 — main(): 打印头部 + 主循环 + 统计输出:
   ① sender_send → ② channel() → ③ 若 LOST 记录+重传
@@ -78,18 +79,23 @@ Loss=25% Corrupt=10% ACKloss=10%
 [01] RECV  seq=0 "HELLO"
 [01] ACK   seq=0
 [01] SEND  seq=1 "OpenCamp"
-[02] RECV  seq=1 "OpenCamp"
-[02] ACK   seq=1
-[02] SEND  seq=0 "NCCL"
-[03] LOST  seq=0
+[02] LOST  seq=1
+[02] SEND  seq=1 "OpenCamp"
+[03] RECV  seq=1 "OpenCamp"
+[03] ACK   seq=1
 [03] SEND  seq=0 "NCCL"
 [04] RECV  seq=0 "NCCL"
-[04] ACK   seq=0
-[04] SEND  seq=1 "2026"
-[05] RECV  seq=1 "2026"
-[05] ACK   seq=1
+[04] ACK-L seq=0
+[04] SEND  seq=0 "NCCL"
+[05] DUPL  seq=0
+[05] ACK   seq=0
+[05] SEND  seq=1 "2026"
+[06] CORR  seq=1
+[06] SEND  seq=1 "2026"
+[07] RECV  seq=1 "2026"
+[07] ACK   seq=1
 
 === Stats ===
 Delivered: 4/4
-Sends: 5  Retrans: 1
+Sends: 7  Retrans: 3
 '''

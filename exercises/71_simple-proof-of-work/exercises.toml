@@ -147,7 +147,7 @@ TODO 7 — main:
    nonce/attempts 用 %lu 。
 
 8. 验证逻辑中的 [VALID] 标签:
-   注意 expected_output.txt 中验证通过显示 [VALID]。
+   注意内置期望输出中验证通过显示 [VALID]。
    不是 [OK] 或 [PASS]。
 
 ═══════════════════════════════════════
@@ -156,10 +156,11 @@ TODO 7 — main:
 
 编译: make  (或 gcc -Wall -Wextra -std=c11 -o pow_chain pow_chain.c)
 运行: ./pow_chain
-比对: ./pow_chain | diff - expected_output.txt
+比对: 判分由 clings 捕获程序 stdout 与内置用例逐行比对（clings tests 71 查看期望输出）
 '''
 
 [[exercises.cases]]
+timeout = 10.0
 stdout = '''=== Simple Proof-of-Work Blockchain (SHA-256) ===
 Difficulty: hash prefix must be "0000"
 

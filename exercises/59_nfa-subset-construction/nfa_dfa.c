@@ -5,42 +5,51 @@
  *       3. subset_construct() — 子集构造 (NFA→DFA)
  *       4. main()           — 主流程
  *
- * 固定 NFA: 识别语言 a*b | ab*
- *   状态 0-3, 字母表{a,b}, 含ε转移
+ * 固定 NFA: 识别语言 a*b | ab*  (Thompson 式并联，两分支各有独立接受态)
+ *   状态 0-4, 字母表{a,b}, 含ε转移
  *   ε: 0→1, 0→2
- *   a: 1→1, 2→3
- *   b: 1→3, 3→3
- *   初态：0, 接受态：3
+ *   a: 1→1, 2→4
+ *   b: 1→3, 4→4
+ *   初态：0, 接受态：{3, 4}
+ *
+ * 语言分解:
+ *   分支①(经状态1): a* 后接一个 b 到达接受态 3（3 无出边→恰好一个 b）= a*b
+ *   分支②(经状态2): 一个 a 到达接受态 4，再 b* 自环          = ab*
+ *   两分支使用【不同】接受态，避免 a*b 分支搭上 b 自环而误收 a*b⁺。
  *
  * 知识点：ε-闭包、NFA 模拟、子集构造 (幂集)、DFA 最小化
  *
- * 验证：make test 比对 expected_output.txt
+ * 验证：clings run 59 / clings check 59（查看期望：clings tests 59）
  */
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_STATES 4
+#define MAX_STATES 5
 #define MAX_SYMBOLS 2
-#define MAX_SUBSETS 16 /* 2^4 = 16 possible subsets */
+#define MAX_SUBSETS 32 /* 2^5 = 32 possible subsets */
+
+/* 接受态集合 F = {3, 4} 的位掩码 */
+#define ACCEPT_MASK ((1 << 3) | (1 << 4))
 
 /* 符号映射：'a' -> 0, 'b' -> 1 */
 static int sym_idx(char c) { return (c == 'a') ? 0 : 1; }
 
 #define NO_TARGET -2
-#define EPSILON -1
 
-/* NFA 转移：trans[state][symbol] = 可达状态列表，以 NO_TARGET 结束 */
-static const int NFA_TRANS[4][2][4] = {
-    /* state 0 */ {{NO_TARGET}, {NO_TARGET}},
-    /* state 1 */ {{1, NO_TARGET}, {3, NO_TARGET}},
-    /* state 2 */ {{3, NO_TARGET}, {NO_TARGET}},
-    /* state 3 */ {{NO_TARGET}, {3, NO_TARGET}},
+/* NFA 符号转移：trans[state][symbol] = 可达状态列表，以 NO_TARGET 结束 */
+static const int NFA_TRANS[5][2][4] = {
+    /* state 0 */ {{NO_TARGET}, {NO_TARGET}},       /* 0 只有ε转移 */
+    /* state 1 */ {{1, NO_TARGET}, {3, NO_TARGET}}, /* a->1, b->3 */
+    /* state 2 */ {{4, NO_TARGET}, {NO_TARGET}},    /* a->4 */
+    /* state 3 */ {{NO_TARGET}, {NO_TARGET}},       /* 接受态，无出边 */
+    /* state 4 */ {{NO_TARGET}, {4, NO_TARGET}},    /* b->4 (自环) */
 };
 
 /* ε转移：epsilon[state] = {可达状态列表，NO_TARGET 结束} */
-static const int EPSILON_TRANS[4][4] = {
+static const int EPSILON_TRANS[5][4] = {
     {1, 2, NO_TARGET},
+    {NO_TARGET},
     {NO_TARGET},
     {NO_TARGET},
     {NO_TARGET},
@@ -71,24 +80,24 @@ static void print_state_set(int states, FILE *fp) {
 /* ─── NFA 模拟 ───
  * 给定输入串，返回 true(接受) 或 false(拒绝), 同时打印每步状态集 */
 static bool NFA_simulate(const char *input, bool verbose) {
-#error TODO 2: 实现NFA模拟。初态=ε-closure({0}); 逐字符读入, 对当前状态集中每个状态查NFA_TRANS求symbol转移目标, 再求ε-closure; 打印每步; 最终检查是否包含接受态3。
+#error TODO 2: 实现NFA模拟。初态=ε-closure({0}); 逐字符读入, 对当前状态集中每个状态查NFA_TRANS求symbol转移目标, 再求ε-closure; 打印每步; 最终检查是否包含任一接受态(用 ACCEPT_MASK, 即状态 3 或 4)。
 }
 
 /* ─── 子集构造 NFA→DFA ───
  * 从 NFA 构造等价的 DFA, 打印 DFA 转换表 */
 static void subset_construct(void) {
-#error TODO 3: 实现子集构造。DFA初态=ε-closure({0}); 对每个未处理的DFA状态(子集), 对a和b分别计算转移后的子集(先symbol转移再ε-closure); 若子集已存在则复用, 否则新建DFA状态; 标记接受态(包含状态3); 打印表格。
+#error TODO 3: 实现子集构造。DFA初态=ε-closure({0}); 对每个未处理的DFA状态(子集), 对a和b分别计算转移后的子集(先symbol转移再ε-closure); 若子集已存在则复用, 否则新建DFA状态; 标记接受态(子集与 ACCEPT_MASK 相交, 即含状态 3 或 4); 打印表格。
 }
 
 int main(void) {
     printf("=== NFA: a*b | ab* ===\n");
-    printf("States: 0-3, Alphabet: {a,b}, Start: 0, Accept: 3\n");
+    printf("States: 0-4, Alphabet: {a,b}, Start: 0, Accept: {3,4}\n");
     printf("Epsilon transitions: 0->1, 0->2\n");
-    printf("Transitions: 1-a->1, 1-b->3, 2-a->3, 3-b->3\n\n");
+    printf("Transitions: 1-a->1, 1-b->3, 2-a->4, 4-b->4\n\n");
 
     /* ─── 1. ε-闭包计算 ─── */
     printf("=== Epsilon-Closures ===\n");
-#error TODO 4: 对状态0~3分别调用e_closure并打印 "e-closure({s}) = {x,y,z}"
+#error TODO 4: 对状态0~4分别调用e_closure并打印 "e-closure({s}) = {x,y,z}"
     printf("\n");
 
     /* ─── 2. NFA 模拟 ─── */

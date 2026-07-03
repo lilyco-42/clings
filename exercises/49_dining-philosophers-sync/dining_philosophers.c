@@ -3,7 +3,7 @@
  * 任务：1. 实现 pickup()  — 按 strategy 拿筷子（naive 会触发死锁）
  *       2. 实现 putdown() — 释放两根筷子
  *       3. 实现 philosopher() — 线程函数：think → pickup → eat → putdown 循环
- *       4. 实现 watchdog()   — 超时哨兵：检测死锁并打印诊断
+ *       4. 实现 watchdog()   — 进度停滞哨兵：检测死锁并打印诊断
  *       5. 实现 build_wait_cycle() — 构建等待环字符串
  *       6. 实现 coffman_check()   — 自检 Coffman 四条件是否全部命中
  *       7. 补全 main()   — 创建 barrier / 线程 / join
@@ -22,7 +22,7 @@
  * 知识点：Coffman 四条件、pthread 互斥锁、持有并等待、循环等待、
  *         死锁检测、非对称/资源排序预防策略
  *
- * 验证：make test 通过三策略组合断言（退出码 + 关键诊断行）
+ * 验证：clings 分别以 naive/asymmetric/ordered 运行，断言退出码 + 关键诊断行
  *
  * 特性宏说明：-std=c11 -pedantic 下 glibc 默认不暴露 POSIX/BSD 接口
  *   (pthread_barrier_t 属 POSIX.1-2001，usleep 属 BSD)，需显式开启。
@@ -144,11 +144,28 @@ static void *philosopher(void *arg) {
     return NULL;
 }
 
-/* ---------- TODO 4: watchdog() — 超时死锁哨兵 ----------
+/* ---------- TODO 4: watchdog() — 死锁哨兵（进度检测，非固定墙钟超时）----------
  *
- * 1. sleep(WATCHDOG_TIMEOUT)
- * 2. 若 atomic_load(&all_done_flag) 为真 → 正常退出，返回 NULL
- * 3. 否则视为死锁，调用 print_deadlock_diag() 打印诊断，然后 exit(2)
+ * 核心思想：死锁 = 所有哲学家都无法推进 = 总进餐数不再增长。
+ * 不要用 sleep(WATCHDOG_TIMEOUT) 一睡到底再判死锁——那会把"是否死锁"与"机器
+ * 是否够快"混为一谈，慢机上 asymmetric/ordered 会被误判为死锁。应周期性采样
+ * eat_count 之和，只有连续 WATCHDOG_TIMEOUT 秒【毫无进展】时才判定死锁。
+ *
+ * 参考实现：
+ *   const int check_us = 200000;                                 // 200ms 采样
+ *   const int stall_limit = WATCHDOG_TIMEOUT * 1000000 / check_us;
+ *   int last_total = -1, stall = 0;
+ *   for (;;) {
+ *       usleep(check_us);
+ *       if (atomic_load(&all_done_flag)) return NULL;            // 正常完成
+ *       int total = 0;
+ *       for (int i = 0; i < N; i++) total += atomic_load(&eat_count[i]);
+ *       if (total != last_total) { last_total = total; stall = 0; }  // 有进展→重置
+ *       else if (++stall >= stall_limit) {                       // 持续无进展→死锁
+ *           print_deadlock_diag();
+ *           exit(2);
+ *       }
+ *   }
  *
  * 为什么用独立线程而非 alarm()/SIGALRM？
  *   signal handler 里调 pthread 函数是已知的"会死锁的地雷"

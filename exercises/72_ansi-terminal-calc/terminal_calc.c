@@ -20,7 +20,8 @@
  * 知识点：双栈表达式求值，运算符优先级，ANSI 转义序列，终端控制
  *
  * 验证：
- *   make test → 输出含 ANSI 序列，与 expected_output.txt 精确匹配
+ *   构建用 make；判分/自测用 clings run 或 clings watch
+ *   clings 精确比对 stdout 原始字节 (含 ANSI 序列, clings tests 72 查看期望输出)
  */
 #include <ctype.h>
 #include <stdio.h>

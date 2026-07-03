@@ -167,7 +167,7 @@ TODO 1 — print_matrix():
     内层循环中, j>0 时先打印一个空格, 再 printf("%3d", mat[i][j]).
     每行结束后 printf("\n").
   矩阵打印完毕后额外 printf("\n") 输出一个空行.
-  格式必须与 expected_output.txt 完全一致 (注意空格和空行).
+  输出格式必须逐字符准确 (注意空格和空行), clings 会逐行比对程序 stdout.
 
 TODO 2 — convolve():
   参数: int image[ROWS][COLS], const int kernel[3][3], int row, int col
@@ -229,7 +229,7 @@ CC=gcc, CFLAGS=-Wall -std=c99, TARGET=sobel, SRC=sobel.c, LDLIBS=-lm
 - convolve 的 kernel 索引是 kernel[i+1][j+1], 不是 kernel[i][j]
 - sqrt 返回 double, 用 (int)(... + 0.5) 四舍五入
 - 链接时必须加 -lm, 且必须放在源文件之后
-- print_matrix 的输出格式必须与 expected_output.txt 完全一致
+- print_matrix 的输出格式必须逐字符准确 (构建用 make; 判分/自测用 clings run 或 clings watch; clings tests 68 可查看期望输出)
 - IMAGE 是 const, 传给非 const 参数时用 (int(*)[COLS]) 强制转换
 - 阈值 128: ≥128→255, <128→0, 用 >= 不是 >
 - 每个矩阵后有一个空行 (额外的 \n)

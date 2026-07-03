@@ -480,8 +480,8 @@ gcc -Wall -Wextra -std=c11 -o lu_solver lu_solver.c -lm
 # 运行
 ./lu_solver
 
-# 验证输出
-./lu_solver | diff - expected_output.txt
+# 判分/自测（clings 捕获程序 stdout 与内置用例逐行比对）
+clings run 63     # 或 clings watch；clings tests 63 查看期望输出
 ```
 
 `-lm` 是必需的，因为 `fabs()` 函数定义在 `math.h` 中，实现在 libm 中。

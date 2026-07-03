@@ -119,8 +119,10 @@ Makefile (4 个变量 + 3 条规则)
 规则:
   all: $(TARGET)
   $(TARGET): $(SRC) → $(CC) $(CFLAGS) $< -o $@
-  test: $(TARGET)   → ./$(TARGET) | diff - expected_output.txt
   clean:            → rm -f $(TARGET)
+
+构建用 make (make_targets = ["all"])；判分/自测用 clings run 或 clings watch,
+clings tests 64 可查看期望输出 (脚手架无需 test 目标)。
 
 ═══════════════════════════════════════
 C 代码 — 5 个 TODO 区 (~55 行)

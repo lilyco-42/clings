@@ -29,7 +29,7 @@ hint = '''
 
 Bloch 球表示:
   任何单量子比特状态可以映射到单位球面上的一点。
-  
+
             ┌──────────────┐
             │      |0⟩ (北极)│
             │      ▲       │
@@ -63,7 +63,7 @@ Bloch 球表示:
    作用: 将计算基态变为叠加态。
      H|0⟩ = (|0⟩ + |1⟩)/√2 = |+⟩
      H|1⟩ = (|0⟩ - |1⟩)/√2 = |-⟩
-   
+
    性质: H² = I (自逆), H 在 Bloch 球上对应绕 (x+z)/√2 轴旋转 π。
 
 2. Pauli-X 门 (X / NOT 门):
@@ -73,7 +73,7 @@ Bloch 球表示:
    作用: 翻转比特。
      X|0⟩ = |1⟩
      X|1⟩ = |0⟩
-   
+
    性质: X² = I, 在 Bloch 球上对应绕 X 轴旋转 π。
 
 3. Pauli-Z 门 (Z / 相位翻转):
@@ -83,7 +83,7 @@ Bloch 球表示:
    作用: 翻转 |1⟩ 的相位 (符号)。
      Z|0⟩ = |0⟩
      Z|1⟩ = -|1⟩
-   
+
    性质: Z² = I, 在 Bloch 球上对应绕 Z 轴旋转 π。
 
 ═══════════════════════════════════════
@@ -161,7 +161,9 @@ TODO 5 — measure():
     2. 推进 LCG: *seed = (1103515245u * (*seed) + 12345u) & 0x7FFFFFFFu
     3. 生成 [0,1) 随机数: double r = (double)(*seed) / (double)0x80000000u
     4. 若 r < prob0, return 0; 否则 return 1
-  注意: 0x80000000u = 2³¹ (无符号), 必须用 unsigned int 类型。
+  注意: 0x80000000u = 2³¹。0x80000000 即使不写 u 也是 unsigned int
+        (放不下 int 时会自动取无符号类型), 不会 signed 溢出; 加 u 只是更明确。
+        seed 用 unsigned int 是为了让 LCG 乘法按无符号回绕(避免 signed 溢出 UB)。
 
 TODO 6 — main():
   流程:
@@ -174,7 +176,8 @@ TODO 6 — main():
     7. 声明 int counts[2] = {0, 0}; unsigned int seed = 42u
     8. for (int i = 0; i < 100; i++) { int o = measure(state, &seed); counts[o]++; }
     9. 打印统计结果 (格式见下方)
-  注意: seed 初始值必须是 42u (与 expected_output 一致)。
+  注意: 本题最终态是纯 |1⟩ (prob0=0), 任何 seed 都得到全部 |1⟩;
+        这里用 42u 只是与参考实现一致 (可用 clings tests 70 查看期望输出)。
 
 ═══════════════════════════════════════
 Makefile
@@ -183,7 +186,7 @@ Makefile
 填写 5 个变量 (CC/CFLAGS/LDFLAGS/TARGET/SRC) +1 条编译命令。
   CC=gcc
   CFLAGS=-Wall -std=c99
-  LDFLAGS=-lm       ← 必须链接数学库!
+  LDFLAGS=-lm       ← 防御性链接; 本题不调用 sqrt/sin/cos 等 libm 函数, 其实无需 -lm
   TARGET=qubit
   SRC=qubit.c
   编译命令: $(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDFLAGS)
@@ -193,10 +196,10 @@ Makefile
 ═══════════════════════════════════════
 - complex_mult 中注意符号: imag = a.real*b.imag + a.imag*b.real (不是减!)
 - apply_gate 中必须用临时变量, 否则 state[0] 被覆盖后 state[1] 计算错误
-- print_state 用 %+f 自动显示正负号, 格式必须与 expected_output 完全一致
-- measure 中的 0x80000000u 是 2³¹, 不要写成 0x80000000 (signed int 会溢出)
-- seed 初始值必须是 42u, 否则测量结果不同
-- 编译必须加 -lm 链接数学库 (虽然本题未直接调用 sqrt, 但 math.h 被包含)
+- print_state 用 %+f 自动显示正负号, 格式必须与 clings tests 70 展示的期望输出完全一致
+- measure 中的 0x80000000u 是 2³¹; 即使写成 0x80000000 (不带 u) 也不会 signed 溢出——放不下 int 时会自动取 unsigned int, 写 u 只是更明确
+- 本题 prob0=0 (纯 |1⟩), 任何 seed 都得到全部 |1⟩; 用 42u 只是与参考实现一致, 并非必需
+- 本题不调用任何 libm 函数 (仅 include math.h), 因此无需 -lm 也能链接; 加 -lm 只是防御性
 - LCG 公式中的 1103515245u 和 12345u 是经典 glibc 参数
 - 输出中的 i 前面没有空格: "+0.000000i" 而不是 "+0.000000 i"
 - 最终状态 |ψ₄⟩ = |1⟩, 所以测量 100 次结果全是 |1⟩ (概率 100%)
@@ -236,10 +239,10 @@ Makefile
 ═══════════════════════════════════════
 - 忘记在 apply_gate 中使用临时变量 → state[0] 被覆盖
 - complex_mult 的 imag 算成 a*b - c*d 或 a.real*b.imag - a.imag*b.real → 结果错误
-- measure 中 0x80000000 不带 u 后缀 → signed overflow (UB!)
-- print_state 格式不精确 → diff 失败
-- seed 初始值不对 → 随机序列不同, 测量统计不同
-- Makefile 忘记 -lm → 链接错误
+- 误区: 以为 0x80000000 不带 u 会 signed overflow(UB) —— 其实会自动取 unsigned int, 无 UB
+- print_state 格式不精确 → 自测/判分不通过
+- 误区: 以为 seed 不同会让测量统计不同 —— 本题 prob0=0, 任何 seed 都全是 |1⟩
+- 误区: 以为 Makefile 忘记 -lm 会链接错误 —— 本题不调用 libm, 无 -lm 也能链接
 - 复数结构体的 imag 字段忘记初始化 → 垃圾值
 '''
 

@@ -116,9 +116,16 @@ TODO 4 — RUN_TESTS 宏:
 TODO 5 — 五个测试用例:
   TEST(add): 3 个 ASSERT_EQ 验证加法/乘法/减法。
   TEST(str): 3 个 ASSERT_STREQ 验证字符串比较。
-  TEST(fail): 1 个故意错误的 ASSERT_EQ(2+2, 5)。
+  TEST(fail): 1 个故意错误的 ASSERT_EQ(2 + 2, 5)。
   TEST(null): ASSERT_STREQ(NULL, NULL) 通过 + ASSERT_STREQ(NULL, "hello") 失败。
   TEST(float): ASSERT_EQ((int)3.14, 3) 通过 + ASSERT_EQ((int)2.718, 3) 失败。
+
+  ★ 关键: # 字符串化会原样保留你在源码里写的空格。判分匹配的是
+    "ASSERT_EQ(2 + 2, 5)"(加号两侧有空格),所以失败断言必须照此写成
+    ASSERT_EQ(2 + 2, 5) 才能得到期望的表达式文本;写成 ASSERT_EQ(2+2,5)
+    会打印 "ASSERT_EQ(2+2, 5)" 而对不上。
+  ★ 失败行会打印 __FILE__:__LINE__,行号随你的代码而定;判分不校验具体行号
+    (用 clings tests 60 查看判分规格)。
 
 TODO 6 — main():
   调用 register_test() 注册 5 个测试。
@@ -165,8 +172,9 @@ TODO 6 — main():
 8. test_count 赋值时机:
    在 RUN_TESTS 开始时设为 test_index （已注册数）。
 
-9. 忘记 #include <math.h>:
-   test_float 用到了浮点常量，虽然本题不直接调用数学函数但 math.h 是好习惯。
+9. test_float 与 math.h:
+   test_float 只用浮点字面量做 (int) 截断，本题不需要 <math.h>（浮点常量
+   属于语言本身，不依赖数学库）。
 
 ═══════════════════════════════════════
 验证
@@ -174,7 +182,7 @@ TODO 6 — main():
 
 编译: make  (或 gcc -Wall -Wextra -std=c11 -o test_framework test_framework.c)
 运行: ./test_framework
-比对: ./test_framework | diff - expected_output.txt
+判分/自测: clings run 60 / clings watch  (查看判分规格: clings tests 60)
 
 预期: 5 tests, 2 passed, 3 failed
   - test_add: 全部通过
@@ -184,15 +192,20 @@ TODO 6 — main():
   - test_float: ASSERT_EQ((int)3.14, 3) 通过, ASSERT_EQ((int)2.718, 3) 失败
 '''
 
+# 结构化判分(与 tests/60_micro-test-framework.toml 保持一致):失败行的 __LINE__
+# 行号取决于学生源码布局,不写死;匹配除行号外的稳定内容 + 校验 file:行号 格式。
 [[exercises.cases]]
-stdout = '''Running 5 test(s)...
-
-[test_add] PASS
-[test_str] PASS
-[test_fail]   FAIL test_framework.c:88: ASSERT_EQ(2 + 2, 5) — expected 5, got 4
-[test_null]   FAIL test_framework.c:96: ASSERT_STREQ(NULL, "hello") — expected "hello", got "(null)"
-[test_float]   FAIL test_framework.c:107: ASSERT_EQ((int)2.718, 3) — expected 3, got 2
-
-─── Summary ───
-5 tests, 2 passed, 3 failed
-'''
+stdout_contains = [
+    "Running 5 test(s)...",
+    "[test_add] PASS",
+    "[test_str] PASS",
+    "[test_fail]   FAIL",
+    "ASSERT_EQ(2 + 2, 5) — expected 5, got 4",
+    "[test_null]   FAIL",
+    'ASSERT_STREQ(NULL, "hello") — expected "hello", got "(null)"',
+    "[test_float]   FAIL",
+    "ASSERT_EQ((int)2.718, 3) — expected 3, got 2",
+    "─── Summary ───",
+    "5 tests, 2 passed, 3 failed",
+]
+stdout_regex = 'test_framework\.c:\d+:'

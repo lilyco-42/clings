@@ -33,7 +33,7 @@
  *   - 区块链数据结构与 hash 链
  *
  * 验证：
- *   make && ./pow_chain | diff - expected_output.txt
+ *   make  → 编译；判分/自测由 clings 捕获程序 stdout 与内置用例比对（clings tests 71 查看期望输出）
  */
 #include <stdint.h>
 #include <stdio.h>
@@ -256,7 +256,7 @@ static void build_block_input(const Block *block, uint64_t nonce, char *out, siz
  *
  * static void print_block(int index, const Block *block)
  *
- * 打印区块信息，格式如下（严格匹配 expected_output.txt）：
+ * 打印区块信息，格式如下（严格匹配内置期望输出，clings tests 71 可查看）：
  *
  *   Block <index>:
  *     prev_hash: <64 字符 hex>

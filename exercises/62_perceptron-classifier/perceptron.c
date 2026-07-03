@@ -22,7 +22,7 @@
  *
  * 验证：
  *   make  → 编译生成 perceptron 可执行文件
- *   make test  → 运行并与 expected_output.txt 比对
+ *   判分/自测由 clings 捕获程序 stdout 与内置用例逐行比对（clings tests 62 查看期望输出）
  */
 
 #include <stdio.h>
@@ -117,8 +117,8 @@ static void print_weights(const double w[], double b) {
  * 6) 将决策边界化为 x1 = slope * x0 + intercept 形式
  * 7) 打印收敛轮数
  *
- * 输出格式必须与 expected_output.txt 逐字符一致。
- * 参考 expected_output.txt 了解完整输出格式。
+ * 输出格式必须与内置期望输出逐字符一致。
+ * 运行 clings tests 62 查看完整期望输出格式。
  */
 
 /* TODO 7: 实现 XOR 训练段 (main 后半部分)
@@ -130,13 +130,13 @@ static void print_weights(const double w[], double b) {
  *   - 前 5 轮逐轮打印完整信息
  *   - 之后每 10 轮打印一次（epoch 10, 20, 30, ... 100）
  *   - 中间轮次用紧凑摘要行替代：
- *     "  ... (epochs 6–9: oscillating, 2 mistakes each) ..."
- *     "  ... (epochs 11–19: oscillating, 2 mistakes each) ..."
+ *     "  ... (epochs 6–9: oscillating, 4 updates each) ..."
+ *     "  ... (epochs 11–19: oscillating, 4 updates each) ..."
  * 100 轮后仍未收敛，打印警告信息和线性不可分的说明。
  * 最后打印决策边界和 "Did not converge" 信息。
  *
- * 同样参考 expected_output.txt 了解完整输出格式。
+ * 同样运行 clings tests 62 查看完整输出格式。
  */
 int main(void) {
-#error TODO 6 & 7: Implement AND training + XOR demonstration as per expected_output.txt.
+#error TODO 6 & 7: Implement AND training + XOR demonstration (see README / clings tests 62).
 }

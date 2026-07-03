@@ -1,13 +1,21 @@
+# 微型测试框架判分:失败行里的 __LINE__ 行号取决于学生自己的源码布局,
+# 不能写死(写死会导致正确实现因行号不同而判 FAIL)。因此改为结构化判分:
+#   - stdout_contains: 匹配除行号外的所有稳定内容(测试名、PASS/FAIL、断言表达式、
+#     期望/实际值、汇总行)。断言表达式里的空格由 # 字符串化保留源码写法决定,
+#     故按 hint 要求写 ASSERT_EQ(2 + 2, 5) 即可复现。
+#   - stdout_regex: 校验失败行确实以真实的 "test_framework.c:<行号>:" 格式报告位置。
 [[cases]]
-stdout = '''
-Running 5 test(s)...
-
-[test_add] PASS
-[test_str] PASS
-[test_fail]   FAIL test_framework.c:88: ASSERT_EQ(2 + 2, 5) — expected 5, got 4
-[test_null]   FAIL test_framework.c:96: ASSERT_STREQ(NULL, "hello") — expected "hello", got "(null)"
-[test_float]   FAIL test_framework.c:107: ASSERT_EQ((int)2.718, 3) — expected 3, got 2
-
-─── Summary ───
-5 tests, 2 passed, 3 failed
-'''
+stdout_contains = [
+    "Running 5 test(s)...",
+    "[test_add] PASS",
+    "[test_str] PASS",
+    "[test_fail]   FAIL",
+    "ASSERT_EQ(2 + 2, 5) — expected 5, got 4",
+    "[test_null]   FAIL",
+    'ASSERT_STREQ(NULL, "hello") — expected "hello", got "(null)"',
+    "[test_float]   FAIL",
+    "ASSERT_EQ((int)2.718, 3) — expected 3, got 2",
+    "─── Summary ───",
+    "5 tests, 2 passed, 3 failed",
+]
+stdout_regex = 'test_framework\.c:\d+:'

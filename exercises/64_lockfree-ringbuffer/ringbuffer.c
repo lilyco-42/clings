@@ -12,7 +12,9 @@
  * 知识点：_Atomic、memory_order、SPSC 设计、
  *         缓存行伪共享、无锁编程。
  *
- * 验证：make test → 编译运行，管道 diff 比对 expected_output.txt
+ * 说明：本实现是单线程确定性时间线，main() 顺序执行各阶段，并非真正并发。
+ * 验证：构建用 make；判分/自测用 clings run 或 clings watch
+ *       (clings 逐行比对程序 stdout, clings tests 64 可查看期望输出)。
  */
 #include <stdatomic.h>
 #include <stdio.h>

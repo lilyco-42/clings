@@ -10,9 +10,7 @@
  *   - Tri-color abstraction (white/gray/black)
  *   - Memory fragmentation from non-moving collectors
  *
- * Verification:
- *   make && ./mark_sweep
- *   (output should match expected_output.txt)
+ * 验证：make 构建后 clings run 65 / clings check 65（查看期望：clings tests 65）
  */
 
 #include <stdbool.h>
@@ -123,14 +121,18 @@ static void init_heap(void) {
  * int sweep(void) should:
  *   1. Print "Sweeping (reclaiming unmarked objects):\n".
  *   2. Iterate through all HEAP_SIZE objects.
- *   3. For each object where marked == 0:
+ *   3. For each object where marked == 0 (garbage):
  *      - Print "  OBJ%d reclaimed\n" with the index.
  *      - Reset refs[0] = refs[1] = -1, ref_count = 0.
  *      - Increment a local counter.
- *   4. Return the count of reclaimed objects.
+ *   4. For each object where marked == 1 (alive):
+ *      - Reset marked = 0 to prepare for the NEXT GC cycle (standard sweep).
+ *   5. Return the count of reclaimed objects.
  *
- * Note: DO NOT reset the marked flag of live objects yet (that's for next GC).
- * Hint: the function is ~12 lines of code.
+ * Note (标准 mark-sweep): sweep 会把存活对象的 mark 位清 0，这样下一轮 GC
+ * 直接从"全未标记"开始，无需单独的清零遍历。因此 sweep 之后所有对象 marked
+ * 都是 0，存活对象靠保留的 refs 与垃圾(refs 已清空)区分。
+ * Hint: the function is ~14 lines of code.
  */
 
 /* ─── TODO 3: print_objects ─── */
@@ -160,7 +162,8 @@ static void init_heap(void) {
  *   6. Print a blank line.
  *   7. Print "=== GC Summary ===\n".
  *   8. Print "Objects collected: %d\n" with the sweep count.
- *   9. Count objects where marked == 1 (alive).
+ *   9. alive = HEAP_SIZE - collected  (sweep 已清零存活者的 mark 位，不能再用
+ *      marked 计数；存活数 = 总数 - 回收数)。
  *   10. Print "Objects alive: %d\n" with the alive count.
  *
  * Hint: the function is ~20 lines of code.

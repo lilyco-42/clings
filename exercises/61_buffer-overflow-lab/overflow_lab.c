@@ -12,7 +12,7 @@
  *   - 安全函数 fgets vs 不安全函数 gets/strcpy
  *
  * 验证：./overflow_lab → 输出固定格式的安全分析报告
- *       make test → 与 expected_output.txt 比对
+ *       判分由 clings 捕获程序 stdout 与内置用例逐行比对（clings tests 61 查看期望输出）
  */
 
 #include <stddef.h>
@@ -68,10 +68,10 @@ static void print_separator(void) { printf("════════════
  *   ───────────────────────────────────────
  *   +24      返回地址 (8B)      ← gets 可覆盖这里
  *   +16      保存的 rbp (8B)
- *   +8       [填充/对齐] (8B)   栈对齐到 16 字节
- *   +0       buf[16]            ← gets 从这里写入
+ *   +0       buf[16]            ← gets 从这里写入 (buf[0..15])
  *
- * buf 起始到返回地址的偏移 = 24 字节 (buf[0..15] + 对齐 8 + rbp8)
+ * buf 起始到返回地址的偏移 = 16(buf) + 8(rbp) = 24 字节
+ * (x86-64 -O0: buf 位于 rbp-16, 返回地址位于 rbp+8; buf[16] 已对齐, 无需填充)
  *
  * 要求：
  *   1. 打印代码片段 (ASCII 框)
@@ -80,7 +80,7 @@ static void print_separator(void) { printf("════════════
  *   4. 判断是否存在溢出风险 (是/否，并解释)
  *   5. 分析 gets 为什么危险，给出攻击示意
  *
- * 格式参考：见 expected_output.txt
+ * 格式参考：见 README 的期望输出示例，或运行 clings tests 61 查看完整期望
  */
 
 /* ─── TODO 2: 打印代码片段 2 的栈帧分析 (strcpy 溢出) ─── */
@@ -109,7 +109,7 @@ static void print_separator(void) { printf("════════════
  *   4. 判断是否存在溢出风险
  *   5. 对比 gets 和 strcpy 溢出场景的异同 (输入源、终止条件)
  *
- * 格式参考：见 expected_output.txt
+ * 格式参考：见 README 的期望输出示例，或运行 clings tests 61 查看完整期望
  */
 
 /* ─── TODO 3: 打印代码片段 3 的栈帧分析 (fgets 安全版) ─── */
@@ -140,7 +140,7 @@ static void print_separator(void) { printf("════════════
  *   4. 判断是否存在溢出风险
  *   5. 解释 fgets 如何防止溢出 (size 参数机制)
  *
- * 格式参考：见 expected_output.txt
+ * 格式参考：见 README 的期望输出示例，或运行 clings tests 61 查看完整期望
  */
 
 /* ─── TODO 4: 金丝雀 (Stack Canary) 防护原理 ─── */
@@ -179,7 +179,7 @@ static void print_separator(void) { printf("════════════
  *   4. 说明 canary 的局限性 (信息泄露、暴力猜测等)
  *   5. 列出绕过 canary 的方法 (至少 3 种)
  *
- * 格式参考：见 expected_output.txt
+ * 格式参考：见 README 的期望输出示例，或运行 clings tests 61 查看完整期望
  */
 
 /* ─── TODO 5: 防护机制对比表 ─── */
@@ -199,7 +199,7 @@ static void print_separator(void) { printf("════════════
  *   3. 说明纵深防御 (defense in depth) 的概念
  *   4. 画出纵深防御示意 (多层防护链)
  *
- * 格式参考：见 expected_output.txt
+ * 格式参考：见 README 的期望输出示例，或运行 clings tests 61 查看完整期望
  */
 
 /* ─── TODO 6: 综合风险评估 ─── */
@@ -217,7 +217,7 @@ static void print_separator(void) { printf("════════════
  *   4. 理解栈帧布局有助于写出更安全的代码
  *   5. 代码审查时特别关注危险函数
  *
- * 格式参考：见 expected_output.txt
+ * 格式参考：见 README 的期望输出示例，或运行 clings tests 61 查看完整期望
  */
 
 /* ─── TODO 7: 打印学习建议 ─── */
@@ -230,7 +230,7 @@ static void print_separator(void) { printf("════════════
  *   4. 了解现代编译器默认启用的安全选项
  *   5. 推荐经典论文阅读
  *
- * 格式参考：见 expected_output.txt
+ * 格式参考：见 README 的期望输出示例，或运行 clings tests 61 查看完整期望
  */
 
 int main(void) {

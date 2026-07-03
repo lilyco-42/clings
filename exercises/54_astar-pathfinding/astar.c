@@ -6,7 +6,7 @@
  *
  * 知识点：启发式搜索、Manhattan 距离、Open/Closed 表、路径回溯
  *
- * 验证：make test → 编译运行并 diff 比对 expected_output.txt
+ * 验证：make 构建；clings run 54 / clings watch 判分；clings tests 54 看期望输出
  */
 #include <stdbool.h>
 #include <stdio.h>
@@ -69,6 +69,11 @@ int main(void) {
      *   若到达终点则记录 goal_idx 并退出。
      *   扩展四个方向的邻居，检查边界和障碍物，
      *   用 find_or_create 将邻居加入/更新 Open 表。
+     *
+     *   邻居扩展顺序固定为「上、下、左、右」，务必严格保持一致——
+     *   它在 f/h 平局时决定 Open 表的出队顺序，从而影响输出：
+     *     int dr[] = {-1, 1, 0, 0};
+     *     int dc[] = {0, 0, -1, 1};
      */
 
 #error TODO: Finish this exercise. Run "clings hint" for help.

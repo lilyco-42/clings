@@ -247,9 +247,9 @@ SRC = terminal_calc.c
 - evaluate 遍历结束后不要忘记处理 ops 栈中剩余运算符
 - ANSI 颜色宏是字符串字面量, 直接拼接: COLOR_GREEN "text" COLOR_RESET
 - 每个颜色块后必须跟 COLOR_RESET, 否则颜色会"泄漏"
-- expected_output.txt 包含 ANSI 转义序列的原始字节, diff 会精确比较
-- make test 使用管道 | diff - expected_output.txt, 输出必须逐字节匹配
-- 不要输出多余空格或换行, 否则 diff 失败
+- 输出含 ANSI 转义序列的原始字节 (ESC=\033), clings 判分做精确字节比对 (期望输出以 base64 存储)
+- 构建用 make; 判分/自测用 clings run 或 clings watch; clings tests 72 可查看期望输出
+- 不要输出多余空格或换行, 否则字节比对失败
 - 除法要检查除数为 0, 返回 0 即可 (本题表达式不会触发)
 - 两个测试表达式固定为 "3+4*2" 和 "(5+3)*2"
 '''

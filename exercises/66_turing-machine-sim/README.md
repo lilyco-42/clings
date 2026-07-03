@@ -256,11 +256,11 @@ q_reject : 拒绝态             → 本题: q_reject
 | `"aabb"`   | ACCEPT   | n=2, 标准测试            | 两轮消去后验收通过                                             |
 | `"aaabbb"` | ACCEPT   | n=3, 本题测试串          | 三轮消去，24 步后接受                                          |
 | `"aab"`    | REJECT   | a 比 b 多 (2 vs 1)       | q1 读_ 无转移                                                  |
-| `"abb"`    | REJECT   | a 比 b 少 (1 vs 2)       | q0 标记 a→q1, q1 标记 b→q2, q2 回 X→q0, q0 读 b 无转移         |
+| `"abb"`    | REJECT   | a 比 b 少 (1 vs 2)       | q0 标记 a→q1, q1 标记 b→q2, q2 回 X→q0, q0 读 Y→q3, q3 读 b 无转移         |
 | `"ba"`     | REJECT   | 输入格式错误 (b 在 a 前) | q0 读 b 无转移 → 立即拒绝                                      |
 | `"aaab"`   | REJECT   | a 比 b 多 (3 vs 1)       | 第 2 轮 q1 读_ 无转移                                          |
 | `"abbb"`   | REJECT   | a 比 b 少 (1 vs 3)       | q0 读 Y→q3, q3 读 b 无转移                                     |
-| `"abab"`   | REJECT   | 交错排列 (非 aⁿbⁿ形式)   | q0 读 a→q1, q1 读 b→q2, q2 左移到 X→q0, q0 读 b 无转移         |
+| `"abab"`   | REJECT   | 交错排列 (非 aⁿbⁿ形式)   | q0 读 a→q1, q1 读 b→q2, q2 左移到 X→q0, q0 读 Y→q3, q3 读 a 无转移         |
 
 ### 相关概念对比
 

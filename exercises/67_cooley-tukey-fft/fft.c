@@ -20,7 +20,7 @@
  * Key concepts: FFT, butterfly, bit-reversal, twiddle factor, complex numbers,
  *                divide-and-conquer, spectral analysis
  *
- * Verification: make test compares against expected_output.txt
+ * 验证：构建用 make；判分/自测用 clings run / clings watch；查看期望输出用 clings tests 67
  */
 #include <math.h>
 #include <stdio.h>

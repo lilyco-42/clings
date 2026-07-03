@@ -9,8 +9,8 @@
  * 知识点：TF 词频 / IDF 逆文档频率 / TF-IDF 加权 / 余弦相似度 / 向量空间模型
  *
  * 验证：
- *   make  → 编译生成 tfidf 可执行文件 (需 -lm 链接数学库)
- *   make test  → 运行并与 expected_output.txt 比对
+ *   构建：make → 编译生成 tfidf 可执行文件 (需 -lm 链接数学库)
+ *   判分/自测：clings run 或 clings watch (clings 逐行比对 stdout, clings tests 69 查看期望输出)
  */
 
 #include <math.h>
@@ -161,8 +161,8 @@ static void print_matrix(const char *title, const char *row_labels[], const char
  *      d) 相似度矩阵 (%.4f 格式，行/列标签均为 D0/D1/D2)
  *      e) 解释信息 (Interpretation: 三行)
  *
- * 输出格式必须与 expected_output.txt 逐字符一致。
- * 参考 expected_output.txt 了解完整输出格式。
+ * 输出格式必须逐字符准确 (clings 判分时会逐行比对程序 stdout)。
+ * 用 clings tests 69 查看完整的期望输出格式。
  */
 int main(void) {
 #error TODO 7: Implement the full TF-IDF pipeline and print all results.

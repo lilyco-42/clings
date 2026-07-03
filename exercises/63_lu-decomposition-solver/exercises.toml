@@ -242,10 +242,11 @@ LU 分解的数据布局（ In-Place ）
 
 编译: make  (或 gcc -Wall -Wextra -std=c11 -o lu_solver lu_solver.c -lm)
 运行: ./lu_solver
-比对: ./lu_solver | diff - expected_output.txt
+比对: 判分由 clings 捕获程序 stdout 与内置用例逐行比对（clings tests 63 查看期望输出）
 '''
 
 [[exercises.cases]]
+trim_trailing_ws = true
 stdout = '''=== LU Decomposition Solver with Partial Pivoting ===
 
 Step 1: PA = LU decomposition
@@ -255,14 +256,14 @@ Step 1: PA = LU decomposition
 Permutation vector p: [2 0 1]
 
 L matrix:
-  1.0000   0.0000   0.0000 
-  0.2500   1.0000   0.0000 
-  0.5000   0.6667   1.0000 
+  1.0000   0.0000   0.0000
+  0.2500   1.0000   0.0000
+  0.5000   0.6667   1.0000
 
 U matrix:
-  8.0000   7.0000   9.0000 
-  0.0000  -0.7500  -1.2500 
-  0.0000   0.0000  -0.6667 
+  8.0000   7.0000   9.0000
+  0.0000  -0.7500  -1.2500
+  0.0000   0.0000  -0.6667
 
 Step 2: Forward substitution Ly = Pb
 y: [ 29.0000  -2.2500  -2.0000]
