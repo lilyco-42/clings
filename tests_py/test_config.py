@@ -95,6 +95,15 @@ class TestSelectExercises:
         with pytest.raises(ClingsError, match="no exercise matches"):
             select_exercises(sample_config, "totally-nonexistent")
 
+    def test_empty_unit_raises(self, sample_config: dict) -> None:
+        """A unit selector that matches nothing raises (no silent empty set).
+
+        Guards against the false-green where `clings check unit9` (or a unit
+        not initialized in this workspace) printed "all 0 exercise(s) passed".
+        """
+        with pytest.raises(ClingsError, match="no exercises match 'unit9'"):
+            select_exercises(sample_config, "unit9")
+
 
 class TestFindExercise:
     """find_exercise() does exact-or-prefix matching with ambiguity detection."""

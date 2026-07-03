@@ -1,9 +1,14 @@
 """Tests for clings.commands.score._detect_status.
 
 _detect_status() distinguishes NOT_COMPLETED (student hasn't started —
-source still has the "I AM NOT DONE" marker) from FAILED (student tried
-but the code doesn't pass). This drives the score report's status field
-in CI grading.
+a source file still has the scaffold "#error TODO" marker) from FAILED
+(student tried but the code doesn't compile / its output doesn't match).
+This drives the score report's status field in CI grading.
+
+The marker is "#error TODO" — the exact directive clings templates place at
+every TODO (a #error so the file won't compile until it's removed). An earlier
+version of _detect_status looked for rustlings' "I AM NOT DONE" comment, which
+clings never emits, so NOT_COMPLETED could never actually trigger.
 """
 
 from __future__ import annotations
@@ -16,18 +21,18 @@ from clings.commands.score import _detect_status
 
 
 class TestDetectStatus:
-    """_detect_status() inspects source files for the NOT_DONE marker."""
+    """_detect_status() inspects source files for the '#error TODO' marker."""
 
     def test_not_done_marker_returns_not_completed(
         self, isolated_workspace: Path
     ) -> None:
-        """Source containing 'I AM NOT DONE' → NOT_COMPLETED."""
+        """Source containing '#error TODO' → NOT_COMPLETED."""
         ex_dir = isolated_workspace / "exercises" / "todo_ex"
         ex_dir.mkdir(parents=True)
         src = ex_dir / "main.c"
         src.write_text(
             "int main(void){\n"
-            "  /* I AM NOT DONE */\n"
+            "#error TODO 1: implement main()\n"
             "  return 0;\n"
             "}\n",
             encoding="utf-8",
@@ -59,7 +64,7 @@ class TestDetectStatus:
         ex_dir = isolated_workspace / "exercises" / "multi_src"
         ex_dir.mkdir(parents=True)
         (ex_dir / "a.c").write_text("int a(void){return 0;}\n", encoding="utf-8")
-        (ex_dir / "b.c").write_text("/* I AM NOT DONE */\n", encoding="utf-8")
+        (ex_dir / "b.c").write_text("#error TODO: finish b\n", encoding="utf-8")
         ex = {"name": "multi_src", "path": "multi_src",
               "sources": ["a.c", "b.c"]}
         assert _detect_status(ex, use_solutions=False, error_msg="") == "NOT_COMPLETED"
@@ -73,11 +78,12 @@ class TestDetectStatus:
         assert _detect_status(ex, use_solutions=False, error_msg="") == "FAILED"
 
     def test_marker_anywhere_in_file(self, isolated_workspace: Path) -> None:
-        """The marker can appear anywhere in the file (not just comments)."""
+        """The marker is detected wherever it appears in the file."""
         ex_dir = isolated_workspace / "exercises" / "marker_pos"
         ex_dir.mkdir(parents=True)
         (ex_dir / "main.c").write_text(
-            "#define MARKER I AM NOT DONE\nint main(void){return 0;}\n",
+            "int helper(void){\n#error TODO 2: implement helper\n}\n"
+            "int main(void){return 0;}\n",
             encoding="utf-8",
         )
         ex = {"name": "marker_pos", "path": "marker_pos", "source": "main.c"}

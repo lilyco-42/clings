@@ -6,7 +6,6 @@ import sys
 import tomllib
 
 from ..config import (
-    ClingsError,
     EXERCISES_DIR,
     PKG_CONFIG,
     ROOT,
@@ -15,8 +14,22 @@ from ..config import (
 )
 
 
+# Filenames a student edits to complete an exercise. `init` must never
+# overwrite these once they exist (without --force): for make+stdout exercises
+# the Makefile IS the assignment, so clobbering it silently would destroy work.
+# Reference/config files (README.md, exercises.toml) are always refreshed.
+_WORK_FILE_SUFFIXES = (".c", ".h", ".mk")
+_WORK_FILE_NAMES = {"Makefile", "makefile", "GNUmakefile"}
+
+
+def _is_work_file(name: str) -> bool:
+    """True if ``name`` is a student-editable work file protected from re-init."""
+    return name.endswith(_WORK_FILE_SUFFIXES) or name in _WORK_FILE_NAMES
+
+
 def cmd_init(args: argparse.Namespace) -> int:
     unit = args.unit or "unit1"
+    force = getattr(args, "force", False)
     if unit == "all":
         units_to_init = list(UNIT_LESSON_RANGES.keys())
     elif unit in UNIT_LESSON_RANGES:
@@ -93,7 +106,10 @@ def cmd_init(args: argparse.Namespace) -> int:
             if src_file.is_dir():
                 continue
             dst_file = dst_dir / src_file.name
-            if dst_file.exists() and src_file.name.endswith(".c"):
+            # Preserve existing student work (source, headers, Makefile) so a
+            # repeated `clings init` never destroys progress. `--force` opts in
+            # to overwriting them.
+            if dst_file.exists() and _is_work_file(src_file.name) and not force:
                 skipped_files += 1
                 continue
             shutil.copy2(src_file, dst_file)
@@ -104,8 +120,10 @@ def cmd_init(args: argparse.Namespace) -> int:
     units_label = ", ".join(units_to_init)
     print(f"\n  \x1b[32;1m\u2705 Initialized {len(copied_dirs)} lesson directories "
           f"({len(selected)} exercises) for {units_label}\x1b[0m")
-    print(f"  copied {copied_files} files, skipped {skipped_files} existing .c files")
+    skipped_note = "existing work files (.c/.h/Makefile)" if not force else "files"
+    print(f"  copied {copied_files} files, skipped {skipped_files} {skipped_note}")
     print(f"\n  Run \x1b[1mclings\x1b[0m to start!")
     if skipped_files:
-        print(f"  (use \x1b[1mclings reset <exercise>\x1b[0m to restore individual files)")
+        print(f"  (use \x1b[1mclings reset <exercise>\x1b[0m to restore a file, "
+              f"or \x1b[1mclings init {unit} --force\x1b[0m to overwrite all)")
     return 0

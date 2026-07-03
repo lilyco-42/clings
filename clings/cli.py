@@ -1,6 +1,7 @@
 """CLI entry point — argument parsing and command dispatch."""
 
 import argparse
+import sys
 
 from .config import ClingsError, UNIT_LESSON_RANGES, get_version
 from .commands.check import cmd_check
@@ -41,7 +42,7 @@ def main() -> int:
 
     p = sub.add_parser(
         "tests",
-        help="tests for an exercise for an exercise (public tests only)",
+        help="show public test cases for an exercise",
     )
     p.add_argument(
         "exercise",
@@ -98,6 +99,9 @@ def main() -> int:
     available_units = ", ".join(list(UNIT_LESSON_RANGES.keys()) + ["all"])
     p.add_argument("unit", nargs="?", default="unit1",
                    help=f"unit to initialize: {available_units} (default: unit1)")
+    p.add_argument("--force", action="store_true",
+                   help="overwrite existing work files (.c/.h/Makefile); "
+                        "by default they are preserved to protect your progress")
     p.set_defaults(func=cmd_init)
 
     p = sub.add_parser("doctor", help="check environment")
@@ -118,5 +122,5 @@ def main() -> int:
     except KeyboardInterrupt:
         return 130
     except ClingsError as exc:
-        print(exc, file=__import__("sys").stderr)
+        print(exc, file=sys.stderr)
         return 1

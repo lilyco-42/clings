@@ -172,6 +172,88 @@ class TestWatchStateSaveRoundTrip:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Subset progress preservation (regression: `clings watch unit1` wiping unit0)
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestSubsetProgressPreservation:
+    """A filtered WatchState must not erase done-records outside its list.
+
+    Regression: `clings watch unit1` builds a WatchState from only unit1's
+    exercises. Previously save() rewrote .clings-state.txt with ONLY that
+    subset's done set, silently wiping the student's unit0 progress. The state
+    now keeps unknown done-names in `_extra_done` and writes them back.
+    """
+
+    def test_unknown_done_not_counted_but_preserved_on_save(
+        self, isolated_workspace: Path
+    ) -> None:
+        state_file = isolated_workspace / ".clings-state.txt"
+        # Pre-existing progress including names outside this state's list.
+        state_file.write_text(
+            "current_exercise = ex_01\n\n[done]\nother_A\nother_B\n",
+            encoding="utf-8",
+        )
+        subset = WatchState(_make_exercises())  # only knows ex_01..ex_03
+        # Unknown names are not counted in this subset's progress...
+        assert subset.n_done == 0
+        # ...but a save (triggered by marking ex_01) preserves them verbatim.
+        subset.mark_done()  # ex_01
+        content = state_file.read_text(encoding="utf-8")
+        assert "other_A" in content
+        assert "other_B" in content
+        assert "ex_01" in content
+
+    def test_full_reload_sees_subset_and_external_progress(
+        self, isolated_workspace: Path
+    ) -> None:
+        state_file = isolated_workspace / ".clings-state.txt"
+        state_file.write_text(
+            "current_exercise = ex_01\n\n[done]\nzzz_external\n",
+            encoding="utf-8",
+        )
+        subset = WatchState(_make_exercises())
+        subset.set_done("ex_02", True)
+        subset.save()
+
+        # A state that knows about the external exercise sees BOTH the subset's
+        # newly-marked ex_02 and the preserved external record.
+        full = WatchState(
+            _make_exercises()
+            + [{"name": "zzz_external", "unit": "unit9", "lesson": 99, "order": 99}]
+        )
+        assert full.is_done({"name": "ex_02"})
+        assert full.is_done({"name": "zzz_external"})
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# done_names / set_done public API
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestDoneApi:
+    """done_names (read) and set_done (write) replace private _done access."""
+
+    def test_done_names_reflects_done_set(self, isolated_workspace: Path) -> None:
+        state = WatchState(_make_exercises())
+        assert state.done_names == frozenset()
+        state.mark_done()  # ex_01
+        assert state.done_names == frozenset({"ex_01"})
+
+    def test_set_done_toggles(self, isolated_workspace: Path) -> None:
+        state = WatchState(_make_exercises())
+        state.set_done("ex_02", True)
+        assert state.is_done({"name": "ex_02"})
+        assert state.current_exercise()["name"] == "ex_01"  # no pointer move
+        state.set_done("ex_02", False)
+        assert not state.is_done({"name": "ex_02"})
+
+    def test_set_done_ignores_unknown_name(self, isolated_workspace: Path) -> None:
+        state = WatchState(_make_exercises())
+        state.set_done("not_in_list", True)
+        assert not state.is_done({"name": "not_in_list"})
+        assert state.n_done == 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # mark_done / mark_pending
 # ═══════════════════════════════════════════════════════════════════════════
 
