@@ -24,11 +24,19 @@ BUILD_DIR = ROOT / ".clings" / "build"
 CONFIG_PATH = ROOT / "clings.toml"
 
 # Test cases: prefer bundled tests/ inside the installed package (site-packages),
-# fall back to repo-root tests/ during development. Layout is flat:
+# fall back to the repo-root tests/ during development. Layout is flat:
 #   tests/<exercise-name>.toml
 # e.g. tests/49_dining-philosophers-sync.toml
+#
+# The fallback is anchored at PKG_DIR.parent (the repo root in an editable
+# `pip install -e .` layout), NOT Path.cwd(). Anchoring at cwd was a latent
+# bug: an editable install invoked from a scratch dir (as CI does, running
+# from /tmp/clings-ci-unitN) would find neither PKG_DIR/tests nor cwd/tests
+# and silently fall back to the inline `exercises.toml` cases — diverging from
+# the authoritative, tamper-resistant tests/ source. Anchoring at the repo
+# root makes editable/dev/CI use the same tests/ as a real pip install.
 _pkg_tests = PKG_DIR / "tests"
-_repo_tests = ROOT / "tests"
+_repo_tests = PKG_DIR.parent / "tests"
 PUBLIC_TEST_DIR = _pkg_tests if _pkg_tests.exists() else _repo_tests
 
 STATE_FILE = ROOT / ".clings-state.txt"
@@ -125,7 +133,14 @@ def select_exercises(config: dict, selector: str | None) -> list[dict]:
     if selector is None:
         return all_ex
     if selector.startswith("unit"):
-        return [ex for ex in all_ex if ex["unit"] == selector]
+        selected = [ex for ex in all_ex if ex["unit"] == selector]
+        # A unit selector that matches nothing (e.g. the unit isn't initialized
+        # in this workspace, or a typo) must be an error — NOT a silent empty
+        # set. Returning [] here made `clings check unit3` print
+        # "all 0 exercise(s) passed" and exit 0 (a dangerous false green).
+        if not selected:
+            raise ClingsError(f"no exercises match {selector!r}")
+        return selected
     if selector.isdigit():
         selected = [ex for ex in all_ex if ex["lesson"] == int(selector)]
         if selected:

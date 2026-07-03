@@ -44,10 +44,10 @@ def cmd_list(args: argparse.Namespace) -> int:
         state.save()
 
     # Read (possibly updated) state for display.
-    done_names: set[str] = set()
+    done_names: frozenset[str] = frozenset()
     if STATE_FILE.exists():
         state = WatchState(all_ex)
-        done_names = state._done
+        done_names = state.done_names
 
     n_done = sum(1 for ex in selected if ex["name"] in done_names)
     for ex in selected:

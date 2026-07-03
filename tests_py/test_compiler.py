@@ -10,13 +10,20 @@ with no compiler or filesystem dependencies beyond tmp_path.
 
 from __future__ import annotations
 
+import base64
 import os
 import time
 from pathlib import Path
 
 import pytest
 
-from clings.compiler import normalize, _make_source_mtime_signature, _collect_cases
+from clings.compiler import (
+    normalize,
+    _make_source_mtime_signature,
+    _collect_cases,
+    assert_case,
+)
+from clings.config import ClingsError
 
 
 # ─── normalize() ────────────────────────────────────────────────────────────
@@ -342,3 +349,104 @@ class TestCollectCases:
         cases = _collect_cases(ex, include_hidden=False)
         assert len(cases) == 1
         assert cases[0]["stdout"] == "public"
+
+
+# ─── assert_case() ───────────────────────────────────────────────────────────
+
+class TestAssertCase:
+    """assert_case() is the shared grading core for `check`, `score`, and `run`.
+
+    It is a pure function over (case, stdout, returncode): it raises ClingsError
+    on the first unmet expectation and returns None on success. Testing it
+    directly (no subprocess) locks down the exact grading semantics both the
+    grading path and the `clings run` display path rely on.
+    """
+
+    def _ok(self, case: dict, stdout: str, rc: int = 0) -> None:
+        # Should not raise.
+        assert_case(case, stdout, rc, name="ex", case_no=1)
+
+    def _fail(self, case: dict, stdout: str, rc: int = 0) -> None:
+        with pytest.raises(ClingsError):
+            assert_case(case, stdout, rc, name="ex", case_no=1)
+
+    # exit_code
+    def test_exit_code_default_zero_ok(self) -> None:
+        self._ok({}, "", rc=0)
+
+    def test_exit_code_mismatch_fails(self) -> None:
+        self._fail({}, "", rc=1)
+
+    def test_explicit_exit_code_ok(self) -> None:
+        self._ok({"exit_code": 2}, "", rc=2)
+
+    def test_exit_code_checked_before_stdout(self) -> None:
+        """Wrong exit code fails even if stdout would have matched."""
+        self._fail({"exit_code": 0, "stdout": "hi\n"}, "hi\n", rc=3)
+
+    # exact stdout
+    def test_exact_stdout_ok(self) -> None:
+        self._ok({"stdout": "hello\n"}, "hello\n")
+
+    def test_exact_stdout_mismatch_fails(self) -> None:
+        self._fail({"stdout": "hello\n"}, "goodbye\n")
+
+    def test_exact_stdout_crlf_normalized(self) -> None:
+        """CRLF in actual output is normalized before comparison."""
+        self._ok({"stdout": "hello\n"}, "hello\r\n")
+
+    def test_absent_stdout_skips_exact_match(self) -> None:
+        """No stdout/stdout_b64 field → exact match skipped (only exit code)."""
+        self._ok({"exit_code": 0}, "any output at all\n")
+
+    # trim_trailing_ws
+    def test_trim_trailing_ws_ok(self) -> None:
+        self._ok({"stdout": "a\nb\n", "trim_trailing_ws": True}, "a   \nb\t\n")
+
+    def test_no_trim_trailing_ws_fails(self) -> None:
+        """Without the opt-in, trailing whitespace differences fail."""
+        self._fail({"stdout": "a\nb\n"}, "a   \nb\n")
+
+    # stdout_b64
+    def test_stdout_b64_ok(self) -> None:
+        payload = "\x1b[1mbold\x1b[0m\n"
+        b64 = base64.b64encode(payload.encode("utf-8")).decode("ascii")
+        self._ok({"stdout_b64": b64}, payload)
+
+    def test_stdout_b64_mismatch_fails(self) -> None:
+        b64 = base64.b64encode(b"expected\n").decode("ascii")
+        self._fail({"stdout_b64": b64}, "actual\n")
+
+    # stdout_contains / stdout_not_contains
+    def test_contains_all_present_ok(self) -> None:
+        self._ok({"stdout_contains": ["foo", "bar"]}, "xx foo yy bar zz")
+
+    def test_contains_missing_fails(self) -> None:
+        self._fail({"stdout_contains": ["foo", "missing"]}, "only foo here")
+
+    def test_not_contains_ok(self) -> None:
+        self._ok({"stdout_not_contains": ["DEADLOCK"]}, "all good")
+
+    def test_not_contains_present_fails(self) -> None:
+        self._fail({"stdout_not_contains": ["DEADLOCK"]}, "oh no DEADLOCK")
+
+    # stdout_regex
+    def test_regex_match_ok(self) -> None:
+        self._ok({"stdout_regex": r"score=\d+"}, "final score=42 done")
+
+    def test_regex_no_match_fails(self) -> None:
+        self._fail({"stdout_regex": r"score=\d+"}, "no number here")
+
+    # combined AND semantics
+    def test_combined_all_pass(self) -> None:
+        case = {
+            "exit_code": 0,
+            "stdout_contains": ["ok"],
+            "stdout_not_contains": ["error"],
+            "stdout_regex": r"n=\d+",
+        }
+        self._ok(case, "status ok n=7\n")
+
+    def test_combined_one_fails_whole_fails(self) -> None:
+        case = {"stdout_contains": ["ok"], "stdout_not_contains": ["error"]}
+        self._fail(case, "ok but also error")

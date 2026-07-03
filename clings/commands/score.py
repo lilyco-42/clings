@@ -54,7 +54,8 @@ def cmd_score(args: argparse.Namespace) -> int:
             print(f"{label} \x1b[32mPASSED\x1b[0m (+1)")
         except Exception as exc:
             error_msg = str(exc)
-            # Determine status: NOT_COMPLETED if source has "I AM NOT DONE" marker
+            # Determine status: NOT_COMPLETED if source still has the scaffold
+            # "#error TODO" marker (student hasn't started this exercise).
             status = _detect_status(ex, use_solutions, error_msg)
             exercise_results.append({
                 "name": name,
@@ -104,12 +105,21 @@ def cmd_score(args: argparse.Namespace) -> int:
     return 0
 
 
+# Scaffold marker that clings templates place at every TODO. Its presence means
+# the student hasn't finished that spot yet — and because it is a `#error`
+# directive, the source won't even compile until every one is removed. (Earlier
+# code looked for rustlings' "I AM NOT DONE" comment, which clings never emits,
+# so NOT_COMPLETED could never trigger.)
+NOT_DONE_MARKER = "#error TODO"
+
+
 def _detect_status(ex: dict, use_solutions: bool, error_msg: str) -> str:
     """Detect whether a failed exercise is NOT_COMPLETED or truly FAILED.
 
-    NOT_COMPLETED: the student hasn't started working on it yet
-    (source still contains the "I AM NOT DONE" marker or is unmodified).
-    FAILED: the student attempted it but the code doesn't pass.
+    NOT_COMPLETED: the student hasn't started working on it yet — a source file
+    still contains the scaffold ``#error TODO`` marker.
+    FAILED: the student attempted it (all markers removed) but the code doesn't
+    compile or its output doesn't match.
     """
     from ..utils import source_files_for
 
@@ -119,7 +129,7 @@ def _detect_status(ex: dict, use_solutions: bool, error_msg: str) -> str:
             continue
         try:
             content = src_file.read_text(encoding="utf-8", errors="replace")
-            if "I AM NOT DONE" in content:
+            if NOT_DONE_MARKER in content:
                 return "NOT_COMPLETED"
         except OSError:
             continue

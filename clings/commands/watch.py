@@ -270,10 +270,10 @@ def cmd_watch(args: argparse.Namespace) -> int:
                     label = f"[{i+1}/{total}]"
                     try:
                         check_one(ex, use_solutions, include_hidden, use_cache=False)
-                        state._done.add(ex["name"])
+                        state.set_done(ex["name"], True)
                         print(f"  {ANSI_GREEN}{label} \u2714 {ex['name']}{ANSI_RESET}")
-                    except Exception as exc:
-                        state._done.discard(ex["name"])
+                    except Exception:
+                        state.set_done(ex["name"], False)
                         print(f"  {ANSI_RED}{label} \u2718 {ex['name']}{ANSI_RESET}")
                 state.save()
                 print(f"\n  {progress_bar(state.n_done, state.total)}")

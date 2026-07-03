@@ -12,6 +12,10 @@ class WatchState:
             ex["name"]: i for i, ex in enumerate(exercises)
         }
         self._done: set[str] = set()
+        # Done-records for exercises NOT in `exercises` (this state's, possibly
+        # filtered, list). Preserved verbatim on save so a subset WatchState
+        # (e.g. `clings watch unit1`) never clobbers other units' progress.
+        self._extra_done: set[str] = set()
         self._current_idx: int = 0
         self._load()
 
@@ -38,6 +42,8 @@ class WatchState:
             else:
                 if stripped in self._name_to_idx:
                     self._done.add(stripped)
+                else:
+                    self._extra_done.add(stripped)
         if current_name and current_name in self._name_to_idx:
             self._current_idx = self._name_to_idx[current_name]
         else:
@@ -61,6 +67,10 @@ class WatchState:
         for ex in self._exercises:
             if ex["name"] in self._done:
                 lines.append(f"{ex['name']}\n")
+        # Write back done-records for exercises outside this state's list so a
+        # filtered WatchState never erases progress it wasn't tracking.
+        for name in sorted(self._extra_done):
+            lines.append(f"{name}\n")
         try:
             STATE_FILE.write_text("".join(lines), encoding="utf-8")
         except OSError:
@@ -91,6 +101,24 @@ class WatchState:
     def mark_pending(self, name: str) -> None:
         self._done.discard(name)
         self.save()
+
+    @property
+    def done_names(self) -> frozenset[str]:
+        """Names in this state's exercise list that are marked done (read-only)."""
+        return frozenset(self._done)
+
+    def set_done(self, name: str, done: bool) -> None:
+        """Mark ``name`` done or pending without moving the current pointer.
+
+        Only affects exercises in this state's list; unknown names are ignored
+        (their records, if any, live in ``_extra_done`` and are untouched).
+        Does not persist — call :meth:`save` when a batch of updates is done.
+        """
+        if done:
+            if name in self._name_to_idx:
+                self._done.add(name)
+        else:
+            self._done.discard(name)
 
     def advance_next(self) -> bool:
         start = self._current_idx

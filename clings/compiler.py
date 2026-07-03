@@ -1,5 +1,6 @@
 """Compilation, execution, and test verification logic."""
 
+import base64
 import os
 import re
 import subprocess
@@ -14,6 +15,58 @@ from .config import (
     source_dir_for,
     test_files_for,
 )
+
+
+def _run(
+    cmd: list[str],
+    *,
+    cwd: Path | None = None,
+    input: str | None = None,
+    timeout: float | None = None,
+    env: dict | None = None,
+) -> subprocess.CompletedProcess:
+    """Run a subprocess with clings' standard I/O conventions.
+
+    Every process clings spawns to build or exercise student code goes through
+    here so behavior is uniform:
+
+    - **UTF-8 decoding** (``errors="replace"``) instead of the platform locale.
+      C exercises routinely print UTF-8 (Chinese diagnostics, box-drawing). On
+      a non-UTF-8 host locale (e.g. cp936 on Chinese Windows) ``text=True``
+      would decode with GBK and mangle the output, causing correct answers to
+      mismatch. Grading runs on Linux (C.UTF-8) today, but pinning UTF-8 keeps
+      ``clings run`` correct everywhere and removes a latent locale dependency.
+    - **Captured** stdout/stderr as text.
+    - ``FileNotFoundError`` (missing compiler / ``make``) is translated into a
+      ``ClingsError`` with actionable context.
+
+    ``subprocess.TimeoutExpired`` is intentionally *not* caught here: callers
+    have the context (which case, which target) needed for a useful message,
+    so they wrap it themselves.
+
+    ``cwd`` defaults to ``ROOT`` resolved *at call time* (not a default-arg
+    value), so tests that monkeypatch ``compiler.ROOT`` are honored — see the
+    module-constant value-copy note in clings/AGENTS.md.
+    """
+    if cwd is None:
+        cwd = ROOT
+    try:
+        return subprocess.run(
+            cmd,
+            cwd=cwd,
+            input=input,
+            env=env,
+            text=True,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+        )
+    except FileNotFoundError as exc:
+        raise ClingsError(
+            f"command not found: {cmd[0]!r} — ensure it is installed and on PATH "
+            f"(clings needs a C compiler and GNU make to build exercises)"
+        ) from exc
 
 # Cache for make targets already verified in this session.
 # Key: (src_dir, target, use_solutions, mtime_signature)
@@ -75,7 +128,7 @@ def compile_exercise(ex: dict, use_solutions: bool) -> Path:
         *[str(flag) for flag in ex.get("ldflags", [])],
         "-lm", "-o", str(binary),
     ]
-    proc = subprocess.run(cmd, cwd=ROOT, text=True, capture_output=True)
+    proc = _run(cmd)
     if proc.returncode != 0:
         raise ClingsError(
             f"compile failed for {ex['name']}\n"
@@ -124,8 +177,22 @@ def _collect_cases(ex: dict, include_hidden: bool) -> list[dict]:
     return list(ex.get("cases", []))
 
 
-def run_cases(ex: dict, binary: Path, include_hidden: bool) -> None:
-    """Run all test cases for an exercise against the compiled binary.
+def assert_case(
+    case: dict,
+    stdout: str,
+    returncode: int,
+    *,
+    name: str = "",
+    case_no: int = 0,
+    stderr: str = "",
+) -> None:
+    """Assert one case's expectations against a process's captured output.
+
+    This is the **single source of truth for grading semantics**. Both the
+    grading path (`run_cases`, used by ``check``/``score``/``watch``) and the
+    student-facing display path (``clings run``) call it, so the two can never
+    diverge on what "passing" means. It takes raw captured output and never
+    touches the process itself, which keeps it pure and trivially testable.
 
     Per-case assertion fields (all optional, combinable, AND semantics):
 
@@ -144,101 +211,140 @@ def run_cases(ex: dict, binary: Path, include_hidden: bool) -> None:
     When ``stdout``/``stdout_b64`` is absent, exact-match is skipped — useful
     for non-deterministic outputs (e.g. real multithreaded programs) where
     only structural invariants (presence of key lines, exit code) matter.
+
+    Raises ``ClingsError`` on the first unmet expectation.
+    """
+    label = f"{name} case {case_no}".strip()
+    trim_ws = bool(case.get("trim_trailing_ws", False))
+    actual = normalize(stdout, trim_ws)
+
+    # 1. Exit code check (default 0). Checked first: a crash/wrong exit makes
+    #    stdout comparison meaningless, and the exit code is the cheapest signal.
+    expected_exit = int(case.get("exit_code", 0))
+    if returncode != expected_exit:
+        raise ClingsError(
+            f"{label} exited {returncode} (expected {expected_exit})\n"
+            f"stderr:\n{stderr.strip()}"
+        )
+
+    stdin = case.get("stdin", "")
+
+    # 2. Exact stdout match (only when the field is present).
+    if "stdout_b64" in case:
+        expected = base64.b64decode(case["stdout_b64"]).decode("utf-8", errors="replace")
+        if actual != normalize(expected, trim_ws):
+            raise ClingsError(
+                f"{label} output mismatch\n"
+                f"stdin:\n{stdin}"
+                f"expected:\n{expected}"
+                f"actual:\n{actual}"
+            )
+    elif "stdout" in case:
+        expected = case["stdout"]
+        if actual != normalize(expected, trim_ws):
+            raise ClingsError(
+                f"{label} output mismatch\n"
+                f"stdin:\n{stdin}"
+                f"expected:\n{expected}"
+                f"actual:\n{actual}"
+            )
+
+    # 3. Substring presence checks (non-deterministic-friendly).
+    for needle in case.get("stdout_contains", []):
+        if needle not in actual:
+            raise ClingsError(
+                f"{label} missing required line:\n"
+                f"  expected substring: {needle!r}\n"
+                f"  in stdout:\n{actual}"
+            )
+
+    # 4. Substring absence checks.
+    for forbidden in case.get("stdout_not_contains", []):
+        if forbidden in actual:
+            raise ClingsError(
+                f"{label} found forbidden line:\n"
+                f"  forbidden substring: {forbidden!r}\n"
+                f"  in stdout:\n{actual}"
+            )
+
+    # 5. Regex check.
+    pattern = case.get("stdout_regex")
+    if pattern is not None and not re.search(pattern, actual):
+        raise ClingsError(
+            f"{label} regex not matched:\n"
+            f"  pattern: {pattern!r}\n"
+            f"  in stdout:\n{actual}"
+        )
+
+
+def run_cases(ex: dict, binary: Path, include_hidden: bool) -> None:
+    """Compile-and-run grading: execute every case and assert its expectations.
+
+    Grading path (``check``/``score``/``watch``). For the assertion field
+    reference and semantics, see :func:`assert_case`.
     """
     cases = _collect_cases(ex, include_hidden)
     if not cases:
         raise ClingsError(f"no test cases found for {ex['name']}")
-    case_no = 0
-    for case in cases:
-        case_no += 1
+    for case_no, case in enumerate(cases, 1):
         if case.get("compile_only", False):
             continue
         stdin = case.get("stdin", "")
         args = [str(arg) for arg in case.get("args", [])]
         timeout = float(case.get("timeout", 2.0))
-        trim_ws = bool(case.get("trim_trailing_ws", False))
-        proc = subprocess.run(
-            [str(binary), *args],
-            input=stdin,
-            text=True,
-            capture_output=True,
-            timeout=timeout,
+        try:
+            proc = _run([str(binary), *args], input=stdin, timeout=timeout)
+        except subprocess.TimeoutExpired as exc:
+            raise ClingsError(
+                f"{ex['name']} case {case_no} timed out after {timeout}s "
+                f"(possible infinite loop or deadlock)"
+            ) from exc
+        assert_case(
+            case, proc.stdout, proc.returncode,
+            name=ex["name"], case_no=case_no, stderr=proc.stderr,
         )
-        actual = normalize(proc.stdout, trim_ws)
-
-        # 1. Exit code check (default 0).
-        expected_exit = int(case.get("exit_code", 0))
-        if proc.returncode != expected_exit:
-            raise ClingsError(
-                f"{ex['name']} case {case_no} exited {proc.returncode} "
-                f"(expected {expected_exit})\n"
-                f"stderr:\n{proc.stderr.strip()}"
-            )
-
-        # 2. Exact stdout match (only when the field is present).
-        if "stdout_b64" in case:
-            import base64
-            expected = base64.b64decode(case["stdout_b64"]).decode("utf-8", errors="replace")
-            if actual != normalize(expected, trim_ws):
-                raise ClingsError(
-                    f"{ex['name']} case {case_no} output mismatch\n"
-                    f"stdin:\n{stdin}"
-                    f"expected:\n{expected}"
-                    f"actual:\n{actual}"
-                )
-        elif "stdout" in case:
-            expected = case["stdout"]
-            if actual != normalize(expected, trim_ws):
-                raise ClingsError(
-                    f"{ex['name']} case {case_no} output mismatch\n"
-                    f"stdin:\n{stdin}"
-                    f"expected:\n{expected}"
-                    f"actual:\n{actual}"
-                )
-
-        # 3. Substring presence checks (non-deterministic-friendly).
-        for needle in case.get("stdout_contains", []):
-            if needle not in actual:
-                raise ClingsError(
-                    f"{ex['name']} case {case_no} missing required line:\n"
-                    f"  expected substring: {needle!r}\n"
-                    f"  in stdout:\n{actual}"
-                )
-
-        # 4. Substring absence checks.
-        for forbidden in case.get("stdout_not_contains", []):
-            if forbidden in actual:
-                raise ClingsError(
-                    f"{ex['name']} case {case_no} found forbidden line:\n"
-                    f"  forbidden substring: {forbidden!r}\n"
-                    f"  in stdout:\n{actual}"
-                )
-
-        # 5. Regex check.
-        pattern = case.get("stdout_regex")
-        if pattern is not None and not re.search(pattern, actual):
-            raise ClingsError(
-                f"{ex['name']} case {case_no} regex not matched:\n"
-                f"  pattern: {pattern!r}\n"
-                f"  in stdout:\n{actual}"
-            )
 
 
 def check_return(ex: dict, binary: Path) -> None:
     """Verify the exit code of a compiled binary matches expected value."""
     expected = int(ex.get("expected_return", 0))
     stdin_text = ex.get("stdin", "")
-    proc = subprocess.run(
-        [str(binary)],
-        input=stdin_text,
-        text=True,
-        capture_output=True,
-        timeout=float(ex.get("timeout", 2.0)),
-    )
+    timeout = float(ex.get("timeout", 2.0))
+    try:
+        proc = _run([str(binary)], input=stdin_text, timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        raise ClingsError(
+            f"{ex['name']} timed out after {timeout}s "
+            f"(possible infinite loop)"
+        ) from exc
     if proc.returncode != expected:
         raise ClingsError(
             f"{ex['name']}: expected return {expected}, got {proc.returncode}"
             + (f"\nstderr:\n{proc.stderr.strip()}" if proc.stderr.strip() else "")
+        )
+
+
+def _run_make_target(
+    target: str, src_dir: Path, timeout: float, env: dict, ex_name: str
+) -> None:
+    """Run a single ``make`` target, raising ClingsError on timeout or failure.
+
+    Shared by :func:`check_make` and :func:`check_make_stdout` so the two modes
+    treat build timeouts, missing ``make``, and non-zero exits identically.
+    """
+    cmd = ["make", target]
+    try:
+        proc = _run(cmd, cwd=src_dir, timeout=timeout, env=env)
+    except subprocess.TimeoutExpired as exc:
+        raise ClingsError(
+            f"make target {target!r} timed out after {timeout}s for {ex_name} "
+            f"(cwd {src_dir}) — the build or a program it runs may be hanging"
+        ) from exc
+    if proc.returncode != 0:
+        raise ClingsError(
+            f"make target failed for {ex_name}\n"
+            f"$ {' '.join(cmd)} (cwd {src_dir})\n"
+            f"{proc.stdout[-4000:]}\n{proc.stderr[-4000:]}"
         )
 
 
@@ -278,26 +384,13 @@ def check_make(ex: dict, use_solutions: bool, use_cache: bool = True) -> None:
     targets = ex.get("make_targets", ["test"])
     env = os.environ.copy()
     env.setdefault("CC", find_compiler() or "cc")
+    timeout = float(ex.get("timeout", 120.0))
     mtime_sig = _make_source_mtime_signature(src_dir)
     for target in targets:
         cache_key = (str(src_dir.resolve()), target, use_solutions, mtime_sig)
         if use_cache and cache_key in MAKE_CACHE:
             continue
-        cmd = ["make", target]
-        proc = subprocess.run(
-            cmd,
-            cwd=src_dir,
-            text=True,
-            capture_output=True,
-            timeout=float(ex.get("timeout", 120.0)),
-            env=env,
-        )
-        if proc.returncode != 0:
-            raise ClingsError(
-                f"make target failed for {ex['name']}\n"
-                f"$ {' '.join(cmd)} (cwd {src_dir})\n"
-                f"{proc.stdout[-4000:]}\n{proc.stderr[-4000:]}"
-            )
+        _run_make_target(target, src_dir, timeout, env, ex["name"])
         if use_cache:
             MAKE_CACHE.add(cache_key)
 
@@ -325,27 +418,14 @@ def check_make_stdout(
     targets = ex.get("make_targets", ["build"])
     env = os.environ.copy()
     env.setdefault("CC", find_compiler() or "cc")
+    timeout = float(ex.get("timeout", 120.0))
     mtime_sig = _make_source_mtime_signature(src_dir)
     make_ran = False
     for target in targets:
         cache_key = (str(src_dir.resolve()), target, use_solutions, mtime_sig)
         if use_cache and cache_key in MAKE_CACHE:
             continue
-        cmd = ["make", target]
-        proc = subprocess.run(
-            cmd,
-            cwd=src_dir,
-            text=True,
-            capture_output=True,
-            timeout=float(ex.get("timeout", 120.0)),
-            env=env,
-        )
-        if proc.returncode != 0:
-            raise ClingsError(
-                f"make target failed for {ex['name']}\n"
-                f"$ {' '.join(cmd)} (cwd {src_dir})\n"
-                f"{proc.stdout[-4000:]}\n{proc.stderr[-4000:]}"
-            )
+        _run_make_target(target, src_dir, timeout, env, ex["name"])
         if use_cache:
             MAKE_CACHE.add(cache_key)
         make_ran = True
