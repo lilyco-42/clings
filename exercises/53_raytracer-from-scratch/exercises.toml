@@ -20,14 +20,14 @@ hint = '''
   点光源: position=(0, 10, -3), color=(1,1,1) 白色
   相机: 原点 (0,0,0), 朝向 -Z, 像平面 z=-1, 视口 2×1
   分辨率: 64×32 (小图便于测试)
-  输出: PPM P3 文本格式, 通过 diff 与 expected_output.txt 比对
+  输出: PPM P3 文本格式；判分由 clings 捕获程序 stdout 后逐行比对 (clings tests 53 可查看期望输出)
 
 ═══════════════════════════════════════
-Makefile (5 个变量 + 3 条命令)
+Makefile (5 个变量 + all/clean 规则)
 ═══════════════════════════════════════
-填写 CC/CFLAGS/TARGET/SRC/LDLIBS + all/test/clean 规则。
+填写 CC/CFLAGS/TARGET/SRC/LDLIBS + all 与 clean 规则 (脚手架无 test 目标)。
 注意: 链接数学库需要 LDLIBS = -lm。
-test 目标用管道 | diff 比对 expected_output.txt。
+构建用 make (make_targets = ["all"])；判分/自测用 clings run 或 clings watch。
 
 ═══════════════════════════════════════
 C 代码 — 3 个 TODO 区 (~55 行)

@@ -15,17 +15,17 @@ B+树索引: ORDER=3 (MAX_KEY=2) 的多路平衡树，叶子节点链表连接�
 ═══════════════════════════════════════
 Makefile
 ═══════════════════════════════════════
-填写 4 个变量 (CC/CFLAGS/TARGET/SRC) + 3 条命令。
+填写 4 个变量 (CC/CFLAGS/TARGET/SRC) + all/clean 两条规则命令。
 CC = gcc, CFLAGS = -Wall -Wextra -std=c11, TARGET = bplus_tree, SRC = bplus_tree.c
-$(TARGET) 规则: $(CC) $(CFLAGS) -o $(TARGET) $(SRC)
-test 规则: ./$(TARGET) | diff - expected_output.txt
+$(TARGET) 规则: $(CC) $(CFLAGS) -o $(TARGET) $(SRC)   (bptree.h 与源码同目录, 引号包含自动找到)
 clean 规则: rm -f $(TARGET)
+(判分由 clings 直接比对程序 stdout，无需 test 目标或 expected_output.txt)
 
 ═══════════════════════════════════════
-C 代码 — 7 个 TODO 区
+C 代码 — 8 个 TODO 区
 ═══════════════════════════════════════
 
-数据结构:
+数据结构（BPTreeNode / ORDER / MAX_KEY 已在 bptree.h 中提供，勿在 .c 里重复定义）:
   BPTreeNode {
       is_leaf, num_keys,
       keys[MAX_KEY+1],           // +1 容纳分裂前的溢出（3 个 key）
@@ -58,7 +58,21 @@ TODO 3 — split_leaf_child(parent, idx, child):
   4. 链表: new_leaf->next = child->next; child->next = new_leaf
   5. 上移: insert_into_inner(parent, idx, new_leaf->keys[0], child, new_leaf)
 
-TODO 4 — insert_rec(node, key, value):
+TODO 4 — split_inner_child(parent, idx, child):
+  内部节点溢出（3 个 key、4 个子节点）时分裂。关键区别: 中间键"上推"(不复制)。
+  child: keys[0,1,2] + children[0,1,2,3]
+  1. 创建 new_inner = create_node(0)
+  2. up_key = child->keys[1]                    // 中间键，上推到父节点
+  3. 右半: new_inner->keys[0]     = child->keys[2]
+           new_inner->children[0] = child->children[2]
+           new_inner->children[1] = child->children[3]
+           new_inner->num_keys    = 1
+  4. 左半: child->num_keys = 1                  // 只保留 keys[0] 与 children[0,1]
+  5. 上推: insert_into_inner(parent, idx, up_key, child, new_inner)
+  对比: 叶子分裂"复制"右半首键上移(数据留叶子); 内部分裂"移动"中间键上推。
+  (分发器 split_child 已提供: 叶子→split_leaf_child, 内部→split_inner_child)
+
+TODO 5 — insert_rec(node, key, value):
   递归插入，返回 NULL 或溢出节点。
   叶子:
     insert_into_leaf(node, key, value)
@@ -68,29 +82,29 @@ TODO 4 — insert_rec(node, key, value):
     找子节点位置: while (pos < num_keys && keys[pos] <= key) pos++
     递归: overflow = insert_rec(children[pos], key, value)
     若 overflow:
-      split_leaf_child(node, pos, overflow)
+      split_child(node, pos, overflow)          // 分发: 叶子/内部各自分裂
       若 node->num_keys > MAX_KEY → return node
     return NULL
 
-TODO 5 — insert(root, key, value):
+TODO 6 — insert(root, key, value):
   入口函数。
   1. 空树: root = create_node(1); 放入 key/value; num_keys=1; return root
   2. 非空: overflow = insert_rec(root, key, value)
   3. 若 overflow:
        new_root = create_node(0)
        new_root->children[0] = root
-       split_leaf_child(new_root, 0, overflow)
+       split_child(new_root, 0, overflow)        // 旧根可能是叶子或内部节点
        return new_root
   4. return root
 
-TODO 6 — search(root, key):
+TODO 7 — search(root, key):
   查找 key 的 value，未找到返回 -1。
   1. root==NULL → return -1
   2. while (!cur->is_leaf): 找 pos 并 cur = children[pos]
   3. 在叶子中: for i 遍历，keys[i]==key → return values[i]
   4. return -1
 
-TODO 7 — print_tree(root, depth):
+TODO 8 — print_tree(root, depth):
   递归缩进打印。
   - root==NULL: "(empty tree)\\n"
   - 缩进: depth 个 "  "（两个空格）
@@ -112,27 +126,41 @@ stdout = '''=== B+ Tree Index (ORDER=3, MAX_KEY=2) ===
 After insert(10, v0):
 [leaf] keys: 10 | values: 100
 
-After insert(20, v1):
-[leaf] keys: 10 20 | values: 100 200
+After insert(30, v1):
+[leaf] keys: 10 30 | values: 100 300
 
-After insert(5, v2):
-[inner] keys: 20
-  [leaf] keys: 5 10 | values: 50 100
-  [leaf] keys: 20 | values: 200
+After insert(20, v2):
+[inner] keys: 30
+  [leaf] keys: 10 20 | values: 100 200
+  [leaf] keys: 30 | values: 300
 
-After insert(15, v3):
-[inner] keys: 15 20
-  [leaf] keys: 5 10 | values: 50 100
-  [leaf] keys: 15 | values: 150
-  [leaf] keys: 20 | values: 200
+After insert(40, v3):
+[inner] keys: 30
+  [leaf] keys: 10 20 | values: 100 200
+  [leaf] keys: 30 40 | values: 300 400
 
-After insert(25, v4):
-[inner] keys: 15 20
-  [leaf] keys: 5 10 | values: 50 100
-  [leaf] keys: 15 | values: 150
-  [leaf] keys: 20 25 | values: 200 250
+After insert(50, v4):
+[inner] keys: 30 50
+  [leaf] keys: 10 20 | values: 100 200
+  [leaf] keys: 30 40 | values: 300 400
+  [leaf] keys: 50 | values: 500
+
+After insert(60, v5):
+[inner] keys: 30 50
+  [leaf] keys: 10 20 | values: 100 200
+  [leaf] keys: 30 40 | values: 300 400
+  [leaf] keys: 50 60 | values: 500 600
+
+After insert(70, v6):
+[inner] keys: 50
+  [inner] keys: 30
+    [leaf] keys: 10 20 | values: 100 200
+    [leaf] keys: 30 40 | values: 300 400
+  [inner] keys: 70
+    [leaf] keys: 50 60 | values: 500 600
+    [leaf] keys: 70 | values: 700
 
 === Search Results ===
-search(15) = 150
-search(30) = -1
+search(40) = 400
+search(45) = -1
 '''

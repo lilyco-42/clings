@@ -15,7 +15,7 @@
  * You must implement:
  *   complex_mult, complex_add, apply_gate, print_state, measure, main
  *
- * Verification: make test compares against expected_output.txt
+ * 验证：构建用 make；判分/自测用 clings run / clings watch；查看期望输出用 clings tests 70
  */
 #include <math.h>
 #include <stdio.h>

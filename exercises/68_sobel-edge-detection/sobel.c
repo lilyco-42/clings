@@ -14,7 +14,7 @@
  *
  * 知识点：图像卷积，Sobel 算子，梯度计算，阈值分割，边缘检测
  *
- * 验证：make test 对比 expected_output.txt
+ * 验证：构建用 make；判分/自测用 clings run 或 clings watch (clings tests 68 查看期望输出)
  */
 #include <math.h>
 #include <stdio.h>

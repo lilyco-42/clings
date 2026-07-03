@@ -34,7 +34,8 @@
 验证方式：
 
 ```
-make && ./pow_chain | diff - expected_output.txt
+make            # 编译
+clings run 71   # 或 clings watch；clings 捕获程序 stdout 与内置用例逐行比对
 ```
 
 ### 前置知识
@@ -466,7 +467,7 @@ SHA-256 的所有整数运算使用大端序（big-endian）：
 | 打印格式：nonce/attempts 用 `%d` 而非 `%lu`                                | 大值可能显示为负数或错误                | 使用 `%lu` 配合 `(unsigned long)` 转换               |
 | 验证时忘记检查 `hash_meets_target()`                                       | 只验证了 hash 计算正确，未验证难度目标  | 验证需同时检查计算正确性和难度目标                   |
 | `snprintf` 输出被截断（input 缓冲区太小）                                  | hash 输入不完整，结果错误               | input 缓冲区至少 512 字节                            |
-| 验证标签写 `[OK]` 而非 `[VALID]`                                           | diff 失败                               | 严格匹配 expected_output.txt：验证通过显示 `[VALID]` |
+| 验证标签写 `[OK]` 而非 `[VALID]`                                           | 逐行比对失败                            | 严格匹配内置期望输出：验证通过显示 `[VALID]`         |
 | `#include` 缺少 `<stdint.h>`                                               | `uint32_t`、`uint64_t` 等类型未定义     | 必须 `#include <stdint.h>`                           |
 
 ### 重要知识点

@@ -3,8 +3,8 @@
  * 任务：1. 实现 new_node() — 创建新节点并初始化
  *       2. 实现 insert() — 将模式串插入 Trie 树
  *       3. 实现 bfs_build_fail() — BFS 构建失败链接
- *       4. 实现 search() — 扫描文本，输出每一步状态和匹配
- *       5. 实现 print_trie() — 打印 Trie 结构
+ *       4. 实现 print_trie() — 打印 Trie 结构
+ *       5. 实现 search() — 扫描文本，输出每一步状态和匹配
  *       6. 补全 main() 主流程
  *
  * 背景：Aho-Corasick (AC 自动机) 由 Alfred Aho 和 Margaret Corasick
@@ -15,7 +15,8 @@
  *         AC 自动机、多模式匹配、输出合并
  *
  * 验证：固定模式集 {"he","she","his","hers"}, 文本 "ushers"
- *       make test 比对 expected_output.txt
+ *       构建用 make; 判分/自测用 clings run 58 或 clings watch;
+ *       查看期望输出用 clings tests 58
  */
 #include <stdbool.h>
 #include <stdio.h>

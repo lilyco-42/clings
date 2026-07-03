@@ -152,6 +152,8 @@ IDF 衡量一个词的"稀有度"或"信息量"。
            = 统计有多少文档中 tf[d][t] > 0
 ```
 
+> **本题采用的 IDF 变体（重要）**：公式中的 `log` 是**自然对数 `ln`**（对应 C 的 `log()`），且**不做平滑**，即 `idf(t) = ln(N / df(t))`。这是维基百科 [tf–idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) 列出的标准「基础」形式，正确无误。它与 scikit-learn 默认的**平滑变体**不同——sklearn 用 `idf(t) = ln((1 + N) / (1 + df(t))) + 1`（分子分母各加 1 以避免除零、末尾 +1 使权重非零）。两者数值不同：**本题判分以上面「自然对数、无平滑」的公式为准**，若套用 sklearn 的平滑公式，输出会对不上。
+
 **IDF 计算表**：
 
 ```
@@ -331,7 +333,7 @@ D2      0.0727  0.0727  1.0000
 
 ### 输出格式详解
 
-程序输出 6 个部分，格式必须与 `expected_output.txt` 逐字符一致。
+程序输出 6 个部分，格式必须逐字符准确（clings 判分时会逐行比对程序 stdout；用 `clings tests 69` 可查看期望输出）。
 
 #### Part 1: 标题和文档列表
 
@@ -499,11 +501,12 @@ gcc -Wall -Wextra -std=c11 -o tfidf tfidf.c
 #### 测试
 
 ```bash
-make test
-# 等价于: ./tfidf | diff - expected_output.txt
+# 构建：make（等价于 make all）
+# 自测/判分：clings run 69   或在 clings watch 下自动运行
+# 查看期望输出：clings tests 69
 ```
 
-`diff` 无输出表示完全匹配，有差异会显示。
+clings 会用 `make` 构建后运行 `tfidf`，捕获其 stdout 与内置测试用例逐行比对，一致即通过。
 
 ---
 

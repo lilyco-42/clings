@@ -13,10 +13,10 @@
  *
  * 知识点：序号空间、超时重传、ACK 确认、不可靠信道模拟
  *
- * 验证：srand(42) 固定种子 → make test 比对 expected_output.txt
+ * 验证：固定 PRNG 种子 → clings 逐字节比对程序 stdout（跨平台可复现）
  */
+#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define MSG_COUNT 4      /* 待发送消息数量 */
@@ -25,8 +25,23 @@
 #define CORRUPT_RATE 10  /* 损坏概率 (%) */
 #define ACK_LOSS_RATE 10 /* ACK 丢失概率 (%) */
 #define MAX_SENDS 30     /* 最大发送次数（安全上限）*/
+#define RNG_SEED 10u     /* 固定种子(选定值使 4 条消息恰好各演示一种信道故障) */
 
 typedef enum { OK, LOST, CORRUPT } Outcome;
+
+/* ─── 自包含 xorshift32 PRNG（已提供，勿改）───
+ * 不用 glibc 的 rand()：其数列由 C 运行时实现决定，Linux/macOS/Windows
+ * 各不相同，会让信道事件序列随平台变化、判分不可复现。内嵌确定性 PRNG
+ * 保证任何平台上数列完全一致。 */
+static uint32_t rng_state = RNG_SEED;
+static uint32_t rng_next(void) {
+    uint32_t x = rng_state;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    rng_state = x;
+    return x;
+}
 
 char msgs[MSG_COUNT][MAX_MSG_LEN] = {"HELLO", "OpenCamp", "NCCL", "2026"};
 int msg_idx = 0;     /* 当前发送第几条消息 */
@@ -38,14 +53,14 @@ int deliv_cnt = 0;   /* 成功交付次数 */
 
 /* ─── 信道模拟：返回包在信道中的命运 ─── */
 static Outcome channel(void) {
-    int r = rand() % 100;
+    int r = (int)(rng_next() % 100);
     if (r < LOSS_RATE) return LOST;
     if (r < LOSS_RATE + CORRUPT_RATE) return CORRUPT;
     return OK;
 }
 
 /* ─── ACK 是否在返回途中丢失？ ─── */
-static int ack_lost(void) { return (rand() % 100) < ACK_LOSS_RATE; }
+static int ack_lost(void) { return (int)(rng_next() % 100) < ACK_LOSS_RATE; }
 
 /* ─── 日志输出 ─── */
 static void log_event(int num, const char *tag, int seq, const char *data) {
@@ -101,7 +116,7 @@ static void receiver_recv(int pkt_seq, const char *data, int ok, int *send_ack, 
 /* ─── 初始化 ─── */
 static void init(void) {
 #error TODO: Finish this exercise. Run "clings hint" for help.
-    /* srand(42)
+    /* rng_state = RNG_SEED  （复位 PRNG，保证每次运行数列一致）
      * 将 msg_idx, seq_snd, seq_exp, send_count, retrans_cnt, deliv_cnt 置 0 */
 }
 

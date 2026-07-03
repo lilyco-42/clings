@@ -1,7 +1,7 @@
-/* trie.h — Trie / Aho-Corasick automaton header
+/* trie.h — Trie / Aho-Corasick 自动机头文件
  *
- * Provides TrieNode structure, constants, and function
- * declarations for the Aho-Corasick multi-pattern matching algorithm.
+ * 提供 TrieNode 结构体、常量以及 Aho-Corasick
+ * 多模式匹配算法所需的函数声明。
  */
 #ifndef TRIE_H
 #define TRIE_H
@@ -13,28 +13,28 @@
 #define MAX_PATTERNS 4
 #define MAX_PAT_LEN 10
 
-/* Trie node: each node has 26 child pointers, a failure link,
- * and an output list of matched patterns. */
+/* Trie 节点：每个节点有 26 个子节点索引、一条失败链接，
+ * 以及一个已匹配模式的输出列表。 */
 typedef struct {
-    int children[ALPHABET];                  /* child indices, -1 means none */
-    int fail;                                /* failure link */
-    int output_count;                        /* number of output patterns */
-    char outputs[MAX_PATTERNS][MAX_PAT_LEN]; /* output pattern names */
+    int children[ALPHABET];                  /* 子节点索引, -1 表示无 */
+    int fail;                                /* 失败链接 */
+    int output_count;                        /* 输出模式数量 */
+    char outputs[MAX_PATTERNS][MAX_PAT_LEN]; /* 输出模式名 */
 } TrieNode;
 
-/* Create a new node, return its index */
+/* 创建新节点, 返回其索引 */
 int new_node(void);
 
-/* Insert a pattern into the trie */
+/* 将模式串插入 Trie */
 void insert(const char *pattern);
 
-/* BFS build failure links */
+/* BFS 构建失败链接 */
 void bfs_build_fail(void);
 
-/* Scan text and print step-by-step state transitions and matches */
+/* 扫描文本, 逐步打印状态转移与匹配结果 */
 void search(const char *text);
 
-/* Print the trie structure */
+/* 打印 Trie 结构 */
 void print_trie(void);
 
 #endif /* TRIE_H */

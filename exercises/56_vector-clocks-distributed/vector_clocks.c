@@ -17,14 +17,14 @@
  * 固定事件序列 (3 节点 P0/P1/P2):
  *   E1: P0 SEND to P1
  *   E2: P1 RECV from P0
- *   E3: P1 LOCAL
+ *   E3: P1 SEND to P2
  *   E4: P2 RECV from P1
- *   E5: P2 LOCAL
+ *   E5: P2 SEND to P0
  *   E6: P0 RECV from P2
  *
  * 知识点：向量时钟、Happens-Before、偏序关系、因果关系追踪
  *
- * 验证：make test 比对 expected_output.txt
+ * 验证：make 构建后 clings run 56 / clings check 56（查看期望：clings tests 56）
  */
 #include <stdio.h>
 
@@ -135,10 +135,10 @@ int main(void) {
     /* 保存每个事件后各节点时钟的快照 (用于 HB 测试) */
     int snapshots[N_EVENTS + 1][N_NODES][N_NODES];
 
-    /* 固定事件序列 */
+    /* 固定事件序列: 一条 send→recv 因果链 P0→P1→P2→P0 */
     Event events[N_EVENTS] = {
-        {0, 0, 1, "P0 SEND to P1"},   {1, 0, 1, "P1 RECV from P0"}, {2, -1, 1, "P1 LOCAL"},
-        {1, 1, 2, "P2 RECV from P1"}, {2, -1, 2, "P2 LOCAL"},       {1, 2, 0, "P0 RECV from P2"},
+        {0, 0, 1, "P0 SEND to P1"},   {1, 0, 1, "P1 RECV from P0"}, {0, 1, 2, "P1 SEND to P2"},
+        {1, 1, 2, "P2 RECV from P1"}, {0, 2, 0, "P2 SEND to P0"},   {1, 2, 0, "P0 RECV from P2"},
     };
 
     init_clocks();
@@ -152,20 +152,20 @@ int main(void) {
 #error TODO: Finish this exercise. Run "clings hint" for help.
     /* ═══ 事件循环：遍历 6 个事件 ═══
      *
+     * 在循环外声明"在途消息"：int msg_clock[N_NODES] = {0};
+     * (SEND 写入发送时的快照，其后配对的 RECV 读取它)
+     *
      * for e = 0; e < N_EVENTS; e++:
      *
      *   根据 events[e].type 分发：
      *
      *   case 0 (SEND):
-     *     int msg_clock[N_NODES];
      *     调用 send_event(events[e].from, events[e].to, msg_clock);
+     *     (send_event 内部先自增发送方分量，再把快照写入 msg_clock)
      *
      *   case 1 (RECV):
-     *     int msg_clock[N_NODES];
-     *     从发送方获取当前时钟快照：
-     *       for i in 0..N_NODES-1:
-     *         msg_clock[i] = nodes[events[e].from].clock[i];
      *     调用 recv_event(events[e].to, msg_clock);
+     *     (直接用上一条 SEND 写入 msg_clock 的快照：逐分量 max 后自增自身)
      *
      *   case 2 (LOCAL):
      *     调用 local_event(events[e].to);
@@ -174,10 +174,9 @@ int main(void) {
      *     调用 print_clocks(e+1, events[e].desc);
      *     保存快照到 snapshots[e+1][i][j]
      *
-     * 注意：
-     *   - msg_clock 在 case 内部声明 (局部变量)
-     *   - RECV 的 msg_clock 来自发送方"当前"的时钟
-     *     (不是来自之前的 SEND——因为可能有多跳)
+     * 关键（向量时钟标准语义）：
+     *   - 消息携带的是发送方【发送时】的时钟快照(由 SEND 写入 msg_clock)，
+     *     RECV 直接使用它——而不是去读发送方"当前"的时钟(那等价于共享内存)。
      *   - 快照保存用双重循环复制 nodes[i].clock[j] */
 
     /* ═══ Happens-Before 测试 ═══ */

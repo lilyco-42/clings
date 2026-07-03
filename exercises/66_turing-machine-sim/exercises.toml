@@ -218,7 +218,7 @@ TODO 5 — main():
 Church-Turing 论题 (Church-Turing Thesis):
   "任何直观上可计算的函数都可以被图灵机计算。"
   这不是数学定理, 而是一个无法证明但被广泛接受的假说。
-  所有已知的计算模型 (λ演算, 递归函数, C 程序, Python...) 
+  所有已知的计算模型 (λ演算, 递归函数, C 程序, Python...)
   都与图灵机等价。
 
 停机问题 (Halting Problem):
@@ -258,7 +258,7 @@ CC=gcc, CFLAGS=-Wall -std=c99, TARGET=turing_machine, SRC=turing_machine.c
 - 判定接受: 状态==Q3 且 当前读头下的符号==BLANK('_')
 - q3 读 Y 时继续右移 (跳过所有 Y 找到末尾空白)
 - 不要忘记打印 "Input: \"...\"" 和 "Initial: " 行
-- 输出格式必须与 expected_output.txt 完全一致, 注意换行
+- 输出格式必须与期望输出完全一致 (clings tests 66 可查看), 注意换行
 - 仔细理解 aⁿbⁿ 的识别策略: 每次消去最左 a 和最左 b
 '''
 

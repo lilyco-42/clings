@@ -26,31 +26,37 @@ NFA (Nondeterministic Finite Automaton) 与 DFA (Deterministic FA)
 ═══════════════════════════════════════
 本题 NFA 定义
 ═══════════════════════════════════════
-语言: a*b | ab*  (a*后接 b, 或 a 后接 b*)
+语言: a*b | ab*  (a*后接一个 b, 或 一个 a 后接 b*)
+
+设计要点: 两个分支使用【不同】的接受态(3 与 4)。若共用一个带 b 自环
+的接受态, a*b 分支会搭上自环而误收 a*b⁺(如 "aabb"、"bb"), 这正是本 NFA
+特意用 Thompson 式并联+独立接受态来避免的经典陷阱。
 
 状态转移图:
-         ε        a
-    ┌───────→ 1 ────→ 1 (自环)
-    │         │ b
-    0         ↓
-    │         3 (接受态)
-    │   a     ↑ b
-    └───────→ 2 ────→ 3 (b 自环)
-         ε   │
-             └── b ──→ 3
+              a(自环)
+    ┌── ε ──→ 1 ──────┐
+    │         │ b     │
+    0         ↓       └→ 1
+    │         3 (接受态, 无出边 ⇒ 恰好一个 b)
+    └── ε ──→ 2 ──a──→ 4 (接受态)
+                       │
+                       └── b ──→ 4 (b 自环)
 
-状态 0: 初态(非接受)
+状态 0: 初态(非接受, 仅 ε 转移)
 状态 1: a* 循环 (a→1 自环, b→3)
-状态 2: ab* 入口 (a→3)
-状态 3: 接受态 (b→3 自环)
+状态 3: 接受态 (无出边)
+状态 2: ab* 入口 (a→4)
+状态 4: 接受态 (b→4 自环)
 
 ε转移:  0→1, 0→2
-a 转移:  1→1, 2→3
-b 转移:  1→3, 3→3
+a 转移:  1→1, 2→4
+b 转移:  1→3, 4→4
+接受态: {3, 4}
 
 输入串测试:
-  "aab": 0--ε-->{0,1,2}--a-->{1,3}--a-->{1}--b-->{3} → ACCEPT ✓
-  "aba": 0--ε-->{0,1,2}--a-->{1,3}--b-->{3}--a-->{} → REJECT ✓
+  "aab": {0,1,2}--a-->{1,4}--a-->{1}--b-->{3} → ACCEPT ✓ (a*b)
+  "aba": {0,1,2}--a-->{1,4}--b-->{3,4}--a-->{} → REJECT ✓
+  反例验证(不应被接受): "aabb"、"bb" 均在读到多余 b 后落入空集 → REJECT ✓
 
 ═══════════════════════════════════════
 核心概念 1: ε-闭包 (ε-closure)
@@ -96,26 +102,31 @@ NFA 有 n 个状态时, DFA 最多有 2^n 个状态。
         - 若 T 为空: 无转移 (或指向死状态)
   3. 打印 DFA 转换表
 
-本题 NFA→DFA 结果:
-  D0 = {0,1,2}    (初态)
-  D1 = {1,3}      (接受态, 包含 3)
-  D2 = {3}        (接受态)
+本题 NFA→DFA 结果 (6 个 DFA 状态):
+  D0 = {0,1,2}    (初态, 非接受)
+  D1 = {1,4}      (接受态, 含 4)
+  D2 = {3}        (接受态, 含 3)
   D3 = {1}        (非接受态)
+  D4 = {3,4}      (接受态)
+  D5 = {4}        (接受态)
 
   DFA 转移:
     D0 --a--> D1,  D0 --b--> D2
-    D1 --a--> D3,  D1 --b--> D2
-    D2 --a--> --,  D2 --b--> D2
+    D1 --a--> D3,  D1 --b--> D4
+    D2 --a--> --,  D2 --b--> --
     D3 --a--> D3,  D3 --b--> D2
+    D4 --a--> --,  D4 --b--> D5
+    D5 --a--> --,  D5 --b--> D5
 
 ═══════════════════════════════════════
 位掩码技巧
 ═══════════════════════════════════════
-用 int 的低 4 位表示状态集, 第 s 位=1 表示状态 s 在集合中:
+用 int 的低 5 位表示状态集, 第 s 位=1 表示状态 s 在集合中:
   状态 0 → bit 0 (值 1)
   状态 1 → bit 1 (值 2)
   状态 2 → bit 2 (值 4)
   状态 3 → bit 3 (值 8)
+  状态 4 → bit 4 (值 16)
 
 加入状态 s: states |= (1 << s)
 检查状态 s: states & (1 << s)
@@ -141,23 +152,23 @@ TODO 2 — NFA_simulate():
     - next = e_closure(next)
     - 若 verbose: 打印转移信息
     - current = next
-  最终: return (current & (1 << 3)) != 0
+  最终: return (current & ACCEPT_MASK) != 0   /* ACCEPT_MASK = (1<<3)|(1<<4) */
 
 TODO 3 — subset_construct():
   定义数组: dfa_states[MAX_SUBSETS], dfa_trans[MAX_SUBSETS][2],
            dfa_accepting[MAX_SUBSETS]
   初始化 dfa_states[0]=e_closure(1<<0), dfa_count=1
   对 d=0..dfa_count-1:
-    - 标记接受态: if(dfa_states[d] & (1<<3)) dfa_accepting[d]=1
+    - 标记接受态: if(dfa_states[d] & ACCEPT_MASK) dfa_accepting[d]=1
     - 对 si=0(a)和 si=1(b):
       - 计算 next_subset: 对 dfa_states[d]中每个状态 s,
         查 NFA_TRANS[s][si], 收集目标; 再 e_closure
       - 若 next_subset!=0: 在 dfa_states 中查找, 不存在则新建
       - 记录转移
-  打印表格(参照 expected_output.txt 格式)
+  打印表格(用 clings tests 59 查看期望格式)
 
 TODO 4 — ε-闭包打印:
-  循环 s=0..3: 调用 e_closure (1<<s) 并用 print_state_set 打印
+  循环 s=0..4: 调用 e_closure (1<<s) 并用 print_state_set 打印
 
 TODO 5 — NFA 模拟调用:
   调用 NFA_simulate("aab", true) 和 NFA_simulate("aba", true)
@@ -181,46 +192,52 @@ CC=gcc, CFLAGS=-Wall -std=c99, TARGET=nfa_dfa, SRC=nfa_dfa.c
 - 子集构造中, 必须先计算 symbol 转移再求ε-闭包(不能颠倒)
 - 空集(next_subset==0)表示该符号下无合法转移
 - print_state_set 已提供, 直接调用即可
-- 注意 printf 格式, 必须与 expected_output.txt 完全一致
-- 包含状态 3 的子集即为接受态
-- NFA 有 4 个状态, DFA 最多 2^4=16 个状态, MAX_SUBSETS 已设好
+- 注意 printf 格式(表头/对齐), 用 clings tests 59 查看期望输出
+- 与 ACCEPT_MASK 相交(含状态 3 或 4)的子集即为接受态
+- NFA 有 5 个状态, DFA 最多 2^5=32 个状态, MAX_SUBSETS 已设好
 '''
 
+# 结构与 tests/59_nfa-subset-construction.toml 保持一致(由 solution 实跑生成)。
 [[exercises.cases]]
-stdout = '''=== NFA: a*b | ab* ===
-States: 0-3, Alphabet: {a,b}, Start: 0, Accept: 3
+trim_trailing_ws = true
+stdout = '''
+=== NFA: a*b | ab* ===
+States: 0-4, Alphabet: {a,b}, Start: 0, Accept: {3,4}
 Epsilon transitions: 0->1, 0->2
-Transitions: 1-a->1, 1-b->3, 2-a->3, 3-b->3
+Transitions: 1-a->1, 1-b->3, 2-a->4, 4-b->4
 
 === Epsilon-Closures ===
 e-closure({0}) = {0,1,2}
 e-closure({1}) = {1}
 e-closure({2}) = {2}
 e-closure({3}) = {3}
+e-closure({4}) = {4}
 
 === NFA Simulation ===
 NFA simulation for "aab":
   Start ε-closure({0}) = {0,1,2}
-  Read 'a': {0,1,2} --a--> {1,3}
-  Read 'a': {1,3} --a--> {1}
+  Read 'a': {0,1,2} --a--> {1,4}
+  Read 'a': {1,4} --a--> {1}
   Read 'b': {1} --b--> {3}
   Final states: {3} → ACCEPT
 
 NFA simulation for "aba":
   Start ε-closure({0}) = {0,1,2}
-  Read 'a': {0,1,2} --a--> {1,3}
-  Read 'b': {1,3} --b--> {3}
-  Read 'a': {3} --a--> {}
+  Read 'a': {0,1,2} --a--> {1,4}
+  Read 'b': {1,4} --b--> {3,4}
+  Read 'a': {3,4} --a--> {}
   Final states: {} → REJECT
 
 === Subset Construction (NFA -> DFA) ===
 DFA Transition Table (from Subset Construction):
-DFA_State  NFA_Subset           a        b        Accept? 
+DFA_State  NFA_Subset           a        b        Accept?
 ---------- -------------------- -------- -------- --------
 D0         {0,1,2}            D1       D2       No
-D1         {1,3}              D3       D2       Yes
-D2         {3}                -        D2       Yes
+D1         {1,4}              D3       D4       Yes
+D2         {3}                -        -        Yes
 D3         {1}                D3       D2       No
+D4         {3,4}              -        D5       Yes
+D5         {4}                -        D5       Yes
 
-Total DFA states: 4
+Total DFA states: 6
 '''

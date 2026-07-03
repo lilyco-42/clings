@@ -70,14 +70,14 @@ Thumbs.db
 # C exercises produce extension-less ELF binaries (e.g. dining_philosophers,
 # rdt_stop_wait). Use whitelist strategy: ignore all, then un-ignore known sources.
 #
-# Known source extensions: .c .h .md .toml Makefile expected_output.txt
+# Known source extensions: .c .h .md .toml Makefile
+# (判分由 clings 捕获程序 stdout 与内置用例比对，无 expected_output.txt 文件)
 exercises/*/*
 !exercises/*/*.c
 !exercises/*/*.h
 !exercises/*/*.md
 !exercises/*/*.toml
 !exercises/*/Makefile
-!exercises/*/expected_output.txt
 
 # Keep directory structure (git doesn't track empty dirs)
 !exercises/lessons/

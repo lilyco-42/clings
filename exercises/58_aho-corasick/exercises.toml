@@ -116,8 +116,9 @@ TODO 6 — main():
 ═══════════════════════════════════════
 Makefile
 ═══════════════════════════════════════
-填写 4 个变量 (CC/CFLAGS/TARGET/SRC) + 3 条命令。
-test 目标用管道 | diff 比对 expected_output.txt 。
+填写 4 个变量 (CC/CFLAGS/TARGET/SRC) + 编译/清理两条规则。
+构建用 make; 判分/自测用 clings run 58 或 clings watch (自动比对标准输出);
+看期望输出用 clings tests 58。
 
 ═══════════════════════════════════════
 关键提示

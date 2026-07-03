@@ -20,7 +20,7 @@ E5: P2 LOCAL         — P2 执行本地计算
 E6: P0 RECV from P2  — P0 接收 P2 的消息
 ```
 
-预期输出示例（完整输出见 `expected_output.txt`）：
+预期输出示例（完整输出可运行 `clings tests 56` 查看）：
 
 ```
 E1: P0 SEND to P1

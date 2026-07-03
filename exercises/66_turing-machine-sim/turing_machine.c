@@ -24,7 +24,8 @@
  * Key concepts: Turing machine, transition function, tape, head,
  *                Church-Turing thesis, halting problem
  *
- * Verification: make test compares against expected_output.txt
+ * Verification: build with make; judge via `clings run 66` or `clings watch`;
+ *               view expected output via `clings tests 66`
  */
 #include <stdio.h>
 #include <string.h>

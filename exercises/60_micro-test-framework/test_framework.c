@@ -12,7 +12,7 @@
  *   - NULL handling in string assertions
  *   - Floating-point / double comparison limitations with integer assertions
  *
- * Verification (expected output matches expected_output.txt):
+ * Verification (clings 捕获程序 stdout 与内置用例比对；clings tests 60 查看期望输出):
  *   ./test_framework
  *   Running 5 test(s)...
  *   [test_add] PASS

@@ -244,15 +244,15 @@ TODO 7 — main(): 主流程
   4) compute_idf
   5) compute_tfidf
   6) 双重循环计算余弦相似度矩阵 (包括自相似)
-  7) 按 expected_output.txt 格式打印所有结果:
+  7) 按下列格式打印所有结果:
      a) TF 矩阵: 调用 print_matrix(..., "%6d", 0)
      b) IDF 信息: 直接用 printf (N=3 行 + Term 行 + IDF 行, 不用 print_matrix)
      c) TF-IDF 矩阵: 调用 print_matrix(..., "%6.4f", 1)
      d) 相似度矩阵: 调用 print_matrix(..., "%6.4f", 1), row_labels 和 col_labels 都用 D0/D1/D2
      e) Interpretation 三行说明
 
-  输出格式必须与 expected_output.txt 逐字符一致。
-  建议先仔细阅读 expected_output.txt 的每一行。
+  输出格式必须逐字符准确 (clings 判分时会逐行比对程序 stdout)。
+  建议先用 clings tests 69 查看每一行期望输出。
 
 ═══════════════════════════════════════
 Makefile 填写
@@ -266,9 +266,10 @@ Makefile 填写
     SRC = tfidf.c
     LDLIBS = -lm
   规则:
-    编译命令: $(CC) $(CFLAGS) $< $(LDLIBS) -o $@
-    test 目标: ./$(TARGET) | diff - expected_output.txt
+    all: $(TARGET)
+    $(TARGET): $(SRC) → $(CC) $(CFLAGS) $< $(LDLIBS) -o $@
     clean: rm -f $(TARGET)
+  (脚手架无 test 目标; 构建用 make, 判分交给 clings)
 
 注意: -lm 必须放在源文件之后 (链接顺序要求)。
 
@@ -315,7 +316,7 @@ Makefile 填写
 
 编译: make  (或 gcc -Wall -Wextra -std=c11 -o tfidf tfidf.c -lm)
 运行: ./tfidf
-比对: make test  (或 ./tfidf | diff - expected_output.txt)
+判分/自测: clings run 69 或 clings watch (clings tests 69 查看期望输出)
 '''
 
 [[exercises.cases]]

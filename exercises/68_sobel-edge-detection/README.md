@@ -420,6 +420,8 @@ Sobel 的优势：
    ✅ print_matrix("Title", (int(*)[COLS])IMAGE)  — 强制转换去掉 const
    ```
 
+   > 说明：这里之所以要"丢弃 const"，是因为本题给定的 `print_matrix`/`convolve`/`gradient_magnitude` 形参声明成了非 const 的 `int[ROWS][COLS]`。**强制丢弃 const 只是为了适配既有签名，不应当作常规手法**。更好的设计是把这些只读输入的形参声明为 `const int mat[ROWS][COLS]`（即 `const int (*)[COLS]`），这样传入 `const` 的 `IMAGE` 时完全无需强制转换，也更准确地表达了"函数不会修改输入"的意图。
+
 7. **输出格式不匹配**
 
    ```

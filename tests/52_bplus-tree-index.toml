@@ -5,27 +5,41 @@ stdout = '''
 After insert(10, v0):
 [leaf] keys: 10 | values: 100
 
-After insert(20, v1):
-[leaf] keys: 10 20 | values: 100 200
+After insert(30, v1):
+[leaf] keys: 10 30 | values: 100 300
 
-After insert(5, v2):
-[inner] keys: 20
-  [leaf] keys: 5 10 | values: 50 100
-  [leaf] keys: 20 | values: 200
+After insert(20, v2):
+[inner] keys: 30
+  [leaf] keys: 10 20 | values: 100 200
+  [leaf] keys: 30 | values: 300
 
-After insert(15, v3):
-[inner] keys: 15 20
-  [leaf] keys: 5 10 | values: 50 100
-  [leaf] keys: 15 | values: 150
-  [leaf] keys: 20 | values: 200
+After insert(40, v3):
+[inner] keys: 30
+  [leaf] keys: 10 20 | values: 100 200
+  [leaf] keys: 30 40 | values: 300 400
 
-After insert(25, v4):
-[inner] keys: 15 20
-  [leaf] keys: 5 10 | values: 50 100
-  [leaf] keys: 15 | values: 150
-  [leaf] keys: 20 25 | values: 200 250
+After insert(50, v4):
+[inner] keys: 30 50
+  [leaf] keys: 10 20 | values: 100 200
+  [leaf] keys: 30 40 | values: 300 400
+  [leaf] keys: 50 | values: 500
+
+After insert(60, v5):
+[inner] keys: 30 50
+  [leaf] keys: 10 20 | values: 100 200
+  [leaf] keys: 30 40 | values: 300 400
+  [leaf] keys: 50 60 | values: 500 600
+
+After insert(70, v6):
+[inner] keys: 50
+  [inner] keys: 30
+    [leaf] keys: 10 20 | values: 100 200
+    [leaf] keys: 30 40 | values: 300 400
+  [inner] keys: 70
+    [leaf] keys: 50 60 | values: 500 600
+    [leaf] keys: 70 | values: 700
 
 === Search Results ===
-search(15) = 150
-search(30) = -1
+search(40) = 400
+search(45) = -1
 '''

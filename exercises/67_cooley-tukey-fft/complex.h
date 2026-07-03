@@ -1,27 +1,16 @@
-/* complex.h — Complex number type for FFT
+/* complex.h — FFT 使用的复数类型
  *
- * Complex numbers are represented as:
+ * 频域样本用一个复数表示：
  *   real + i * imag
  *
- * Key operations needed:
- *   - complex_add:  add two complex numbers
- *   - complex_sub:  subtract two complex numbers
- *   - complex_mul:  multiply two complex numbers
- *   - complex_print: print a complex number
+ * 复数的加、减、乘运算在 fft.c 中内联实现（本头文件只定义数据类型）。
  */
 #ifndef COMPLEX_H
 #define COMPLEX_H
-
-#include <stdio.h>
 
 typedef struct {
     double real;
     double imag;
 } Complex;
-
-Complex complex_add(Complex a, Complex b);
-Complex complex_sub(Complex a, Complex b);
-Complex complex_mul(Complex a, Complex b);
-void complex_print(Complex c);
 
 #endif /* COMPLEX_H */

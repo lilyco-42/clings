@@ -2,17 +2,20 @@
 
 ### 课程任务
 
-实现 B+ 树索引（ORDER=3, MAX_KEY=2），完成以下 7 个核心函数：
+实现 B+ 树索引（ORDER=3, MAX_KEY=2），完成以下 8 个核心函数：
 
 1. **`create_node(is_leaf)`** — 分配并初始化节点（叶子/内部节点）
 2. **`insert_into_leaf(leaf, key, value)`** — 在有序叶子中插入键值对
-3. **`split_leaf_child(parent, idx, child)`** — 分裂满叶子节点（3 key → 2+1）
-4. **`insert_rec(node, key, value)`** — 递归插入，处理溢出与分裂
-5. **`insert(root, key, value)`** — 插入入口：空树建叶 / 递归插入 / 根溢出建新根
-6. **`search(root, key)`** — 从根走到叶子，线性查找 key
-7. **`print_tree(root, depth)`** — 递归缩进打印树结构
+3. **`split_leaf_child(parent, idx, child)`** — 分裂满叶子节点（3 key → 2+1，右半首键上移）
+4. **`split_inner_child(parent, idx, child)`** — 分裂满内部节点（3 key → 1+1，中间键上推）
+5. **`insert_rec(node, key, value)`** — 递归插入，处理溢出与分裂
+6. **`insert(root, key, value)`** — 插入入口：空树建叶 / 递归插入 / 根溢出建新根
+7. **`search(root, key)`** — 从根走到叶子，线性查找 key
+8. **`print_tree(root, depth)`** — 递归缩进打印树结构
 
-`insert_into_inner`（内部节点插入）、`free_tree`、`main` 已提供。
+`insert_into_inner`（内部节点插入）、`split_child`（按类型分发到叶子/内部分裂）、`free_tree`、`main` 已提供。
+
+> **关于头文件**：`BPTreeNode` 结构体、`ORDER`/`MAX_KEY` 常量与对外函数原型都在 `bptree.h` 中；`bplus_tree.c` 用 `#include "bptree.h"` 引入，请勿在 `.c` 里重复定义。这与参考答案结构一致。
 
 ### 前置知识：什么是 B+ 树？
 
@@ -54,7 +57,7 @@ B+树的关键特性:
 ```
 ORDER  = 3           ← 阶数（每个节点最多 ORDER 个子节点）
 MAX_KEY = ORDER - 1 = 2   ← 每个节点最多 2 个 key
-MIN_KEY = ORDER / 2 = 1   ← 每个节点最少 1 个 key（根除外）
+MIN_KEY = ORDER / 2 = 1   ← 每个节点最少 1 个 key（根除外，仅删除时用到；本插入题不涉及，代码中未定义）
 
 内部节点结构:
   is_leaf = 0
@@ -67,145 +70,118 @@ MIN_KEY = ORDER / 2 = 1   ← 每个节点最少 1 个 key（根除外）
   keys[0], keys[1]           ← 最多 2 个键
   values[0], values[1]       ← 对应的值
   next → 下一个叶子           ← 链表指针
-  例如: [5,v2 | 10,v0] → next → [15,v3 | 20,v1] → next → [25,v4] → NULL
+  例如: [10 20] → next → [30 40] → next → [50 60] → next → [70] → NULL
 ```
 
 **重要**: 数组多 1 位（`keys[MAX_KEY+1]`, `values[MAX_KEY+1]`, `children[ORDER+1]`），用于在分裂前临时存放溢出元素。
 
 ### 插入操作逐步跟踪
 
-以本题的插入序列为例：insert(10,v0), insert(20,v1), insert(5,v2), insert(15,v3), insert(25,v4)
+本题插入序列：insert(10), insert(30), insert(20), insert(40), insert(50), insert(60), insert(70)。
 
-#### 步骤 1: insert(10, v0)
+这条序列精心设计，依次演示三个关键场景：**叶子有序插入（移位）→ 叶子分裂（树高 1→2）→ 内部节点分裂（树高 2→3）**。
 
-```
-树为空 → 创建叶子节点:
-  [leaf] keys: 10 | values: 100
-```
-
-#### 步骤 2: insert(20, v1)
+#### 步骤 1–2: insert(10), insert(30)
 
 ```
-从根（叶子）插入 20，pos=1（20 > 10）:
-  [leaf] keys: 10 20 | values: 100 200
-
-num_keys=2，未超过 MAX_KEY=2，无需分裂。
+树为空 → 建叶子 [10]；再插入 30（30 > 10，pos=1）:
+  [leaf] keys: 10 30 | values: 100 300
+num_keys=2 ≤ MAX_KEY=2，无需分裂。
 ```
 
-#### 步骤 3: insert(5, v2) — 第一次分裂！
+#### 步骤 3: insert(20) — 叶子中间插入 + 第一次分裂（树高 1→2）
 
 ```
-从根（叶子）插入 5，pos=0（5 < 10）:
-  [leaf] keys: 5 10 20 | values: 50 100 200
+从根（叶子）插入 20，pos=1（10 < 20 < 30，需把 30 后移一位）:
+  [leaf] keys: 10 20 30 | values: 100 200 300   ← insert_into_leaf 的"移位"在此体现
 
-num_keys=3 > MAX_KEY=2 → 溢出！需要分裂。
+num_keys=3 > MAX_KEY=2 → 溢出！split_leaf_child:
+  右半复制: new_leaf = [30]   (child->keys[2]=30 → new_leaf, 数据仍在叶子)
+  左半保留: child    = [10 20]
+  上移 key = new_leaf->keys[0] = 30
 
-分裂过程（split_leaf_child）:
-┌──────────────────────────────────────────────────┐
-│ 分裂前: child = [5,v2 | 10,v0 | 20,v1]           │
-│                                                    │
-│ 1. 创建 new_leaf                                  │
-│ 2. 右半复制: new_leaf->keys[0] = child->keys[2]   │
-│             = 20                                  │
-│             new_leaf->values[0] = child->values[2]│
-│             = 200                                 │
-│ 3. child->num_keys = 2 (保留 [5,10])              │
-│    new_leaf->num_keys = 1 (保留 [20])             │
-│ 4. 链表: child->next = new_leaf                   │
-│ 5. 上移 key = new_leaf->keys[0] = 20              │
-└──────────────────────────────────────────────────┘
-
-根节点溢出 → 创建新根（内部节点）:
-        [inner] keys: 20
-        /                \
-  [leaf] keys: 5 10   [leaf] keys: 20
-  values: 50 100      values: 200
-
-内部节点路由规则（keys[pos] <= key 时 pos++）:
-  - key=5:  5 <= 20 → pos=0, 走 children[0] ✓
-  - key=10: 10 <= 20 → pos=0, 走 children[0] ✓
-  - key=20: 20 <= 20 → pos=1, 走 children[1] ✓
-  - key=25: 25 > 20  → pos=1, 走 children[1] ✓
+根（叶子）溢出 → 建新根（内部节点）:
+        [inner] keys: 30
+        /              \
+  [leaf] 10 20      [leaf] 30
 ```
 
-#### 步骤 4: insert(15, v3) — 第二次分裂！
+#### 步骤 4: insert(40) — 追加，无分裂
 
 ```
-从根（内部节点）开始:
-  key=15, 根 keys=[20], 15 <= 20 → pos=0, 走 children[0]
-
-到达叶子 [5,v2 | 10,v0]，插入 15:
-  pos=2（15 > 10）
-  [leaf] keys: 5 10 15 | values: 50 100 150
-
-num_keys=3 > MAX_KEY=2 → 溢出！分裂:
-
-┌──────────────────────────────────────────────────┐
-│ 分裂前: child = [5,v2 | 10,v0 | 15,v3]           │
-│                                                    │
-│ 右半复制: new_leaf = [15,v3]                      │
-│ child 保留: [5,v2 | 10,v0]                        │
-│ 上移 key = 15                                     │
-│                                                    │
-│ 父节点插入 key=15 和 new_leaf:                    │
-│   父节点 [20] 在 idx=0 插入 15                    │
-│   → [inner] keys: 15 20                           │
-│      children[0]=[5,10], children[1]=[15],        │
-│      children[2]=[20]                             │
-└──────────────────────────────────────────────────┘
-
-结果:
-        [inner] keys: 15 20
-        /        |        \
-  [leaf]      [leaf]     [leaf]
-  keys: 5 10  keys: 15   keys: 20
-  vals:50 100 vals:150   vals:200
+根 [30]: 30 ≤ 40 → pos=1 → 叶子 [30]，插入 40 → [leaf] 30 40。num_keys=2，不分裂。
 ```
 
-#### 步骤 5: insert(25, v4) — 无分裂
+#### 步骤 5: insert(50) — 叶子分裂，根被填满
 
 ```
-从根开始: key=25, 根 keys=[15,20], 25 > 20 → pos=2, 走 children[2]
-
-到达叶子 [20,v1]，插入 25:
-  pos=1（25 > 20）
-  [leaf] keys: 20 25 | values: 200 250
-
-num_keys=2，未超过 MAX_KEY=2，无需分裂。
-
-最终 B+树:
-        [inner] keys: 15 20
-        /        |        \
-  [leaf]      [leaf]     [leaf]
-  keys: 5 10  keys: 15   keys: 20 25
-  vals:50 100 vals:150   vals:200 250
-  next→      next→      next→NULL
+根 [30]: pos=1 → 叶子 [30 40]，插入 50 → [30 40 50] 溢出 → split_leaf_child:
+  new_leaf=[50]，上移 50 → 父节点 [30] 在 idx=1 插入 50:
+        [inner] keys: 30 50
+        /       |        \
+  [leaf]10 20 [leaf]30 40 [leaf]50
+根 num_keys=2 = MAX_KEY，已满——下一次子节点分裂就会把根挤爆。
 ```
+
+#### 步骤 6: insert(60) — 追加，无分裂
+
+```
+根 [30 50]: pos=2 → 叶子 [50]，插入 60 → [leaf] 50 60。num_keys=2，不分裂。
+```
+
+#### 步骤 7: insert(70) — 叶子分裂 → 内部节点（根）分裂（树高 2→3）★
+
+```
+根 [30 50]: pos=2 → 叶子 [50 60]，插入 70 → [50 60 70] 溢出 → split_leaf_child:
+  new_leaf=[70]，上移 70 → 父节点 [30 50] 在 idx=2 插入 70:
+    → [inner] keys: 30 50 70   （num_keys=3 > MAX_KEY=2，根自身溢出！）
+
+根是内部节点且溢出 → insert() 建新根，split_child 分发到 split_inner_child:
+┌────────────────────────────────────────────────────────┐
+│ 分裂前 child = [inner] keys 30 50 70                     │
+│                children [L1, L2, L3, L4]                 │
+│   L1=[10 20] L2=[30 40] L3=[50 60] L4=[70]               │
+│                                                          │
+│ up_key = keys[1] = 50          ← 中间键"上推"(不复制!)   │
+│ 左半 child     = [inner] 30, children [L1, L2]           │
+│ 右半 new_inner = [inner] 70, children [L3, L4]           │
+│ 新根           = [inner] 50, children [child, new_inner] │
+└────────────────────────────────────────────────────────┘
+
+最终 B+树（树高 3）:
+             [inner] keys: 50
+            /                \
+    [inner] keys: 30      [inner] keys: 70
+     /          \           /          \
+ [leaf]10 20 [leaf]30 40 [leaf]50 60 [leaf]70
+```
+
+**叶子分裂 vs 内部分裂的关键区别**：叶子分裂把右半第一个 key **复制**上移（数据完整保留在叶子层，`50` 既在上层做路由、也在叶子里存着）；内部分裂把中间 key **移动**上推（`50` 离开子节点，只作为上层路由键，不再出现在下层）。这正是 B+ 树"数据只在叶子、内部只做路由"的体现。
 
 ### 查找操作跟踪
 
-#### search(15)
+#### search(40)
 
 ```
 从根开始:
-  cur = [inner] keys: 15 20
-  key=15, pos: 15 <= 15 → pos=1
-  cur = children[1] = [leaf] keys: 15
+  cur = [inner] keys: 50, key=40: 40 < 50 → pos=0 → children[0]
+  cur = [inner] keys: 30, key=40: 40 ≥ 30 → pos=1 → children[1]
+  cur = [leaf] keys: 30 40
 
 到达叶子:
-  遍历: keys[0]=15 == 15 → 返回 values[0]=150 ✓
+  遍历: keys[0]=30 ≠ 40, keys[1]=40 == 40 → 返回 values[1]=400 ✓
 ```
 
-#### search(30)
+#### search(45)
 
 ```
 从根开始:
-  cur = [inner] keys: 15 20
-  key=30, pos: 30 > 15 → pos=1; 30 > 20 → pos=2
-  cur = children[2] = [leaf] keys: 20 25
+  cur = [inner] keys: 50, key=45: 45 < 50 → pos=0 → children[0]
+  cur = [inner] keys: 30, key=45: 45 ≥ 30 → pos=1 → children[1]
+  cur = [leaf] keys: 30 40
 
 到达叶子:
-  遍历: keys[0]=20 ≠ 30, keys[1]=25 ≠ 30
+  遍历: keys[0]=30 ≠ 45, keys[1]=40 ≠ 45
   → 返回 -1（未找到）✓
 ```
 
@@ -249,17 +225,15 @@ num_keys=2，未超过 MAX_KEY=2，无需分裂。
 B+ 树的关键优势——叶子节点形成有序链表：
 
 ```
-[leaf] → next → [leaf] → next → [leaf] → next → NULL
-keys: 5 10      keys: 15      keys: 20 25
+[leaf] → next → [leaf] → next → [leaf] → next → [leaf] → NULL
+keys:10 20      keys:30 40     keys:50 60     keys:70
 
-范围查询 [12, 25]:
-  1. 从根走到起始叶子: 12 ≤ 15 → 走 children[0]?
-     不对——需要找到第一个 ≥ 12 的叶子。
-     实际做法: 从根走到最左叶子 [5,10]，沿链表遍历。
-  2. [5,10]: 5<12✗, 10<12✗ → 跳过
-  3. next→[15]: 15≥12 ✓ → 输出 15→150
-  4. next→[20,25]: 20≥12 ✓ → 输出 20→200, 25→250
-  5. next→NULL → 结束
+范围查询 [25, 55]（本题最终树的叶子链表）:
+  1. 从根走到最左叶子，沿 next 链表向右遍历。
+  2. [10 20]: 10<25✗, 20<25✗ → 跳过
+  3. next→[30 40]: 30∈[25,55] ✓ → 输出 30→300; 40∈[25,55] ✓ → 输出 40→400
+  4. next→[50 60]: 50∈[25,55] ✓ → 输出 50→500; 60>55 → 停止
+  5. 结束（结果: 30, 40, 50）
 
 链表让范围查询只需 O(log n + k)，k 为结果数量。
 无链表则需要回溯遍历，复杂度高得多。

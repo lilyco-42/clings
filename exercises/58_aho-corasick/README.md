@@ -13,11 +13,9 @@
 
 验证方式：
 
-```
-make test
-```
-
-`make test` 编译程序后运行，通过管道 `| diff` 比对 `expected_output.txt`。
+- **构建**：`make`（编译生成可执行文件）
+- **判分 / 自测**：`clings run 58` 或 `clings watch`（自动比对标准输出）
+- **查看期望输出**：`clings tests 58`
 
 ---
 
@@ -474,11 +472,11 @@ Step 0: 'h' → Node 1
 Step 1: 'i' → Node 6
 Step 2: 's' → Node 7, 匹配 "his"@0
 Step 3: 'h' → 从7沿fail[7]=3, 3有'h'→4, cur=4
-Step 4: 'e' → Node 5, 匹配 "she"@1, "he"@2
+Step 4: 'e' → Node 5, 匹配 "she"@2, "he"@3
 Step 5: 'r' → 从5沿fail[5]=2, 2有'r'→8, cur=8
 Step 6: 's' → Node 9, 匹配 "hers"@3
 
-最终: "his"@0, "she"@1, "he"@2, "hers"@3
+最终: "his"@0, "she"@2, "he"@3, "hers"@3
 ```
 
 AC 自动机在一次扫描中找到了 4 个匹配，包括重叠和嵌套的模式。

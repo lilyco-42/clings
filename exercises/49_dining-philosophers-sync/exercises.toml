@@ -52,8 +52,9 @@ make 检查文件时间戳，只重编译修改过的文件（增量编译），
 
 规则:
   $(TARGET): $(SRC)  — 编译命令，用 $< (第一个依赖) 和 $@ (目标)
-  test: $(TARGET)    — 运行程序，用管道 | 把输出传给 diff 跟 expected_output.txt 比较
+  test: $(TARGET)    — 手动演示目标：运行程序观察就餐 (如 ./$(TARGET) asymmetric | head -20)
   clean:             — 删除编译产物
+  (判分由 clings 分别以 naive/asymmetric/ordered 运行，断言退出码与关键诊断行，不依赖 make test)
 
 Makefile 特殊变量: $< = 第一个依赖文件  $@ = 目标文件
 
@@ -88,10 +89,13 @@ TODO 3 — philosopher(arg): 线程函数
     eat_count[id]++
   用 rand_r(&seed) 生成可复现思考时长，seed 从 id 派生
 
-TODO 4 — watchdog(arg): 超时哨兵
-  sleep(WATCHDOG_TIMEOUT)
-  若 all_done_flag → return (正常)
-  否则 print_deadlock_diag() + exit(2)
+TODO 4 — watchdog(arg): 进度停滞哨兵 (非固定墙钟超时)
+  死锁 = 所有人都无法推进 = 总进餐数不再增长。周期性(如每 200ms)采样
+  eat_count 之和：有进展就重置停滞计数；连续 WATCHDOG_TIMEOUT 秒毫无进展才判死锁。
+    循环: usleep(200ms); 若 all_done_flag → return(正常);
+          求 total=Σeat_count; total 变了→重置; 否则累计, 停滞满 3s →
+          print_deadlock_diag() + exit(2)
+  ★ 不要 sleep(3) 一睡到底再判死锁——慢机上 asymmetric/ordered 会被误判
   ★ 不用 alarm/SIGALRM — signal handler 里调 pthread 会死锁
 
 TODO 5 — build_wait_cycle(out, outsz): 构建等待环字符串

@@ -23,7 +23,8 @@
  * 知识点：素性判定、Miller-Rabin、非对称加密、欧拉函数、模逆元、
  *         扩展欧几里得、快速幂取模、密钥生成流程
  *
- * 验证：make test  →  ./rsa_crypto | diff - expected_output.txt
+ * 验证：构建用 make；判分/自测用 clings run / clings watch；
+ *       查看期望输出用 clings tests 55
  */
 #include <inttypes.h>
 #include <stdint.h>
@@ -72,7 +73,9 @@ static uint64_t fast_pow(uint64_t base, uint64_t exp, uint64_t mod) {
 /* ─── TODO 4: Miller-Rabin 素性判定 ───
  *
  * 使用 Miller-Rabin 概率素性测试判定 num 是否为素数。
- * 使用见证人集合 {2, 3, 5, 7, 11} 可对所有 < 2^64 的数给出确定性结果。
+ * 见证人集合 {2, 3, 5, 7, 11} 由 Jaeschke (1993) 证明对所有
+ * n < 2,152,302,898,747（≈2.15×10^12）给出确定性结果；p=61、q=53 远在此范围内。
+ * （注意：覆盖整个 uint64_t (n < 2^64) 需前 12 个素数基或 Sinclair 的 7 基集。）
  *
  * 算法步骤：
  *   1. 处理小情况：num < 2 → false; num ∈ {2,3} → true; num 偶数 → false
@@ -103,7 +106,7 @@ static int is_prime(uint64_t num) {
  *   6. 将 n, φ, d 通过 out_n/out_phi/out_d 传出
  *   7. 成功返回 0
  *
- * 输出格式参考 expected_output.txt Step 2 部分。
+ * 输出格式参考 clings tests 55 展示的期望输出 Step 2 部分。
  * 使用 PRIu64 / PRId64 宏格式化 uint64_t / int64_t。
  */
 static int gen_keys(uint64_t prime_p, uint64_t prime_q, uint64_t pub_e, uint64_t *out_n, uint64_t *out_phi,
@@ -123,7 +126,7 @@ static uint64_t decrypt(uint64_t cipher, uint64_t priv_exp, uint64_t modulus) {
 
 /* ─── TODO 8: 主流程 ───
  *
- * 按以下步骤输出 (格式须与 expected_output.txt 完全一致):
+ * 按以下步骤输出 (格式须与 clings tests 55 展示的期望输出完全一致):
  *   Step 1: 打印 p, q 并用 is_prime 验证素性，打印 n, φ, e, m
  *   Step 2: 调用 gen_keys() 完成密钥生成与验证
  *   Step 3: 加密，打印 c = m^e mod n

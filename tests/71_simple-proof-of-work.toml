@@ -1,4 +1,6 @@
+# 挖矿需 ~21.7 万次 SHA-256; 放宽超时避免慢机/高负载 CI 上偶发超时(默认 2s 偏紧)。
 [[cases]]
+timeout = 10.0
 stdout = '''
 === Simple Proof-of-Work Blockchain (SHA-256) ===
 Difficulty: hash prefix must be "0000"

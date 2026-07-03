@@ -60,12 +60,12 @@ Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
 Before: w = {-0.1000, 0.0000}, b = 0.0000
 After:  w = {-0.1000, 0.0000}, b = 0.0000
 Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
-  ... (epochs 6–9: oscillating, 2 mistakes each) ...
+  ... (epochs 6–9: oscillating, 4 updates each) ...
 --- Epoch 10 ---
 Before: w = {-0.1000, 0.0000}, b = 0.0000
 After:  w = {-0.1000, 0.0000}, b = 0.0000
 Classification: (0,0)→+1✗  (0,1)→+1✓  (1,0)→-1✗  (1,1)→-1✓
-  ... (epochs 11–19: oscillating, 2 mistakes each) ...
+  ... (epochs 11–19: oscillating, 4 updates each) ...
 --- Epoch 20 ---
 Before: w = {-0.1000, 0.0000}, b = 0.0000
 After:  w = {-0.1000, 0.0000}, b = 0.0000

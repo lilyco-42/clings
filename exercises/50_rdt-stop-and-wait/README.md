@@ -68,38 +68,48 @@ SEND(seq=0) ────→ 等待 ACK=0 ────→ 收到 ACK → SEND(seq
 ### 数据流示例（本模拟的一次完整传输）
 
 ```
-      发送方                   信道                   接收方
-        │                       │                       │
-  [00] SEND seq=0 "HELLO" ──────┤                       │
-        │                OK (65%)┤                       │
-        │                       ├──[Pkt seq=0]──→        │
-        │                       │              [01] RECV seq=0 "HELLO"
-        │                       │              seq_exp: 0→1
-        │                       │←──[ACK seq=0]──        │
-        │               ACK OK  │                       │
-  [01] ACK seq=0 ✓              │                       │
-  seq_snd: 0→1                  │                       │
-        │                       │                       │
-  [01] SEND seq=1 "OpenCamp" ─────────┤                       │
-        │                OK (65%)┤                       │
-        │                       ├──[Pkt seq=1]──→        │
-        │                       │              [02] RECV seq=1 "OpenCamp"
-        │                       │←──[ACK seq=1]──        │
-  [02] ACK seq=1 ✓              │                       │
-        │                       │                       │
-  [02] SEND seq=0 "NCCL" ────────┤                       │
-        │              LOST (25%)┤                       │
-        │                 ✗     │                       │
-  [03] LOST seq=0               │                       │
-  retrans_cnt++                 │                       │
-        │                       │                       │
-  [03] SEND seq=0 "NCCL" ────────┤  (重传)               │
-        │                OK (65%)┤                       │
-        │                       ├──[Pkt seq=0]──→        │
-        │                       │              [04] RECV seq=0 "NCCL"
-        │                       │←──[ACK seq=0]──        │
-  [04] ACK seq=0 ✓              │                       │
-  ... 以此类推 ...
+  发送方                     信道                   接收方
+    │                          │                       │
+  ══ msg1: HELLO — 干净交付 ════════════════════════════════
+  [00] SEND seq=0 "HELLO" ─────┤                       │
+    │                  OK (65%) ├──[Pkt seq=0]──→        │
+    │                          │           [01] RECV seq=0 "HELLO"
+    │                          │           seq_exp: 0→1
+    │                          │←──[ACK seq=0]──        │
+  [01] ACK seq=0 ✓  seq_snd:0→1 │                      │
+    │                          │                       │
+  ══ msg2: OpenCamp — 前向丢包 ═════════════════════════════
+  [01] SEND seq=1 "OpenCamp" ──┤                       │
+    │                LOST (25%) ✗   ← 包在信道丢失       │
+  [02] LOST seq=1   retrans++   │                       │
+  [02] SEND seq=1 "OpenCamp" ──┤  (重传)                │
+    │                  OK       ├──[Pkt seq=1]──→        │
+    │                          │           [03] RECV seq=1 "OpenCamp"
+    │                          │←──[ACK seq=1]──        │
+  [03] ACK seq=1 ✓  seq_snd:1→0 │                      │
+    │                          │                       │
+  ══ msg3: NCCL — ACK 回程丢失 → 重复包 ════════════════════
+  [03] SEND seq=0 "NCCL" ──────┤                       │
+    │                  OK       ├──[Pkt seq=0]──→        │
+    │                          │           [04] RECV seq=0 "NCCL"
+    │                          │           seq_exp: 0→1 (已交付)
+    │              ACK LOST  ✗ ←──[ACK seq=0]           │   ← ACK 回程丢失
+  [04] ACK-L seq=0  retrans++   │                       │
+  [04] SEND seq=0 "NCCL" ──────┤  (重传, 接收方已交付过)  │
+    │                  OK       ├──[Pkt seq=0]──→        │
+    │                          │     [05] DUPL seq=0 (seq≠seq_exp=1)
+    │                          │←──[ACK seq=0]── (重发 ACK, 不重复交付)
+  [05] ACK seq=0 ✓  seq_snd:0→1 │                      │
+    │                          │                       │
+  ══ msg4: 2026 — 包损坏 ═══════════════════════════════════
+  [05] SEND seq=1 "2026" ──────┤                       │
+    │             CORRUPT (10%) ⚡──[Pkt seq=1]──→        │   ← 比特翻转
+    │                          │     [06] CORR seq=1 (损坏, 丢弃不发 ACK)
+  [06] SEND seq=1 "2026" ──────┤  (重传)                │
+    │                  OK       ├──[Pkt seq=1]──→        │
+    │                          │           [07] RECV seq=1 "2026" ✓
+    │                          │←──[ACK seq=1]──        │
+  [07] ACK seq=1 ✓   全部完成! (Sends:7 Retrans:3)      │
 ```
 
 ### 关键函数详解
@@ -140,22 +150,30 @@ sender_ack(ack_seq, arrived):
 
 ### 完整逐轮追踪
 
-| Round | 事件     | 发送方               | 接收方          | 结果                   |
-| ----- | -------- | -------------------- | --------------- | ---------------------- |
-| 00    | SEND     | seq=0, "HELLO"       | —               | 发包                   |
-| 01    | RECV     | —                    | seq=0 matches ✓ | 交付 HELLO，seq_exp→1  |
-| 01    | ACK      | ACK seq=0 received ✓ | —               | seq_snd→1, 推进到 OpenCamp   |
-| 01    | SEND     | seq=1, "OpenCamp"          | —               | 发包                   |
-| 02    | RECV     | —                    | seq=1 matches ✓ | 交付 OpenCamp，seq_exp→0     |
-| 02    | ACK      | ACK seq=1 received ✓ | —               | seq_snd→0, 推进到 NCCL  |
-| 02    | SEND     | seq=0, "NCCL"         | —               | 发包                   |
-| 03    | **LOST** | 包丢失！             | —               | 重传！                 |
-| 03    | SEND     | seq=0, "NCCL" (重传)  | —               | 重发包                 |
-| 04    | RECV     | —                    | seq=0 matches ✓ | 交付 NCCL，seq_exp→1    |
-| 04    | ACK      | ACK seq=0 received ✓ | —               | seq_snd→1, 推进到 2026 |
-| 04    | SEND     | seq=1, "2026"        | —               | 发包                   |
-| 05    | RECV     | —                    | seq=1 matches ✓ | 交付 2026，完成！      |
-| 05    | ACK      | ACK seq=1 received ✓ | —               | 全部完成               |
+本模拟精心选定随机种子，让 4 则消息**各演示一种信道故障**，难度递进：
+HELLO 干净交付 → OpenCamp 前向丢包 → NCCL 的 ACK 回程丢失（引出重复包检测）→ 2026 包损坏。
+
+| Round | 事件      | 发送方                   | 接收方          | 结果                             |
+| ----- | --------- | ------------------------ | --------------- | -------------------------------- |
+| 00    | SEND      | seq=0, "HELLO"           | —               | 发包                             |
+| 01    | RECV      | —                        | seq=0 匹配 ✓    | 交付 HELLO，seq_exp→1            |
+| 01    | ACK       | ACK seq=0 收到 ✓         | —               | seq_snd→1，推进到 OpenCamp       |
+| 01    | SEND      | seq=1, "OpenCamp"        | —               | 发包                             |
+| 02    | **LOST**  | 包在信道丢失！           | —               | retrans++，重传！                |
+| 02    | SEND      | seq=1, "OpenCamp" (重传) | —               | 重发包                           |
+| 03    | RECV      | —                        | seq=1 匹配 ✓    | 交付 OpenCamp，seq_exp→0         |
+| 03    | ACK       | ACK seq=1 收到 ✓         | —               | seq_snd→0，推进到 NCCL           |
+| 03    | SEND      | seq=0, "NCCL"            | —               | 发包                             |
+| 04    | RECV      | —                        | seq=0 匹配 ✓    | 交付 NCCL，seq_exp→1             |
+| 04    | **ACK-L** | ACK 回程丢失！           | —               | retrans++，发送方等不到 ACK 重传 |
+| 04    | SEND      | seq=0, "NCCL" (重传)     | —               | 重发（接收方其实已交付过）       |
+| 05    | **DUPL**  | —                        | seq=0 ≠ 期望 1  | 识别为重复包！重发 ACK，不重复交付 |
+| 05    | ACK       | ACK seq=0 收到 ✓         | —               | seq_snd→1，推进到 2026           |
+| 05    | SEND      | seq=1, "2026"            | —               | 发包                             |
+| 06    | **CORR**  | —                        | 包损坏 ✗        | retrans++，丢弃不发 ACK → 重传   |
+| 06    | SEND      | seq=1, "2026" (重传)     | —               | 重发包                           |
+| 07    | RECV      | —                        | seq=1 匹配 ✓    | 交付 2026，完成！                |
+| 07    | ACK       | ACK seq=1 收到 ✓         | —               | 全部完成（Sends:7 Retrans:3）    |
 
 ### 常见错误与陷阱
 
@@ -174,7 +192,7 @@ sender_ack(ack_seq, arrived):
 - **超时重传**: 在不可靠信道上保证可靠性的核心机制
 - **ACK 确认**: 接收方显式告知发送方"收到了"
 - **幂等交付**: 接收方用序号保证每条消息只交付一次
-- **不可靠信道模拟**: 用 rand() 模拟三种信道事件（丢包/损坏/正常）
+- **不可靠信道模拟**: 用内置确定性 PRNG（xorshift32，固定种子）模拟三种信道事件（丢包/损坏/正常），保证跨平台可复现
 
 ### 课堂讨论
 

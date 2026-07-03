@@ -1,10 +1,11 @@
 /* 57_cache-simulator-lru.c — 缓存模拟器 LRU 替换
  *
  * 任务：1. 实现 init_cache()      — 初始化缓存所有行为无效
- *       2. 实现 access()          — 一次缓存访问 (hit/miss/evict)
- *       3. 实现 find_lru()        — 在组内找 LRU 行
- *       4. 补全 main() 中的主循环  — 遍历地址序列，统计命中
- *       5. 实现命中率计算          — 输出统计结果
+ *       2. 实现 find_lru()        — 在组内找 LRU 行
+ *       3. 实现 access()          — 一次缓存访问 (hit/miss/evict)
+ *       4. 调用 init_cache()      — 主循环前初始化缓存
+ *       5. 补全 main() 主循环      — 遍历地址序列，统计命中
+ *       6. 实现命中率计算          — 输出统计结果
  *
  * 背景：CPU 缓存是计算机体系结构的核心概念。本模拟器实现 2 路组相联
  *       (2-way set-associative) 缓存，使用 LRU(最近最少使用) 替换策略。
@@ -14,7 +15,7 @@
  *
  * 知识点：缓存映射/命中/缺失/冲突缺失/替换策略/局部性原理
  *
- * 验证：make test → 编译运行，管道 | diff 比对 expected_output.txt
+ * 验证：make 构建；clings run 57 / clings watch 判分；clings tests 57 看期望输出
  */
 #include <stdbool.h>
 #include <stdio.h>
@@ -97,7 +98,7 @@ int main(void) {
     int addrs[] = {
         0,   16, 32, 48, /* 4 different sets, all miss */
         0,   64, 16, 80, /* 0=hit, 64=miss, 16=hit, 80=miss */
-        128, 0,  32, 144 /* 128=miss, 0=conflict, 32=hit, 144=miss */
+        128, 0,  32, 144 /* 128=evict, 0=evict, 32=hit, 144=evict */
     };
     int n = sizeof(addrs) / sizeof(addrs[0]);
 

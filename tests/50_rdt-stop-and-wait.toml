@@ -8,18 +8,23 @@ Loss=25% Corrupt=10% ACKloss=10%
 [01] RECV  seq=0 "HELLO"
 [01] ACK   seq=0
 [01] SEND  seq=1 "OpenCamp"
-[02] RECV  seq=1 "OpenCamp"
-[02] ACK   seq=1
-[02] SEND  seq=0 "NCCL"
-[03] LOST  seq=0
+[02] LOST  seq=1
+[02] SEND  seq=1 "OpenCamp"
+[03] RECV  seq=1 "OpenCamp"
+[03] ACK   seq=1
 [03] SEND  seq=0 "NCCL"
 [04] RECV  seq=0 "NCCL"
-[04] ACK   seq=0
-[04] SEND  seq=1 "2026"
-[05] RECV  seq=1 "2026"
-[05] ACK   seq=1
+[04] ACK-L seq=0
+[04] SEND  seq=0 "NCCL"
+[05] DUPL  seq=0
+[05] ACK   seq=0
+[05] SEND  seq=1 "2026"
+[06] CORR  seq=1
+[06] SEND  seq=1 "2026"
+[07] RECV  seq=1 "2026"
+[07] ACK   seq=1
 
 === Stats ===
 Delivered: 4/4
-Sends: 5  Retrans: 1
+Sends: 7  Retrans: 3
 '''

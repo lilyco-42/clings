@@ -1,4 +1,4 @@
-## Lesson 60 — 微型 C 单元测试框架：用宏构建测试系统（含 NULL 处理和浮点容差）
+# Lesson 60 — 微型 C 单元测试框架：用宏构建测试系统（含 NULL 处理）
 
 ### 课程任务
 
@@ -17,7 +17,7 @@ Running 5 test(s)...
 
 [test_add] PASS
 [test_str] PASS
-[test_fail]   FAIL test_framework.c:87: ASSERT_EQ(2 + 2, 5) — expected 5, got 4
+[test_fail]   FAIL test_framework.c:88: ASSERT_EQ(2 + 2, 5) — expected 5, got 4
 [test_null]   FAIL test_framework.c:96: ASSERT_STREQ(NULL, "hello") — expected "hello", got "(null)"
 [test_float]   FAIL test_framework.c:107: ASSERT_EQ((int)2.718, 3) — expected 3, got 2
 
@@ -26,6 +26,8 @@ Running 5 test(s)...
 ```
 
 其中 `test_fail` 和 `test_float` 是故意写错的断言，`test_null` 同时包含通过和失败的 NULL 断言，用于全面验证框架的失败报告功能。
+
+> **关于行号**：上面示例里的 `88 / 96 / 107` 是参考实现中这三条失败断言所在的源码行号。**你的实现行号很可能不同，判分不校验具体行号**（只校验 `test_framework.c:<行号>:` 这个格式以及断言表达式、期望/实际值、汇总行）。另外 `#` 字符串化会原样保留源码空格，失败断言请照判分规格写成 `ASSERT_EQ(2 + 2, 5)`（加号两侧留空格）。用 `clings tests 60` 查看完整判分规格。
 
 ### 前置知识
 
@@ -445,9 +447,9 @@ Step 4 — 输出:
 **前置课程**：
 
 - Lesson 20（预处理器）：`#define`、`#include`、条件编译等宏基础
-- Lesson 88（指针）：函数指针语法 `void (*fp)(void)` 是理解测试注册表的前提
-- Lesson 85（全局变量）：`static` 全局变量的内部链接属性
-- Lesson 91（结构体）：`TestEntry` 结构体定义和数组
+- 函数指针（如 Lesson 44 qsort 中的比较函数）：`void (*fp)(void)` 是理解测试注册表的前提
+- `static` 全局变量的内部链接属性
+- 结构体与数组（如 Lesson 30-38 的链表/树节点）：`TestEntry` 结构体定义和数组
 
 **后续应用**：
 
