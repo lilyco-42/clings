@@ -19,6 +19,10 @@ import os
 import subprocess
 import sys
 
+_IS_WINDOWS = os.name == "nt"
+_OK = "ok" if _IS_WINDOWS else "\u2705"
+_FAILED = "FAILED" if _IS_WINDOWS else "\u274c"
+
 from ..compiler import (
     _collect_cases,
     _run,
@@ -75,7 +79,7 @@ def _run_and_show_cases(ex: dict, binary, include_hidden: bool) -> int:
             proc = _run([str(binary), *case_args], input=stdin_text, timeout=timeout)
         except subprocess.TimeoutExpired:
             print(
-                f"\n\x1b[31;1m\u274c {ex['name']} case {idx} timed out after "
+                f"\n\x1b[31;1m{_FAILED} {ex['name']} case {idx} timed out after "
                 f"{timeout}s (possible infinite loop)\x1b[0m",
                 file=sys.stderr,
             )
@@ -96,12 +100,12 @@ def _run_and_show_cases(ex: dict, binary, include_hidden: bool) -> int:
                 name=ex["name"], case_no=idx, stderr=proc.stderr,
             )
         except ClingsError as exc:
-            print(f"\n\x1b[31;1m\u274c {ex['name']} case {idx} FAILED\x1b[0m",
+            print(f"\n\x1b[31;1m{_FAILED} {ex['name']} case {idx} FAILED\x1b[0m",
                   file=sys.stderr)
             print(str(exc), file=sys.stderr)
             return 1
 
-    print(f"\n\x1b[32;1m\u2705 ok {ex['name']}\x1b[0m")
+    print(f"\n\x1b[32;1m{_OK} ok {ex['name']}\x1b[0m")
     return 0
 
 
@@ -123,7 +127,7 @@ def _run_one(ex: dict, use_solutions: bool, include_hidden: bool) -> int:
             try:
                 proc = _run(["make", target], cwd=src_dir, timeout=timeout, env=env)
             except subprocess.TimeoutExpired:
-                print(f"\n\x1b[31;1m\u274c {ex['name']} make {target} timed out "
+                print(f"\n\x1b[31;1m{_FAILED} {ex['name']} make {target} timed out "
                       f"after {timeout}s\x1b[0m", file=sys.stderr)
                 return 1
             if proc.returncode != 0:
@@ -132,13 +136,13 @@ def _run_one(ex: dict, use_solutions: bool, include_hidden: bool) -> int:
                     print(proc.stdout, end="", flush=True)
                 if proc.stderr.strip():
                     print(f"\x1b[33m{proc.stderr.strip()}\x1b[0m", flush=True)
-                print(f"\n\x1b[31;1m\u274c {ex['name']} make {target} FAILED\x1b[0m",
+                print(f"\n\x1b[31;1m{_FAILED} {ex['name']} make {target} FAILED\x1b[0m",
                       file=sys.stderr)
                 return 1
 
         # `make` mode: build-only, there is no program output to show.
         if mode == "make":
-            print(f"\n\x1b[32;1m\u2705 ok {ex['name']}\x1b[0m")
+            print(f"\n\x1b[32;1m{_OK} ok {ex['name']}\x1b[0m")
             return 0
 
         # `make+stdout` mode: locate the produced binary, then run its cases.
@@ -158,7 +162,7 @@ def _run_one(ex: dict, use_solutions: bool, include_hidden: bool) -> int:
     binary = compile_exercise(ex, use_solutions)
 
     if mode == "compile":
-        print(f"\x1b[32;1m\u2705 ok {ex['name']} (compiled successfully)\x1b[0m")
+        print(f"\x1b[32;1m{_OK} ok {ex['name']} (compiled successfully)\x1b[0m")
         return 0
 
     if mode == "return":
@@ -168,17 +172,17 @@ def _run_one(ex: dict, use_solutions: bool, include_hidden: bool) -> int:
         try:
             proc = _run([str(binary)], input=stdin_text, timeout=timeout)
         except subprocess.TimeoutExpired:
-            print(f"\n\x1b[31;1m\u274c {ex['name']} timed out after {timeout}s\x1b[0m",
+            print(f"\n\x1b[31;1m{_FAILED} {ex['name']} timed out after {timeout}s\x1b[0m",
                   file=sys.stderr)
             return 1
         if proc.stdout:
             print(proc.stdout, end="")
         print(f"\n\x1b[90m(exit code: {proc.returncode})\x1b[0m")
         if proc.returncode != expected:
-            print(f"\x1b[31;1m\u274c {ex['name']}: expected return {expected}, "
+            print(f"\x1b[31;1m{_FAILED} {ex['name']}: expected return {expected}, "
                   f"got {proc.returncode}\x1b[0m", file=sys.stderr)
             return 1
-        print(f"\x1b[32;1m\u2705 ok {ex['name']}\x1b[0m")
+        print(f"\x1b[32;1m{_OK} ok {ex['name']}\x1b[0m")
         return 0
 
     # mode == "stdout": clings-compiled binary, run and show all cases.
@@ -208,7 +212,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             print(f"\x1b[1m--- [{index}/{total}] {ex['name']} ---\x1b[0m", flush=True)
             if _run_one(ex, args.solutions, args.hidden) != 0:
                 return 1
-        print(f"\n\x1b[32;1m\u2705 all {total} exercise(s) passed\x1b[0m")
+        print(f"\n\x1b[32;1m{_OK} all {total} exercise(s) passed\x1b[0m")
         return 0
 
     # 单题模式

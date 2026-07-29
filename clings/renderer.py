@@ -1,5 +1,7 @@
 """Watch mode UI renderer."""
 
+import os
+
 from .config import ROOT
 from .state import WatchState
 from .utils import (
@@ -19,6 +21,10 @@ from .utils import (
     terminal_hyperlink,
 )
 
+_IS_WINDOWS = os.name == "nt"
+_OK = "ok" if _IS_WINDOWS else "\u2705"
+_FAILED = "FAILED" if _IS_WINDOWS else "\u274c"
+
 
 class WatchRenderer:
     """Renders the watch mode UI (success, failure, hint, list views)."""
@@ -35,7 +41,7 @@ class WatchRenderer:
         src_files = source_files_for(ex, False)
         rel_path = src_files[0].relative_to(ROOT) if src_files else ex["name"]
         link = terminal_hyperlink(src_files[0], str(rel_path)) if src_files else str(rel_path)
-        print(f"  {ANSI_BOLD_GREEN}\u2705 Exercise done!{ANSI_RESET}  {ex['name']}")
+        print(f"  {ANSI_BOLD_GREEN}{_OK} Exercise done!{ANSI_RESET}  {ex['name']}")
         print(f"  {ANSI_DIM}File: {link}{ANSI_RESET}")
         if s.all_done():
             print(f"\n  {ANSI_BOLD_GREEN}\U0001f389 Congratulations! All {s.total} exercises completed!{ANSI_RESET}")
@@ -52,7 +58,7 @@ class WatchRenderer:
         src_files = source_files_for(ex, False)
         rel_path = src_files[0].relative_to(ROOT) if src_files else ex["name"]
         link = terminal_hyperlink(src_files[0], str(rel_path)) if src_files else str(rel_path)
-        print(f"  {ANSI_BOLD_RED}\u274c Current: {ex['name']}{ANSI_RESET}")
+        print(f"  {ANSI_BOLD_RED}{_FAILED} Current: {ex['name']}{ANSI_RESET}")
         print(f"  {ANSI_DIM}File: {link}{ANSI_RESET}")
         print(f"  {ANSI_DIM}Title: {ex['title']}{ANSI_RESET}")
         print()

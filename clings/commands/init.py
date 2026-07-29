@@ -1,6 +1,7 @@
 """clings init — initialize exercises for a specific unit."""
 
 import argparse
+import os
 import shutil
 import sys
 import tomllib
@@ -12,6 +13,9 @@ from ..config import (
     UNIT_LESSON_RANGES,
     discover_exercises,
 )
+
+_IS_WINDOWS = os.name == "nt"
+_OK = "ok" if _IS_WINDOWS else "\u2705"
 
 
 # Filenames a student edits to complete an exercise. `init` must never
@@ -118,7 +122,7 @@ def cmd_init(args: argparse.Namespace) -> int:
         copied_dirs.add(ex_path)
 
     units_label = ", ".join(units_to_init)
-    print(f"\n  \x1b[32;1m\u2705 Initialized {len(copied_dirs)} lesson directories "
+    print(f"\n  \x1b[32;1m{_OK} Initialized {len(copied_dirs)} lesson directories "
           f"({len(selected)} exercises) for {units_label}\x1b[0m")
     skipped_note = "existing work files (.c/.h/Makefile)" if not force else "files"
     print(f"  copied {copied_files} files, skipped {skipped_files} {skipped_note}")

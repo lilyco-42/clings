@@ -97,14 +97,26 @@ def find_compiler() -> str | None:
     env_cc = os.environ.get("CC")
     if env_cc:
         return env_cc
-    for candidate in ["gcc", "cc", "clang"]:
+    for candidate in ["gcc", "cc", "clang", "clang.exe"]:
         found = shutil.which(candidate)
         if found:
             return found
     if os.name == "nt":
-        mingw = Path("D:/env/tools/MinGW/bin/gcc.exe")
-        if mingw.exists():
-            return str(mingw)
+        # Check common Windows installation paths
+        common_paths = [
+            "D:/env/tools/MinGW/bin/gcc.exe",
+            "C:/msys64/mingw64/bin/gcc.exe",
+            "C:/mingw64/bin/gcc.exe",
+            "C:/ProgramData/mingw64/mingw64/bin/gcc.exe",
+        ]
+        for path in common_paths:
+            if Path(path).exists():
+                return path
+        # Try to find via PATH
+        for candidate in ["gcc.exe", "clang.exe"]:
+            found = shutil.which(candidate)
+            if found:
+                return found
     return None
 
 
