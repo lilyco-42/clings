@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@bjorn3/browser_wasi_shim": "^0.4.2",
+    "browsercc": "^0.1.1"
+  }
+}

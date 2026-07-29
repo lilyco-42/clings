@@ -126,7 +126,7 @@ def compile_exercise(ex: dict, use_solutions: bool) -> Path:
         compiler, *[str(flag) for flag in cflags],
         *[str(path) for path in c_files],
         *[str(flag) for flag in ex.get("ldflags", [])],
-        "-lm", "-o", str(binary),
+        "-o", str(binary),
     ]
     proc = _run(cmd)
     if proc.returncode != 0:

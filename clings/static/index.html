@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clings - C语言练习</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect y="3" width="20" height="2" rx="1" fill="currentColor"/>
+                        <rect y="9" width="20" height="2" rx="1" fill="currentColor"/>
+                        <rect y="15" width="20" height="2" rx="1" fill="currentColor"/>
+                    </svg>
+                </button>
+                <h1>Clings</h1>
+            </div>
+            <div class="progress-info">
+                <span id="progress-text">0/0</span>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="container">
+            <!-- Sidebar - Exercise List -->
+            <aside class="sidebar">
+                <div class="unit-selector">
+                    <select id="unit-select">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <ul id="exercise-list" class="exercise-list">
+                    <!-- Exercises loaded dynamically -->
+                </ul>
+            </aside>
+            <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+            <!-- Main Panel -->
+            <main class="main-panel">
+                <!-- Exercise Info -->
+                <div class="exercise-info">
+                    <h2 id="exercise-title">选择一个练习</h2>
+                    <p id="exercise-desc"></p>
+                    <button id="hint-btn" class="btn btn-secondary" style="display: none">
+                        查看提示
+                    </button>
+                </div>
+
+                <!-- Code Editor -->
+                <div class="editor-container">
+                    <textarea id="code-editor"></textarea>
+                </div>
+
+                <!-- Actions -->
+                <div class="actions">
+                    <button id="compile-btn" class="btn btn-primary" disabled>
+                        编译
+                    </button>
+                    <button id="run-btn" class="btn btn-success" disabled>
+                        运行
+                    </button>
+                    <button id="verify-btn" class="btn btn-warning" disabled>
+                        验证
+                    </button>
+                    <button id="wasm-toggle" class="btn btn-wasm active" title="WASM mode ON (browser compiler)">
+                        WASM
+                    </button>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="output-panel">
+                    <div class="output-tabs">
+                        <button class="tab active" data-tab="stdout">输出</button>
+                        <button class="tab" data-tab="stderr">错误</button>
+                    </div>
+                    <pre id="output-stdout" class="output-content active"></pre>
+                    <pre id="output-stderr" class="output-content"></pre>
+                </div>
+            </main>
+        </div>
+
+        <!-- Hint Modal -->
+        <div id="hint-modal" class="modal" style="display: none">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>提示</h3>
+                <p id="hint-text"></p>
+            </div>
+        </div>
+
+        <!-- Toast container -->
+        <div id="toast-container"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+    <script src="/static/js/c-hint.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
