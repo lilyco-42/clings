@@ -1,0 +1,102 @@
+name: Build Desktop Apps
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          pip install nuitka zstandard ordered-set
+          npm install
+      - name: Build .exe
+        run: |
+          python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --windows-console-mode=disable --output-filename=clings.exe --output-dir=dist standalone.py
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: clings-windows
+          path: dist/standalone.dist/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          pip install nuitka zstandard ordered-set
+          npm install
+      - name: Build binary
+        run: |
+          python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --output-filename=clings --output-dir=dist standalone.py
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: clings-linux
+          path: dist/standalone.dist/
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          pip install nuitka zstandard ordered-set
+          npm install
+      - name: Build binary
+        run: |
+          python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --output-filename=clings --output-dir=dist standalone.py
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: clings-macos
+          path: dist/standalone.dist/
+
+  release:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+      - name: Zip Windows build
+        run: cd clings-windows && zip -r ../clings-windows.zip . && cd ..
+      - name: Zip Linux build
+        run: cd clings-linux && zip -r ../clings-linux.zip . && cd ..
+      - name: Zip macOS build
+        run: cd clings-macos && zip -r ../clings-macos.zip . && cd ..
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            clings-windows.zip
+            clings-linux.zip
+            clings-macos.zip
+          generate_release_notes: true
