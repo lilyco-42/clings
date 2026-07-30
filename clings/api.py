@@ -15,7 +15,7 @@ config = Config()
 state = State()
 
 # Create FastAPI app
-app = FastAPI(title="Clings API", version="4.10.1")
+app = FastAPI(title="Clings API", version="4.10.2")
 
 # Mount static files
 static_dir = Path(__file__).parent / "static"
@@ -63,7 +63,7 @@ sponsor_config = SponsorConfig(
         TutorialLink(title="GitHub 仓库", icon="📦", url="https://github.com/lilyco-42/clings"),
     ],
     project_name="Clings",
-    project_version="4.10.1",
+    project_version="4.10.2",
     project_repo="https://github.com/lilyco-42/clings",
     project_desc="C 语言交互式练习平台",
 )
