@@ -22,7 +22,7 @@ config = Config()
 state = State()
 
 # Create FastAPI app
-app = FastAPI(title="Clings API", version="4.9.0")
+app = FastAPI(title="Clings API", version="4.10.0")
 
 # Mount static files
 static_dir = Path(__file__).parent / "static"
