@@ -1,5 +1,9 @@
 # Clings
 
+[![PyPI version](https://img.shields.io/pypi/v/clings-win.svg)](https://pypi.org/project/clings-win/)
+[![Python](https://img.shields.io/pypi/pyversions/clings-win.svg)](https://pypi.org/project/clings-win/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > **C 语言交互式练习平台** — 浏览器内 WASM 编译 + 服务端 GCC 双模式
 
 > 🏕️ **[Learning C Camp 2026](https://opencamp.cn/C/camp/2026)** 练习工具 &nbsp;|&nbsp; 4 个 Unit · 72 课 · 约 97 道练习
@@ -9,14 +13,16 @@
 ## 快速开始
 
 ```bash
-# 方式一：setup 脚本（推荐）
+# 方式一：uvx 一键运行（推荐）
+uvx clings
+
+# 方式二：uv 安装
+uv pip install clings-win
+clings
+
+# 方式三：setup 脚本
 setup.bat          # Windows
 bash setup.sh      # Linux / macOS
-
-# 方式二：手动安装
-pip install -e .
-npm install
-clings
 ```
 
 启动后自动打开浏览器 `http://localhost:3000`，开始做题。
@@ -59,6 +65,17 @@ clings
 | `clings list` | 列出练习 + 进度 |
 | `clings hint` | 查看提示 |
 | `clings score` | CI 评分 |
+
+---
+
+## 安装方式
+
+| 方式 | 命令 |
+|------|------|
+| **uvx（推荐）** | `uvx clings` |
+| **uv** | `uv pip install clings-win` |
+| **pip** | `pip install clings-win` |
+| **开发** | `git clone` → `uv sync` → `uv run python -m clings` |
 
 ---
 
@@ -106,28 +123,28 @@ clings/
 ```bash
 git clone https://github.com/lilyco-42/clings.git
 cd clings
-pip install -e .
+uv sync
 npm install
-python -m clings
+uv run python -m clings
 ```
 
 ### 生产部署
 
 ```bash
-pip install -e .
+uv pip install clings-win
 npm install
-python -m clings --port 3000
+clings --port 3000
 ```
 
 ### Docker（可选）
 
 ```dockerfile
 FROM python:3.12-slim
-RUN apt-get update && apt-get install -y gcc nodejs npm
+RUN apt-get update && apt-get install -y gcc nodejs npm && pip install uv
 COPY . /app
 WORKDIR /app
-RUN pip install -e . && npm install
-CMD ["python", "-m", "clings"]
+RUN uv sync && npm install
+CMD ["uv", "run", "python", "-m", "clings"]
 ```
 
 ---
