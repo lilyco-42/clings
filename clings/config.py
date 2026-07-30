@@ -2,13 +2,18 @@
 
 import os
 import shutil
+import tempfile
+import threading
+import zipfile
 import tomllib
 from pathlib import Path
+from urllib.request import urlopen
 
 
 # ─── Path Constants ──────────────────────────────────────────────────────────
 
 PKG_DIR = Path(__file__).resolve().parent
+GITEE_REPO = "https://gitee.com/lilyco42/clings/repository/archive/main.zip"
 
 # exercises & clings.toml may be in-package (pip install) or repo root (pip install -e .)
 _exercises_in_pkg = PKG_DIR / "exercises"
@@ -18,6 +23,47 @@ EXERCISES_DIR = _exercises_in_pkg if _exercises_in_pkg.exists() else _exercises_
 _config_in_pkg = PKG_DIR / "clings.toml"
 _config_in_repo = PKG_DIR.parent / "clings.toml"
 PKG_CONFIG = _config_in_pkg if _config_in_pkg.exists() else _config_in_repo
+
+ROOT = Path.cwd()
+
+# Auto-copy exercises from package to cwd if missing
+_cwd_exercises = ROOT / "exercises"
+_cwd_config = ROOT / "clings.toml"
+if not _cwd_exercises.exists() and not _cwd_config.exists():
+    if EXERCISES_DIR.exists():
+        if not _cwd_config.exists() and PKG_CONFIG.exists():
+            shutil.copy2(PKG_CONFIG, _cwd_config)
+        if not _cwd_exercises.exists():
+            shutil.copytree(EXERCISES_DIR, _cwd_exercises)
+    elif not _cwd_exercises.exists():
+        # Download from gitee in background
+        def _download_from_gitee():
+            try:
+                with urlopen(GITEE_REPO, timeout=60) as resp:
+                    data = resp.read()
+                with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as f:
+                    f.write(data)
+                    tmp = f.name
+                with zipfile.ZipFile(tmp) as zf:
+                    names = zf.namelist()
+                    prefix = names[0].split("/")[0] + "/" if names else ""
+                    for name in names:
+                        if "/exercises/" in name or name.endswith("/clings.toml"):
+                            rel = name[len(prefix):] if name.startswith(prefix) else name
+                            if rel:
+                                target = ROOT / rel
+                                target.parent.mkdir(parents=True, exist_ok=True)
+                                if not name.endswith("/"):
+                                    with zf.open(name) as src, open(target, "wb") as dst:
+                                        dst.write(src.read())
+                os.unlink(tmp)
+            except Exception:
+                pass
+        threading.Thread(target=_download_from_gitee, daemon=True).start()
+
+# Re-check after potential copy
+EXERCISES_DIR = _cwd_exercises if _cwd_exercises.exists() else EXERCISES_DIR
+PKG_CONFIG = _cwd_config if _cwd_config.exists() else PKG_CONFIG
 
 ROOT = Path.cwd()
 BUILD_DIR = ROOT / ".clings" / "build"
