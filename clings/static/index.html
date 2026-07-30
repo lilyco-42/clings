@@ -23,10 +23,18 @@
                 </button>
                 <h1>Clings</h1>
             </div>
-            <div class="progress-info">
-                <span id="progress-text">0/0</span>
-                <div class="progress-bar">
-                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+            <div class="header-right">
+                <button class="sponsor-trigger" onclick="openSponsorModal()" title="赞助与教程">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                    </svg>
+                    赞助
+                </button>
+                <div class="progress-info">
+                    <span id="progress-text">0/0</span>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -99,6 +107,52 @@
             </div>
         </div>
 
+        <!-- Sponsor Modal -->
+        <div class="sponsor-modal-overlay" id="sponsorModalOverlay" onclick="if(event.target===this)closeSponsorModal()">
+            <div class="sponsor-modal">
+                <div class="sponsor-header">
+                    <h2>赞助与教程</h2>
+                    <button class="sponsor-close" onclick="closeSponsorModal()">&times;</button>
+                </div>
+                <div class="sponsor-body">
+                    <div class="sponsor-qr-section">
+                        <div id="sponsorQR"></div>
+                        <div class="sponsor-qr-label">扫码赞助 Clings</div>
+                    </div>
+                    <div class="sponsor-actions">
+                        <button class="sponsor-btn sponsor-btn-copy" id="sponsorCopyBtn" onclick="copySponsorLink()">
+                            复制赞助链接
+                        </button>
+                        <button class="sponsor-btn sponsor-btn-save" onclick="saveQRCode()">
+                            保存二维码
+                        </button>
+                    </div>
+                    <div class="sponsor-tutorials">
+                        <div class="st-label">教程</div>
+                        <a class="sponsor-tutorial-link" onclick="openTutorial('https://opencamp.cn/C/camp/2026')">
+                            <div class="sponsor-tutorial-icon">📚</div>
+                            <div class="sponsor-tutorial-info">
+                                <div class="sponsor-tutorial-title">课程主页</div>
+                                <div class="sponsor-tutorial-desc">点击在系统浏览器中打开</div>
+                            </div>
+                            <div class="sponsor-tutorial-arrow">&#9656;</div>
+                        </a>
+                        <a class="sponsor-tutorial-link" onclick="openTutorial('https://github.com/lilyco-42/clings')">
+                            <div class="sponsor-tutorial-icon">📦</div>
+                            <div class="sponsor-tutorial-info">
+                                <div class="sponsor-tutorial-title">GitHub 仓库</div>
+                                <div class="sponsor-tutorial-desc">点击在系统浏览器中打开</div>
+                            </div>
+                            <div class="sponsor-tutorial-arrow">&#9656;</div>
+                        </a>
+                    </div>
+                    <div class="sponsor-footer">
+                        Clings v4.9.0 · <a href="#" onclick="openTutorial('https://github.com/lilyco-42/clings')">GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast container -->
         <div id="toast-container"></div>
     </div>
@@ -106,7 +160,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="/static/js/c-hint.js"></script>
     <script src="/static/js/app.js"></script>
+    <script src="/static/js/sponsor.js"></script>
 </body>
 </html>
