@@ -38,8 +38,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://cnb.cool/opencamp/learning-nccl/clings"
-Repository = "https://cnb.cool/opencamp/learning-nccl/clings"
+Homepage = "https://github.com/lilyco-42/clings"
+Repository = "https://github.com/lilyco-42/clings"
+Issues = "https://github.com/lilyco-42/clings/issues"
 
 [build-system]
 requires = ["hatchling"]

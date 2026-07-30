@@ -6,28 +6,32 @@ Rustlings-style C exercises CLI，配套 OpenCamp C 2026 Summer 课程。
 
 - **语言**: Python 3.11+，**零第三方依赖**（仅 stdlib）
 - **打包**: hatchling（pyproject.toml）
-- **CI**: CNB 流水线（.cnb.yml）→ PyPI 发布
+- **CI**: CNB 流水线（.cnb.yml）→ PyPI 发布；GitHub Actions → PyPI + GitHub Release
 - **分支**: `cli`（默认且唯一活跃分支）
 
 ## 命令
 
 ```bash
 # 开发
-pip install -e .                    # editable 安装
-python -m clings -v                 # 查看版本
-python -m clings doctor             # 检查环境
+uv sync                           # 安装依赖
+uv run python -m clings -v        # 查看版本
+uv run python -m clings doctor    # 检查环境
 
 # 测试验证
-python -m clings check unit0 --solutions   # Unit 0 (9 题)
-python -m clings check unit1 --solutions   # Unit 1 (40 题)
+uv run python -m clings check unit0 --solutions   # Unit 0 (9 题)
+uv run python -m clings check unit1 --solutions   # Unit 1 (40 题)
 
 # 构建发布
-python -m build                     # 构建 wheel + sdist
-twine upload dist/*                 # 发布到 PyPI
+uv build                          # 构建 wheel + sdist
+uv run twine upload dist/*        # 发布到 PyPI（手动）
+
+# GitHub 发布（推荐）
+gh release create vX.Y.Z dist/*  # 创建 GitHub Release + 上传产物
+git tag vX.Y.Z && git push origin vX.Y.Z  # 触发 CI 自动发布
 
 # CI 打分
-python -m clings score unit0              # 跑完全部题目, 输出 JSON + ##[set-output score=N]
-python -m clings score unit0 --json       # 同时在 stdout 输出 JSON 报告
+uv run python -m clings score unit0        # 跑完全部题目, 输出 JSON
+uv run python -m clings score unit0 --json # 同时在 stdout 输出 JSON 报告
 
 # 学生使用
 uvx clings init unit0              # 初始化 Unit 0 练习
@@ -50,7 +54,10 @@ clings/                    # 仓库根目录 (cli 分支)
 ├── solutions/             # 参考答案 (不打包)
 ├── clings.toml            # Unit 配置 (打包时 force-include 到 clings/clings.toml)
 ├── pyproject.toml         # 包元数据 + hatchling 构建配置
-├── .cnb.yml               # CI 流水线
+├── .cnb.yml               # CNB CI 流水线
+├── .github/workflows/     # GitHub Actions
+│   ├── build.yml          # 桌面应用构建
+│   └── publish.yml        # PyPI + GitHub Release 发布
 └── CURRICULUM.md          # 课程大纲
 ```
 
@@ -68,8 +75,11 @@ clings/                    # 仓库根目录 (cli 分支)
   - `feat` commit → minor bump（如 4.3 → 4.4）
   - `fix` / `refactor` commit → patch bump（如 4.3.0 → 4.3.1）
   - `BREAKING CHANGE` → major bump（如 4.x → 5.0）
-- 流水线自动更新 `pyproject.toml`、commit、打 tag、发布到 PyPI
-- 触发方式：CNB Web UI「一键发版」按钮，或手动 `git tag vX.Y.Z && git push origin vX.Y.Z`
+- 流水线自动更新 `pyproject.toml`、commit、打 tag、发布到 PyPI + GitHub Release
+- 触发方式：
+  - CNB Web UI「一键发版」按钮
+  - GitHub Actions：`git tag vX.Y.Z && git push origin vX.Y.Z`
+  - 手动：`gh release create vX.Y.Z dist/*`
 
 ### 开发验证
 

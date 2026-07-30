@@ -10,20 +10,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Install dependencies
         run: |
-          pip install -e .
-          pip install nuitka zstandard ordered-set
+          uv sync
+          uv pip install nuitka zstandard ordered-set
           npm install
       - name: Build .exe
         run: |
-          python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --windows-console-mode=disable --output-filename=clings.exe --output-dir=dist standalone.py
+          uv run python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --windows-console-mode=disable --output-filename=clings.exe --output-dir=dist standalone.py
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -34,20 +32,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Install dependencies
         run: |
-          pip install -e .
-          pip install nuitka zstandard ordered-set
+          uv sync
+          uv pip install nuitka zstandard ordered-set
           npm install
       - name: Build binary
         run: |
-          python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --output-filename=clings --output-dir=dist standalone.py
+          uv run python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --output-filename=clings --output-dir=dist standalone.py
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -58,20 +54,18 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Install dependencies
         run: |
-          pip install -e .
-          pip install nuitka zstandard ordered-set
+          uv sync
+          uv pip install nuitka zstandard ordered-set
           npm install
       - name: Build binary
         run: |
-          python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --output-filename=clings --output-dir=dist standalone.py
+          uv run python -m nuitka --standalone --include-package=clings --include-package=fastapi --include-package=uvicorn --include-package=starlette --include-data-dir=clings/static=clings/static --include-data-dir=exercises=exercises --include-data-file=clings.toml=clings.toml --include-data-file=package.json=package.json --output-filename=clings --output-dir=dist standalone.py
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
