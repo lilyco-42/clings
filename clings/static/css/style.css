@@ -571,6 +571,69 @@ body {
         font-size: 12px;
         padding: 5px 12px;
     }
+
+    .sponsor-trigger {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+
+    .sponsor-trigger svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 400px) {
+    .header {
+        padding: 8px 10px;
+    }
+
+    .header h1 {
+        font-size: 16px;
+    }
+
+    .progress-info {
+        display: none;
+    }
+
+    .sponsor-trigger span {
+        display: none;
+    }
+
+    .sponsor-trigger {
+        padding: 6px;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .actions {
+        flex-wrap: wrap;
+    }
+
+    .exercise-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .sponsor-modal {
+        width: 100%;
+        border-radius: 0;
+        max-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .sponsor-actions {
+        flex-direction: column;
+    }
+
+    .sponsor-qr-section {
+        margin-bottom: 16px;
+    }
 }
 
 /* Large screens */
@@ -794,17 +857,4 @@ body {
 
 .sponsor-footer a:hover {
     color: #ff6b6b;
-}
-
-@media (max-width: 400px) {
-    .sponsor-modal {
-        width: 100%;
-        border-radius: 0;
-        max-height: 100vh;
-        overflow-y: auto;
-    }
-
-    .sponsor-actions {
-        flex-direction: column;
-    }
 }
