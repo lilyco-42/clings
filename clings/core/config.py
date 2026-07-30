@@ -30,7 +30,11 @@ class Config:
     """Exercise configuration manager."""
 
     def __init__(self, root: Path | None = None):
+        pkg_dir = Path(__file__).parent.parent  # clings package dir
         self.root = root or Path.cwd()
+        # fallback to package dir if exercises not found in cwd
+        if not (self.root / "exercises").exists() and not (self.root / "clings.toml").exists():
+            self.root = pkg_dir
         self.exercises_dir = self.root / "exercises"
         self.config_file = self.root / "clings.toml"
         self._exercises: list[Exercise] = []

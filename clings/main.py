@@ -4,6 +4,8 @@ import sys
 import threading
 import webbrowser
 
+_SUBCOMMANDS = {"init", "check", "list", "hint", "score", "reset", "run", "watch", "doctor"}
+
 
 def run_server(host: str = "127.0.0.1", port: int = 3000, open_browser: bool = True):
     """Start FastAPI server."""
@@ -60,6 +62,11 @@ def run_gui(host: str = "127.0.0.1", port: int = 3000):
 def main():
     """Main entry point."""
     args = sys.argv[1:]
+
+    # Check if first arg is a CLI subcommand
+    if args and args[0] in _SUBCOMMANDS:
+        from .cli import main as cli_main
+        return cli_main()
 
     # Parse arguments
     host = "127.0.0.1"

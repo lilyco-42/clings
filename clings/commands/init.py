@@ -5,6 +5,10 @@ import os
 import shutil
 import sys
 import tomllib
+import tempfile
+import zipfile
+from pathlib import Path
+from urllib.request import urlopen
 
 from ..config import (
     EXERCISES_DIR,
@@ -17,6 +21,8 @@ from ..config import (
 _IS_WINDOWS = os.name == "nt"
 _OK = "ok" if _IS_WINDOWS else "\u2705"
 
+GITEE_REPO = "https://gitee.com/lilyco42/clings/repository/archive/main.zip"
+
 
 # Filenames a student edits to complete an exercise. `init` must never
 # overwrite these once they exist (without --force): for make+stdout exercises
@@ -24,6 +30,36 @@ _OK = "ok" if _IS_WINDOWS else "\u2705"
 # Reference/config files (README.md, exercises.toml) are always refreshed.
 _WORK_FILE_SUFFIXES = (".c", ".h", ".mk")
 _WORK_FILE_NAMES = {"Makefile", "makefile", "GNUmakefile"}
+
+
+def _download_exercises():
+    """Download exercises from Gitee repo if not found locally."""
+    print("  downloading exercises from gitee...")
+    try:
+        with urlopen(GITEE_REPO, timeout=30) as resp:
+            data = resp.read()
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as f:
+            f.write(data)
+            tmp_path = f.name
+        with zipfile.ZipFile(tmp_path) as zf:
+            # archive contains a folder like "clings-xxx/"
+            names = zf.namelist()
+            prefix = names[0].split("/")[0] + "/" if names else ""
+            # extract exercises/ and clings.toml
+            for name in names:
+                if "/exercises/" in name or name.endswith("/clings.toml"):
+                    rel = name[len(prefix):] if name.startswith(prefix) else name
+                    if rel:
+                        target = ROOT / rel
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        if not name.endswith("/"):
+                            with zf.open(name) as src, open(target, "wb") as dst:
+                                dst.write(src.read())
+        os.unlink(tmp_path)
+        return True
+    except Exception as e:
+        print(f"  download failed: {e}", file=sys.stderr)
+        return False
 
 
 def _is_work_file(name: str) -> bool:
@@ -45,9 +81,16 @@ def cmd_init(args: argparse.Namespace) -> int:
 
     pkg_exercises = EXERCISES_DIR
     if not pkg_exercises.exists():
-        print("error: exercises not found in clings package — reinstall clings",
-              file=sys.stderr)
-        return 1
+        # try downloading from gitee
+        if not _download_exercises():
+            print("error: exercises not found — run `clings init` to download",
+                  file=sys.stderr)
+            return 1
+        # re-check after download
+        pkg_exercises = EXERCISES_DIR
+        if not pkg_exercises.exists():
+            print("error: exercises not found after download", file=sys.stderr)
+            return 1
 
     target_exercises = ROOT / "exercises"
     target_config = ROOT / "clings.toml"
@@ -80,6 +123,9 @@ def cmd_init(args: argparse.Namespace) -> int:
 
     target_exercises.mkdir(parents=True, exist_ok=True)
 
+    # If source and target are the same dir (running from repo), skip copy
+    same_dir = pkg_exercises.resolve() == target_exercises.resolve()
+
     # Discover exercises from the package's exercises directory
     # We need to find the root that contains the exercises/ directory
     pkg_root = pkg_exercises.parent
@@ -106,18 +152,19 @@ def cmd_init(args: argparse.Namespace) -> int:
 
         dst_dir.mkdir(parents=True, exist_ok=True)
 
-        for src_file in src_dir.iterdir():
-            if src_file.is_dir():
-                continue
-            dst_file = dst_dir / src_file.name
-            # Preserve existing student work (source, headers, Makefile) so a
-            # repeated `clings init` never destroys progress. `--force` opts in
-            # to overwriting them.
-            if dst_file.exists() and _is_work_file(src_file.name) and not force:
-                skipped_files += 1
-                continue
-            shutil.copy2(src_file, dst_file)
-            copied_files += 1
+        if not same_dir:
+            for src_file in src_dir.iterdir():
+                if src_file.is_dir():
+                    continue
+                dst_file = dst_dir / src_file.name
+                # Preserve existing student work (source, headers, Makefile) so a
+                # repeated `clings init` never destroys progress. `--force` opts in
+                # to overwriting them.
+                if dst_file.exists() and _is_work_file(src_file.name) and not force:
+                    skipped_files += 1
+                    continue
+                shutil.copy2(src_file, dst_file)
+                copied_files += 1
 
         copied_dirs.add(ex_path)
 
