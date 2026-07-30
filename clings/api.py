@@ -17,7 +17,7 @@ from .core.compiler import CCompiler
 from .core.config import Config
 from .core.state import State
 
-GITEE_REPO = "https://gitee.com/lilyco42/clings/repository/archive/main.zip"
+GITEE_REPO = "https://gitee.com/lilyco42/clings/repository/archive/cli.zip"
 PKG_DIR = Path(__file__).parent
 CWD = Path.cwd()
 
@@ -86,7 +86,7 @@ config = Config()
 state = State()
 
 # Create FastAPI app
-app = FastAPI(title="Clings API", version="4.10.6")
+app = FastAPI(title="Clings API", version="4.10.7")
 
 # Mount static files
 static_dir = PKG_DIR / "static"
@@ -134,7 +134,7 @@ sponsor_config = SponsorConfig(
         TutorialLink(title="GitHub 仓库", icon="📦", url="https://github.com/lilyco-42/clings"),
     ],
     project_name="Clings",
-    project_version="4.10.6",
+    project_version="4.10.7",
     project_repo="https://github.com/lilyco-42/clings",
     project_desc="C 语言交互式练习平台",
 )

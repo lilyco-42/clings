@@ -44,7 +44,10 @@ class Config:
                     if not (self.root / "exercises").exists():
                         shutil.copytree(pkg_exercises, self.root / "exercises")
                 except Exception:
-                    pass  # fallback to package dir
+                    pass  # fallback to package dir below
+        # If still no exercises, use package dir
+        if not (self.root / "exercises").exists() and not (self.root / "clings.toml").exists():
+            self.root = pkg_dir
         self.exercises_dir = self.root / "exercises"
         self.config_file = self.root / "clings.toml"
         self._exercises: list[Exercise] = []

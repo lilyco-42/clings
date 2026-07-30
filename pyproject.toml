@@ -1,6 +1,6 @@
 [project]
 name = "clings-win"
-version = "4.10.6"
+version = "4.10.7"
 description = "C language exercises with FastAPI + Webview GUI"
 readme = "README.md"
 license = "MIT"
