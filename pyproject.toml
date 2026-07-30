@@ -1,6 +1,6 @@
 [project]
 name = "clings-win"
-version = "4.10.3"
+version = "4.10.4"
 description = "C language exercises with FastAPI + Webview GUI"
 readme = "README.md"
 license = "MIT"
@@ -27,7 +27,7 @@ dependencies = [
 ]
 
 [project.scripts]
-clings = "clings.main:run_server"
+clings = "clings.main:main"
 clings-gui = "clings.main:run_gui"
 
 [project.optional-dependencies]
