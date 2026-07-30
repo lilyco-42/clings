@@ -1,5 +1,5 @@
 """Allow running as `python -m clings`."""
 
-from .cli import main
+from .main import main
 
 raise SystemExit(main())

@@ -1,6 +1,6 @@
 [project]
 name = "clings-win"
-version = "4.8.0"
+version = "4.9.0"
 description = "C language exercises with FastAPI + Webview GUI"
 readme = "README.md"
 license = "MIT"
@@ -58,6 +58,9 @@ packages = ["clings"]
 "exercises" = "clings/exercises"
 "clings.toml" = "clings/clings.toml"
 "tests" = "clings/tests"
+"clings/static/wasm/clang.wasm" = "clings/static/wasm/clang.wasm"
+"clings/static/wasm/lld.wasm" = "clings/static/wasm/lld.wasm"
+"clings/static/wasm/sysroot.tar" = "clings/static/wasm/sysroot.tar"
 
 [tool.hatch.build.targets.sdist]
 include = ["clings/", "exercises/", "tests/", "clings.toml", "pyproject.toml", "README.md"]
