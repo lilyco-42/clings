@@ -1,5 +1,6 @@
 """Exercise configuration and discovery."""
 
+import shutil
 import tomllib
 from pathlib import Path
 from dataclasses import dataclass
@@ -32,9 +33,18 @@ class Config:
     def __init__(self, root: Path | None = None):
         pkg_dir = Path(__file__).parent.parent  # clings package dir
         self.root = root or Path.cwd()
-        # fallback to package dir if exercises not found in cwd
+        # If exercises missing in cwd, copy from package
         if not (self.root / "exercises").exists() and not (self.root / "clings.toml").exists():
-            self.root = pkg_dir
+            pkg_exercises = pkg_dir / "exercises"
+            pkg_config = pkg_dir / "clings.toml"
+            if pkg_exercises.exists():
+                try:
+                    if not (self.root / "clings.toml").exists() and pkg_config.exists():
+                        shutil.copy2(pkg_config, self.root / "clings.toml")
+                    if not (self.root / "exercises").exists():
+                        shutil.copytree(pkg_exercises, self.root / "exercises")
+                except Exception:
+                    pass  # fallback to package dir
         self.exercises_dir = self.root / "exercises"
         self.config_file = self.root / "clings.toml"
         self._exercises: list[Exercise] = []

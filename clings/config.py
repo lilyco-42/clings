@@ -13,7 +13,7 @@ from urllib.request import urlopen
 # ─── Path Constants ──────────────────────────────────────────────────────────
 
 PKG_DIR = Path(__file__).resolve().parent
-GITEE_REPO = "https://gitee.com/lilyco42/clings/repository/archive/main.zip"
+GITEE_REPO = "https://gitee.com/lilyco42/clings/repository/archive/cli.zip"
 
 # exercises & clings.toml may be in-package (pip install) or repo root (pip install -e .)
 _exercises_in_pkg = PKG_DIR / "exercises"
