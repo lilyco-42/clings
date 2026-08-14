@@ -11,11 +11,12 @@ from urllib.request import urlopen
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 
 from .core.compiler import CCompiler
 from .core.config import Config
 from .core.state import State
+from .security import SecurityMiddleware, security
 
 GITEE_REPO = "https://gitee.com/lilyco42/clings/repository/archive/cli.zip"
 PKG_DIR = Path(__file__).parent
@@ -88,6 +89,10 @@ state = State()
 # Create FastAPI app
 app = FastAPI(title="Clings API", version="4.10.7")
 
+# Reject non-loopback Host/Origin and require the per-launch token on
+# state-changing /api requests (DNS-rebinding / CSRF protection).
+app.add_middleware(SecurityMiddleware, security_obj=security)
+
 # Mount static files
 static_dir = PKG_DIR / "static"
 if static_dir.exists():
@@ -99,7 +104,10 @@ async def index():
     """Serve the main HTML page."""
     index_file = static_dir / "index.html"
     if index_file.exists():
-        return FileResponse(str(index_file))
+        html = index_file.read_text(encoding="utf-8")
+        meta = f'<meta name="clings-token" content="{security.token}">'
+        html = html.replace("<head>", f"<head>\n    {meta}", 1)
+        return HTMLResponse(html)
     return {"message": "Clings API is running", "docs": "/docs"}
 
 

@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import tempfile
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from pathlib import Path
 class CompileResult:
     success: bool
     binary_path: str | None = None
+    binary_id: str | None = None
     stdout: str = ""
     stderr: str = ""
     errors: list[dict] = field(default_factory=list)
@@ -34,6 +36,29 @@ class CCompiler:
         self.compiler = self._find_compiler()
         self.build_dir = Path(tempfile.gettempdir()) / "clings_build"
         self.build_dir.mkdir(exist_ok=True)
+
+    @staticmethod
+    def _sanitize_stem(filename: str) -> str:
+        """Return a safe filename stem (no path separators, no traversal)."""
+        stem = Path(filename).stem
+        stem = re.sub(r"[^A-Za-z0-9_.-]", "_", stem)
+        return stem or "exercise"
+
+    def _resolve_binary(self, binary_id: str) -> Path:
+        """Resolve a binary reference to a path confined inside the build dir.
+
+        Accepts either an opaque build id (a bare filename) or an absolute
+        path, but rejects anything that resolves outside the private build
+        directory. This prevents ``/api/run`` from executing arbitrary
+        system binaries.
+        """
+        candidate = Path(binary_id)
+        if not candidate.is_absolute():
+            candidate = self.build_dir / candidate
+        resolved = candidate.resolve()
+        if not resolved.is_relative_to(self.build_dir.resolve()):
+            raise ValueError("binary reference escapes build directory")
+        return resolved
 
     def _find_compiler(self) -> str | None:
         """Find available C compiler."""
@@ -123,14 +148,16 @@ class CCompiler:
         if cflags is None:
             cflags = ["-std=c11", "-Wall", "-Wextra", "-pedantic", "-O2"]
 
-        # Write source to temp file
-        src_file = self.build_dir / filename
+        # Write source to a unique, sanitized temp file (the user-supplied
+        # filename is reduced to a safe stem to prevent path traversal).
+        stem = self._sanitize_stem(filename)
+        build_id = uuid.uuid4().hex
+        src_file = self.build_dir / f"{build_id}_{stem}.c"
         src_file.write_text(source, encoding="utf-8")
 
         # Output binary
         suffix = ".exe" if os.name == "nt" else ""
-        stem = Path(filename).stem
-        binary = self.build_dir / f"{stem}{suffix}"
+        binary = self.build_dir / f"{build_id}_{stem}{suffix}"
 
         cmd = [self.compiler] + cflags + [str(src_file), "-o", str(binary)]
 
@@ -150,6 +177,7 @@ class CCompiler:
                 return CompileResult(
                     success=True,
                     binary_path=str(binary),
+                    binary_id=binary.name,
                     stdout=stdout_str,
                     stderr=stderr_str,
                     errors=diagnostics,
@@ -170,13 +198,25 @@ class CCompiler:
 
     async def run(
         self,
-        binary_path: str,
+        binary_id: str,
         stdin: str = "",
         timeout: float = 5.0,
         args: list[str] | None = None,
     ) -> RunResult:
-        """Run compiled binary asynchronously."""
-        cmd = [binary_path] + (args or [])
+        """Run a previously compiled binary by opaque build id.
+
+        The id is resolved against the private build directory and rejected
+        if it escapes it, so arbitrary system executables cannot be launched.
+        """
+        try:
+            binary = self._resolve_binary(binary_id)
+        except ValueError as e:
+            return RunResult(stdout="", stderr=str(e), exit_code=-1)
+
+        if not binary.is_file():
+            return RunResult(stdout="", stderr=f"Binary not found: {binary_id}", exit_code=-1)
+
+        cmd = [str(binary)] + (args or [])
 
         try:
             proc = await asyncio.create_subprocess_exec(
@@ -221,7 +261,7 @@ class CCompiler:
                 "warning_count": compile_result.warning_count,
             }
 
-        run_result = await self.run(compile_result.binary_path, stdin, timeout)
+        run_result = await self.run(compile_result.binary_id, stdin, timeout)
         return {
             "success": run_result.exit_code == 0,
             "compile_errors": "",

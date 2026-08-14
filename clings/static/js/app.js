@@ -5,6 +5,9 @@
 // API base URL
 const API_BASE = '';
 
+// Per-launch security token injected by the server into the page <head>.
+const CLINGS_TOKEN = document.querySelector('meta[name="clings-token"]')?.content || '';
+
 // State
 let editor = null;
 let currentExercise = null;
@@ -175,6 +178,10 @@ function initEditor() {
 
 // API calls
 async function fetchJSON(url, options = {}) {
+    const method = (options.method || 'GET').toUpperCase();
+    if (method !== 'GET') {
+        options.headers = { ...(options.headers || {}), 'X-Clings-Token': CLINGS_TOKEN };
+    }
     const response = await fetch(API_BASE + url, options);
     return response.json();
 }

@@ -14,7 +14,7 @@ class CompileRequest(BaseModel):
 
 
 class RunRequest(BaseModel):
-    binary_path: str
+    binary_id: str
     stdin: str = ""
     timeout: float = 5.0
     args: list[str] | None = None
@@ -33,7 +33,7 @@ async def compile_code(req: CompileRequest):
     result = await compiler.compile(req.source, req.filename, req.cflags)
     return {
         "success": result.success,
-        "binary_path": result.binary_path,
+        "binary_id": result.binary_id,
         "stdout": result.stdout,
         "stderr": result.stderr,
         "errors": result.errors,
@@ -44,8 +44,8 @@ async def compile_code(req: CompileRequest):
 
 @router.post("/run")
 async def run_code(req: RunRequest):
-    """Run compiled binary."""
-    result = await compiler.run(req.binary_path, req.stdin, req.timeout, req.args)
+    """Run compiled binary by opaque build id."""
+    result = await compiler.run(req.binary_id, req.stdin, req.timeout, req.args)
     return {
         "stdout": result.stdout,
         "stderr": result.stderr,
@@ -92,7 +92,7 @@ async def verify_exercise(exercise_name: str, req: CompileRunRequest):
 
         for i, case in enumerate(cases):
             run_result = await compiler.run(
-                compile_result.binary_path,
+                compile_result.binary_id,
                 stdin=case.get("stdin", ""),
                 timeout=req.timeout,
             )
