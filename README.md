@@ -4,8 +4,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/clings-win.svg)](https://pypi.org/project/clings-win/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> C 语言交互式练习平台 — 浏览器内 WASM 编译 + 服务端 GCC 双模式
-
+> C 语言交互式练习平�?�?浏览器内 WASM 编译 + 服务�?GCC 双模�?
 ---
 
 ## 安装
@@ -14,8 +13,7 @@
 # 推荐：uv tool install（全局可用，隔离环境）
 uv tool install clings-win
 
-# 或：uvx 临时运行（无需安装）
-uvx clings
+# 或：uvx 临时运行（无需安装�?uvx clings
 
 # 或：pip
 pip install clings-win
@@ -25,14 +23,13 @@ pip install clings-win
 
 ```bash
 clings              # 启动 Web 服务，浏览器打开 http://localhost:3000
-clings init unit0   # 初始化 Unit 0 练习文件
-clings watch        # 终端交互式 watch 模式
+clings init unit0   # 初始�?Unit 0 练习文件
+clings watch        # 终端交互�?watch 模式
 ```
 
 ---
 
-## 各平台使用教程
-
+## 各平台使用教�?
 ### Windows
 
 #### 方式一：uv（推荐）
@@ -51,8 +48,7 @@ clings
 #### 方式二：pip
 
 ```powershell
-# 安装 Python（从 https://www.python.org/downloads/ 下载，勾选 Add to PATH）
-
+# 安装 Python（从 https://www.python.org/downloads/ 下载，勾�?Add to PATH�?
 # 安装 Clings
 pip install clings-win
 
@@ -62,15 +58,13 @@ clings
 
 #### 方式三：GitHub Codespaces
 
-在浏览器中打开 https://github.com/lilyco-42/clings → Code → Codespaces → Create codespace，然后在终端运行：
-
+在浏览器中打开 https://github.com/lilyco-42/clings �?Code �?Codespaces �?Create codespace，然后在终端运行�?
 ```bash
 pip install clings-win
 clings --host 0.0.0.0 --port 3000
 ```
 
-通过 Codespaces 端口转发访问 Web UI。
-
+通过 Codespaces 端口转发访问 Web UI�?
 ---
 
 ### macOS
@@ -152,14 +146,12 @@ docker run -p 3000:3000 --rm -it python:3.12-slim bash -c \
   "pip install clings-win && clings --host 0.0.0.0 --port 3000"
 ```
 
-浏览器打开 `http://localhost:3000`。
-
+浏览器打开 `http://localhost:3000`�?
 ---
 
 ### Android (Termux)
 
-从 [F-Droid](https://f-droid.org/packages/com.termux/) 下载安装 Termux（推荐 F-Droid 版本，Google Play 版本较旧）。
-
+�?[F-Droid](https://f-droid.org/packages/com.termux/) 下载安装 Termux（推�?F-Droid 版本，Google Play 版本较旧）�?
 ```bash
 # 更新包管理器
 pkg update && pkg upgrade
@@ -174,16 +166,14 @@ pip install clings-win
 clings
 ```
 
-手机浏览器打开 `http://localhost:3000`。
-
-> **提示**：WASM 模式下无需安装 GCC，所有编译在浏览器端完成。如需服务端编译，还需安装 `pkg install clang`。
-
+手机浏览器打开 `http://localhost:3000`�?
+> **提示**：WASM 模式下无需安装 GCC，所有编译在浏览器端完成。如需服务端编译，还需安装 `pkg install clang`�?
 ---
 
 ### Chromebook (Crostini)
 
 ```bash
-# 启用 Linux 容器（设置 → 高级 → 开发者 → Linux 开发环境）
+# 启用 Linux 容器（设�?�?高级 �?开发�?�?Linux 开发环境）
 
 # 安装 Python
 sudo apt update
@@ -196,16 +186,14 @@ pip3 install clings-win
 clings
 ```
 
-浏览器打开 `http://localhost:3000`。
-
+浏览器打开 `http://localhost:3000`�?
 ---
 
 ### GitHub Codespaces
 
-适合任何设备（包括 iPad、Chromebook 等无法直接安装 Python 的设备）。
-
+适合任何设备（包�?iPad、Chromebook 等无法直接安�?Python 的设备）�?
 1. 打开 https://github.com/lilyco-42/clings
-2. 点击 **Code** → **Codespaces** → **Create codespace**
+2. 点击 **Code** �?**Codespaces** �?**Create codespace**
 3. 等待环境初始化，在终端运行：
 
 ```bash
@@ -220,17 +208,16 @@ clings --host 0.0.0.0 --port 3000
 
 ## 功能
 
-- **双编译模式**：浏览器 WASM（无需 GCC）+ 服务端 GCC/Clang
-- **Web UI**：CodeMirror 编辑器、C 语言自动补全、深色主题
-- **CLI**：init / watch / list / hint / score
-- **响应式设计**：支持桌面、平板、手机浏览器
-- **跨平台**：Windows / macOS / Linux / Android / Chromebook / Docker
+- **双编译模�?*：浏览器 WASM（无需 GCC�? 服务�?GCC/Clang
+- **Web UI**：CodeMirror 编辑器、C 语言自动补全、深色主�?- **CLI**：init / watch / list / hint / score
+- **响应式设�?*：支持桌面、平板、手机浏览器
+- **跨平�?*：Windows / macOS / Linux / Android / Chromebook / Docker
 
 | 命令 | 说明 |
 |------|------|
-| `clings` | 启动 Web 服务（默认端口 3000） |
-| `clings init <unit>` | 初始化练习文件 |
-| `clings watch` | 交互式 watch 模式 |
+| `clings` | 启动 Web 服务（默认端�?3000�?|
+| `clings init <unit>` | 初始化练习文�?|
+| `clings watch` | 交互�?watch 模式 |
 | `clings list` | 列出练习 + 进度 |
 | `clings hint` | 查看提示 |
 | `clings score` | CI 评分 |
@@ -248,8 +235,7 @@ clings --host 0.0.0.0 --port 3000
 
 ---
 
-## 开发
-
+## 开�?
 ```bash
 git clone https://github.com/lilyco-42/clings.git
 cd clings
