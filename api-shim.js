@@ -19,6 +19,69 @@
 
   var origFetch = window.fetch.bind(window);
 
+  var compilerP = null;
+  function getCompiler() {
+    if (!compilerP) compilerP = import(new URL('static/wasm/clingswasm.js', document.baseURI).href);
+    return compilerP;
+  }
+
+  // 用浏览器里的 WASM 编译器跑一遍用例，返回后端 /api/verify 的同构结果
+  async function verifyInBrowser(name, init, d) {
+    var detail = (d['/api/exercises/' + name]) || {};
+    var body = {};
+    try { body = JSON.parse((init && init.body) || '{}'); } catch (e) {}
+    var source = body.source || '';
+    var fileName = body.filename || detail.source || 'exercise.c';
+    var res = { verified: false, exit_code: null, expected: detail.expected_return, stdout: '', stderr: '', compile_errors: '' };
+    try {
+      var m = await getCompiler();
+      var out = await m.compile({
+        source: source,
+        fileName: fileName,
+        flags: ['-std=c11', '-Wall', '-Wextra', '-pedantic']
+      });
+      if (!out.module) {
+        res.compile_errors = out.compileOutput || '编译失败';
+        return json(res);
+      }
+      var cases = (detail.cases && detail.cases.length) ? detail.cases : [{ stdin: '', stdout: null }];
+      var lines = [];
+      var allOk = true;
+      var lastExit = 0;
+      for (var i = 0; i < cases.length; i++) {
+        var c = cases[i];
+        var r = await m.runWasm(out.module, c.stdin || '', 5);
+        lastExit = r.exit_code;
+        if (detail.mode === 'stdout' && c.stdout != null) {
+          var ok = (r.stdout || '').trim() === String(c.stdout).trim();
+          allOk = allOk && ok;
+          lines.push((ok ? '✓' : '✗') + ' 用例 ' + (i + 1) + (ok ? ' 通过' : ' 未通过'));
+          lines.push('实际输出:');
+          lines.push((r.stdout || '(空)').replace(/\s+$/, ''));
+          if (!ok) {
+            lines.push('期望输出:');
+            lines.push(String(c.stdout).trim());
+          }
+        } else {
+          lines.push('✓ 运行完成，退出码 ' + r.exit_code);
+        }
+        if (r.stderr) res.stderr += r.stderr;
+      }
+      res.exit_code = lastExit;
+      res.stdout = lines.join('\n');
+      if (detail.mode === 'stdout') {
+        res.verified = allOk;
+      } else {
+        res.verified = (lastExit === (detail.expected_return == null ? 0 : detail.expected_return));
+        if (!res.verified) res.stdout = '期望返回值: ' + detail.expected_return + '，实际: ' + lastExit;
+      }
+      return json(res);
+    } catch (e) {
+      res.compile_errors = 'WASM 编译异常: ' + String(e);
+      return json(res);
+    }
+  }
+
   window.fetch = function (input, init) {
     var url = typeof input === 'string' ? input : (input && input.url) || '';
     var method = ((init && init.method) || (input && input.method) || 'GET').toUpperCase();
@@ -30,8 +93,14 @@
     var api = m[0];
 
     return READY.then(function (d) {
+      // 验证：静态版没有服务端，用浏览器里的同一套 clang/lld 现场编译 + 跑用例
+      var vm = api.match(/^\/api\/verify\/([^/]+)$/);
+      if (vm && method === 'POST') {
+        return verifyInBrowser(decodeURIComponent(vm[1]), init, d);
+      }
+
       // 服务端编译/校验接口：静态版没有 GCC，提示用 WASM 模式
-      if (/^\/api\/(compile|run|compile-and-run|verify)/.test(api) && method === 'POST') {
+      if (/^\/api\/(compile|run|compile-and-run)/.test(api) && method === 'POST') {
         return json({ detail: '静态演示版没有服务端 GCC，请保持右上角 WASM 模式（默认已开启）再运行。' }, 400);
       }
 
